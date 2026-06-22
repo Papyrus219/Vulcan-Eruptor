@@ -20,16 +20,21 @@ public:
 
     void Test();
 
-private:
-    void Setup_glfw();
-    void Create_instance();
-
-    std::vector<GLFWwindow*> windows{};
 
     vk::raii::Context context{};
     vk::raii::Instance instance = nullptr;
+    vk::raii::PhysicalDevice physical_device = nullptr;
 
-    const std::vector<char const*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
+private:
+    void Setup_glfw();
+    void Create_instance();
+    void Pick_physical_device();
+
+    std::vector<const char *> Get_required_instance_extensions();
+
+    std::vector<GLFWwindow*> windows{};
+
+    const std::vector<char const*> validation_layers = {"VK_LAYER_KHRONOS_validation"};
 
 };
 

@@ -26,7 +26,9 @@ find_package(Vulkan REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(glm REQUIRED)
 
-set(ERUPTOR_SRC src/eruptor/core.cpp)
+set(ERUPTOR_SRC
+src/eruptor/core.cpp
+src/eruptor/debug_handler.cpp)
 
 Make_library(TARGET eruptor
 SOURCES ERUPTOR_SRC
