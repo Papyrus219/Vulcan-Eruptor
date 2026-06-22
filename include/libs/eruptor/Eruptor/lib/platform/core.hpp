@@ -14,17 +14,28 @@ namespace eruptor::platform
 class Core
 {
 public:
-    void Init();
+    void Init(GLFWwindow * window);
 
     auto Get_physical_devices() {return instance.enumeratePhysicalDevices();}
+    auto Get_surface() {return surface;}
 
 private:
     void Create_instance();
+    void Setup_debug_messenger();
+    void Create_surface(GLFWwindow * window);
 
     std::vector<const char *> Get_required_instance_extensions();
 
+    static VKAPI_ATTR vk::Bool32 VKAPI_CALL debug_callback(vk::DebugUtilsMessageSeverityFlagBitsEXT severity,
+                                                           vk::DebugUtilsMessageTypeFlagsEXT type,
+                                                           const vk::DebugUtilsMessengerCallbackDataEXT * p_callback_data,
+                                                           void * p_user_data);
+
     vk::raii::Context context{};
     vk::raii::Instance instance = nullptr;
+    vk::raii::SurfaceKHR surface = nullptr;
+
+    vk::raii::DebugUtilsMessengerEXT  debug_messenger = nullptr;
 
     const std::vector<char const*> validation_layers = {"VK_LAYER_KHRONOS_validation"};
 };

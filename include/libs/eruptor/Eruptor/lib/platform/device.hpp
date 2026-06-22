@@ -21,7 +21,7 @@ private:
     void Pick_physical_device(Core & core);
     void Create_logical_device(Core & core);
 
-    bool Is_device_sutiable(const vk::raii::PhysicalDevice & device);
+    bool Is_device_sutiable(const vk::raii::PhysicalDevice & device, Core & core);
 
     uint32_t graphics_index{};
     uint32_t transfer_index{};

@@ -1,10 +1,14 @@
 #include <Eruptor/lib/platform/device.hpp>
 #include <Eruptor/lib/platform/core.hpp>
+#include <Eruptor/lib/platform/window.hpp>
 #include <Eruptor/lib/platform/utility_structures.hpp>
 #include <map>
 #include <set>
 
-void eruptor::platform::Device::Init(Core& core)
+namespace eruptor::platform
+{
+
+void eruptor::platform::Device::Init(Core & core)
 {
     Pick_physical_device(core);
     Create_logical_device(core);
@@ -25,7 +29,7 @@ void eruptor::platform::Device::Pick_physical_device(Core & core)
         auto device_features = phy_dev.getFeatures();
         uint32_t score{};
 
-        if(!Is_device_sutiable(phy_dev))
+        if(!Is_device_sutiable(phy_dev, core))
         {
             continue;
         }
@@ -92,7 +96,7 @@ void eruptor::platform::Device::Create_logical_device(Core & core)
 
     for(uint32_t i{}; i < queue_family_properties.size(); i++)
     {
-        if((queue_family_properties[i].queueFlags & vk::QueueFlagBits::eGraphics))
+        if((queue_family_properties[i].queueFlags & vk::QueueFlagBits::eGraphics) && (physical_device.getSurfaceSupportKHR(i, *core.Get_surface())))
         {
             graphics_index = i;
         }
@@ -144,6 +148,11 @@ void eruptor::platform::Device::Create_logical_device(Core & core)
         }
     }
 
+    if(graphics_index == ~0)
+    {
+        throw std::runtime_error{"Could not find a queue for graphics and present -> terminating"};
+    }
+
     transfer_index = transfer_choise.index;
     compute_index = compute_choise.index;
 
@@ -190,7 +199,7 @@ void eruptor::platform::Device::Create_logical_device(Core & core)
     compute_queue = vk::raii::Queue{device, compute_index, 0};
 }
 
-bool eruptor::platform::Device::Is_device_sutiable(const vk::raii::PhysicalDevice & device)
+bool eruptor::platform::Device::Is_device_sutiable(const vk::raii::PhysicalDevice & device, Core & core)
 {
     auto device_properties = device.getProperties();
     auto device_features = device.getFeatures();
@@ -212,6 +221,15 @@ bool eruptor::platform::Device::Is_device_sutiable(const vk::raii::PhysicalDevic
     bool supports_graphics =
     std::ranges::any_of(queue_families, [](auto const &qfp) { return !!(qfp.queueFlags & vk::QueueFlagBits::eGraphics); });
 
+    bool supports_presentation{};
+    uint32_t queueIndex = ~0;
+    for (uint32_t qfpIndex = 0; qfpIndex < queue_families.size(); qfpIndex++)
+    {
+        if ((queue_families[qfpIndex].queueFlags & vk::QueueFlagBits::eGraphics) &&
+            physical_device.getSurfaceSupportKHR(qfpIndex, *core.Get_surface())) supports_presentation = true;
+    }
+
+
     auto features = device.template getFeatures2<vk::PhysicalDeviceFeatures2,
     vk::PhysicalDeviceVulkan11Features,
     vk::PhysicalDeviceVulkan13Features,
@@ -221,5 +239,7 @@ bool eruptor::platform::Device::Is_device_sutiable(const vk::raii::PhysicalDevic
     features.template get<vk::PhysicalDeviceVulkan13Features>().dynamicRendering &&
     features.template get<vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>().extendedDynamicState;
 
-    return has_geometry_shader && supports_all_required_extensions && supports_graphics && supports_required_features;
+    return has_geometry_shader && supports_all_required_extensions && supports_graphics && supports_required_features && supports_presentation;
+}
+
 }

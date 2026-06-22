@@ -1,15 +1,25 @@
 #include <Eruptor/lib/platform/core.hpp>
 #include <Eruptor/lib/platform/globals.hpp>
+#include <iostream>
 
 using namespace eruptor::platform;
 
-void eruptor::platform::Core::Init()
+void eruptor::platform::Core::Init(GLFWwindow * window)
 {
-    glfwInit();
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-
     Create_instance();
+    Setup_debug_messenger();
+    Create_surface(window);
+}
+
+void eruptor::platform::Core::Create_surface(GLFWwindow* window)
+{
+    VkSurfaceKHR _surface{};
+    if(glfwCreateWindowSurface(*instance, window, nullptr, &_surface) != 0)
+    {
+        throw std::runtime_error{"failed to create window surface!"};
+    }
+
+    surface = vk::raii::SurfaceKHR{instance, _surface};
 }
 
 void eruptor::platform::Core::Create_instance()
@@ -69,6 +79,31 @@ void eruptor::platform::Core::Create_instance()
     instance = vk::raii::Instance{context, create_info};
 }
 
+void eruptor::platform::Core::Setup_debug_messenger()
+{
+    if(!enableValidationLayers) return;
+
+    vk::DebugUtilsMessageSeverityFlagsEXT severity_flags{vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
+        vk::DebugUtilsMessageSeverityFlagBitsEXT::eError};
+        vk::DebugUtilsMessageTypeFlagsEXT message_type_flags{vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
+            vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation};
+            vk::DebugUtilsMessengerCreateInfoEXT debug_utils_messenger_create_info_ext{};
+            debug_utils_messenger_create_info_ext.messageSeverity = severity_flags;
+            debug_utils_messenger_create_info_ext.messageType = message_type_flags;
+            debug_utils_messenger_create_info_ext.pfnUserCallback = &debug_callback;
+
+            debug_messenger = instance.createDebugUtilsMessengerEXT(debug_utils_messenger_create_info_ext);
+}
+
+VKAPI_ATTR vk::Bool32 VKAPI_CALL eruptor::platform::Core::debug_callback(vk::DebugUtilsMessageSeverityFlagBitsEXT severity,
+                                                                        vk::DebugUtilsMessageTypeFlagsEXT type,
+                                                                        const vk::DebugUtilsMessengerCallbackDataEXT * p_callback_data,
+                                                                        void * p_user_data)
+{
+    std::cerr << "validation layer: type " << vk::to_string(type) << "msg: " << p_callback_data->pMessage << '\n';
+
+    return vk::False;
+}
 
 std::vector<const char *> eruptor::platform::Core::Get_required_instance_extensions()
 {

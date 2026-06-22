@@ -2,8 +2,8 @@
 
 void eruptor::platform::Platform::Init()
 {
-    core.Init();
-    device.Init( core );
-
-
+    window.Init();
+    window.Create_window( "Test", {800,600} );
+    core.Init(window.Get_glfw_window());
+    device.Init( core, window );
 }
