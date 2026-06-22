@@ -26,12 +26,12 @@ find_package(Vulkan REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(glm REQUIRED)
 
-set(ERUPTOR_SRC
-src/eruptor/core.cpp
-src/eruptor/debug_handler.cpp)
+set(PLATFORM_SRC src/eruptor/platform.cpp
+src/eruptor/platform/core.cpp
+src/eruptor/platform/device.cpp)
 
 Make_library(TARGET eruptor
-SOURCES ERUPTOR_SRC
+SOURCES PLATFORM_SRC
 LIBRARIES_TO_LINK_PUB Vulkan::Vulkan glm::glm glfw
 COMPILATION_FEATURES cxx_std_23)
 

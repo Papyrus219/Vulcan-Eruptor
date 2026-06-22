@@ -1,106 +1,18 @@
-#include <Eruptor/core.hpp>
-#include <Eruptor/globals.hpp>
-#include <Eruptor/utility_structures.hpp>
+#include <Eruptor/lib/platform/device.hpp>
+#include <Eruptor/lib/platform/core.hpp>
+#include <Eruptor/lib/platform/utility_structures.hpp>
 #include <map>
 #include <set>
 
-using namespace eruptor;
-
-void eruptor::Core::Init()
+void eruptor::platform::Device::Init(Core& core)
 {
-    Setup_glfw();
-    Create_instance();
-    Pick_physical_device();
-    Create_logical_device();
+    Pick_physical_device(core);
+    Create_logical_device(core);
 }
 
-void eruptor::Core::Test()
+void eruptor::platform::Device::Pick_physical_device(Core & core)
 {
-    Open_window("Test lol", {600, 800});
-
-    while( !glfwWindowShouldClose(windows.back()) )
-    {
-        if(glfwGetKey(windows.back(), GLFW_KEY_Q) == GLFW_PRESS)
-        {
-            glfwSetWindowShouldClose(windows.back(), true);
-        }
-
-        glfwPollEvents();
-    }
-}
-
-void eruptor::Core::Open_window(std::string_view title, glm::uvec2 size)
-{
-    windows.push_back( glfwCreateWindow(size.x, size.y, title.data(), nullptr, nullptr) );
-}
-
-void eruptor::Core::Setup_glfw()
-{
-    glfwInit();
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-}
-
-void eruptor::Core::Create_instance()
-{
-    vk::ApplicationInfo app_info{};
-    app_info.pApplicationName = "idk";
-    app_info.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-    app_info.pEngineName = "Eruptor";
-    app_info.engineVersion = VK_MAKE_VERSION(0, 1, 0);
-    app_info.apiVersion = vk::ApiVersion14;
-
-    std::vector<char const *> required_layers{};
-    if(enableValidationLayers)
-    {
-        required_layers.assign(validation_layers.begin(), validation_layers.end());
-    }
-
-    auto layers_properties = context.enumerateInstanceLayerProperties();
-    auto unsuported_layer_it = std::ranges::find_if(required_layers,
-    [&layers_properties](auto const & required_layer)
-    {
-        return std::ranges::none_of(layers_properties,
-        [&required_layer](auto const & layer_property)
-        {
-            return strcmp(layer_property.layerName, required_layer) == 0;
-        });
-    });
-    if(unsuported_layer_it != required_layers.end())
-    {
-        throw std::runtime_error{"Required validation layer not supported: " + std::string(*unsuported_layer_it)};
-    }
-
-    auto requried_extensions = Get_required_instance_extensions();
-
-    auto extension_properties = context.enumerateInstanceExtensionProperties();
-    auto unsuported_property_it = std::ranges::find_if(requried_extensions,
-    [&extension_properties](auto const & required_extension)
-    {
-        return std::ranges::none_of(extension_properties,
-                [required_extension](auto const &extension_property)
-                {
-                    return strcmp(extension_property.extensionName, required_extension);
-                });
-    });
-    if(unsuported_property_it != requried_extensions.end())
-    {
-        throw std::runtime_error{"Required GLFW extension not supported: " + std::string(*unsuported_property_it)};
-    }
-
-    vk::InstanceCreateInfo create_info{};
-    create_info.pApplicationInfo = &app_info;
-    create_info.enabledLayerCount = static_cast<uint32_t>(required_layers.size());
-    create_info.ppEnabledLayerNames = required_layers.data();
-    create_info.enabledExtensionCount = static_cast<uint32_t>(requried_extensions.size());
-    create_info.ppEnabledExtensionNames = requried_extensions.data();
-
-    instance = vk::raii::Instance{context, create_info};
-}
-
-void eruptor::Core::Pick_physical_device()
-{
-    auto physical_devices = instance.enumeratePhysicalDevices();
+    auto physical_devices = core.Get_physical_devices();
     if(physical_devices.empty())
     {
         throw std::runtime_error{"failed to find GPUs with Vulkan support!"};
@@ -171,7 +83,7 @@ void eruptor::Core::Pick_physical_device()
     }
 }
 
-void eruptor::Core::Create_logical_device()
+void eruptor::platform::Device::Create_logical_device(Core & core)
 {
     std::vector<vk::QueueFamilyProperties> queue_family_properties = physical_device.getQueueFamilyProperties();
 
@@ -242,7 +154,6 @@ void eruptor::Core::Create_logical_device()
 
     std::vector<vk::DeviceQueueCreateInfo> device_queue_create_infos{};
 
-
     float priority{1.0f};
     for(auto queue_index : unique_queues)
     {
@@ -279,7 +190,7 @@ void eruptor::Core::Create_logical_device()
     compute_queue = vk::raii::Queue{device, compute_index, 0};
 }
 
-bool eruptor::Core::Is_device_sutiable(const vk::raii::PhysicalDevice & device)
+bool eruptor::platform::Device::Is_device_sutiable(const vk::raii::PhysicalDevice & device)
 {
     auto device_properties = device.getProperties();
     auto device_features = device.getFeatures();
@@ -290,12 +201,12 @@ bool eruptor::Core::Is_device_sutiable(const vk::raii::PhysicalDevice & device)
     auto available_device_extensions = device.enumerateDeviceExtensionProperties();
     bool supports_all_required_extensions =
     std::ranges::all_of( required_device_extension,
-    [&available_device_extensions]( auto const & required_device_extension )
-    {
-        return std::ranges::any_of( available_device_extensions,
-                [required_device_extension]( auto const & available_device_extensions )
-                { return strcmp( available_device_extensions.extensionName, required_device_extension ) == 0; } );
-    } );
+                         [&available_device_extensions]( auto const & required_device_extension )
+                         {
+                             return std::ranges::any_of( available_device_extensions,
+                                                         [required_device_extension]( auto const & available_device_extensions )
+                                                         { return strcmp( available_device_extensions.extensionName, required_device_extension ) == 0; } );
+                         } );
 
     auto queue_families = device.getQueueFamilyProperties();
     bool supports_graphics =
@@ -312,19 +223,3 @@ bool eruptor::Core::Is_device_sutiable(const vk::raii::PhysicalDevice & device)
 
     return has_geometry_shader && supports_all_required_extensions && supports_graphics && supports_required_features;
 }
-
-std::vector<const char *> eruptor::Core::Get_required_instance_extensions()
-{
-    uint32_t glfw_extension_count{};
-    auto glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
-
-    std::vector extensions(glfw_extensions, glfw_extensions + glfw_extension_count);
-    if(enableValidationLayers)
-    {
-        extensions.push_back(vk::EXTDebugUtilsExtensionName);
-    }
-
-    return extensions;
-}
-
-
