@@ -24,16 +24,27 @@ public:
     vk::raii::Context context{};
     vk::raii::Instance instance = nullptr;
     vk::raii::PhysicalDevice physical_device = nullptr;
+    vk::raii::Device device = nullptr;
 
 private:
     void Setup_glfw();
     void Create_instance();
     void Pick_physical_device();
+    void Create_logical_device();
+
+    bool Is_device_sutiable(const vk::raii::PhysicalDevice & device);
 
     std::vector<const char *> Get_required_instance_extensions();
 
-    std::vector<GLFWwindow*> windows{};
+    uint32_t graphics_index{};
+    uint32_t transfer_index{};
+    uint32_t compute_index{};
 
+    vk::raii::Queue graphics_queue = nullptr;
+    vk::raii::Queue transfer_queue = nullptr;
+    vk::raii::Queue compute_queue = nullptr;
+
+    std::vector<GLFWwindow*> windows{};
     const std::vector<char const*> validation_layers = {"VK_LAYER_KHRONOS_validation"};
 
 };
