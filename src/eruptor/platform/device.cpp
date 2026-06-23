@@ -5,13 +5,31 @@
 #include <map>
 #include <set>
 
-namespace eruptor::platform
-{
-
 void eruptor::platform::Device::Init(Core & core)
 {
     Pick_physical_device(core);
     Create_logical_device(core);
+}
+
+bool eruptor::platform::Device::Get_is_one_queue_family()
+{
+    return (graphics_index == transfer_index && transfer_index == compute_index);
+}
+
+
+vk::SurfaceCapabilitiesKHR eruptor::platform::Device::Get_surface_capabilities(const vk::raii::SurfaceKHR & surface)
+{
+    return physical_device.getSurfaceCapabilitiesKHR( surface );
+}
+
+std::vector<vk::SurfaceFormatKHR> eruptor::platform::Device::Get_surface_formats(const vk::raii::SurfaceKHR & surface)
+{
+    return physical_device.getSurfaceFormatsKHR( surface );
+}
+
+std::vector<vk::PresentModeKHR> eruptor::platform::Device::Get_surface_present_modes(const vk::raii::SurfaceKHR & surface)
+{
+    return physical_device.getSurfacePresentModesKHR( surface );
 }
 
 void eruptor::platform::Device::Pick_physical_device(Core & core)
@@ -96,7 +114,7 @@ void eruptor::platform::Device::Create_logical_device(Core & core)
 
     for(uint32_t i{}; i < queue_family_properties.size(); i++)
     {
-        if((queue_family_properties[i].queueFlags & vk::QueueFlagBits::eGraphics) && (physical_device.getSurfaceSupportKHR(i, *core.Get_surface())))
+        if((queue_family_properties[i].queueFlags & vk::QueueFlagBits::eGraphics) && (physical_device.getSurfaceSupportKHR(i, core.Get_surface_handle())))
         {
             graphics_index = i;
         }
@@ -226,9 +244,8 @@ bool eruptor::platform::Device::Is_device_sutiable(const vk::raii::PhysicalDevic
     for (uint32_t qfpIndex = 0; qfpIndex < queue_families.size(); qfpIndex++)
     {
         if ((queue_families[qfpIndex].queueFlags & vk::QueueFlagBits::eGraphics) &&
-            physical_device.getSurfaceSupportKHR(qfpIndex, *core.Get_surface())) supports_presentation = true;
+            device.getSurfaceSupportKHR(qfpIndex, core.Get_surface_handle())) supports_presentation = true;
     }
-
 
     auto features = device.template getFeatures2<vk::PhysicalDeviceFeatures2,
     vk::PhysicalDeviceVulkan11Features,
@@ -242,4 +259,3 @@ bool eruptor::platform::Device::Is_device_sutiable(const vk::raii::PhysicalDevic
     return has_geometry_shader && supports_all_required_extensions && supports_graphics && supports_required_features && supports_presentation;
 }
 
-}

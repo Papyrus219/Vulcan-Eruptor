@@ -16,8 +16,10 @@ class Core
 public:
     void Init(GLFWwindow * window);
 
+    const vk::raii::Instance & Get_instance_handle() {return instance;}
+    const vk::raii::SurfaceKHR & Get_surface_handle() {return surface;}
+
     auto Get_physical_devices() {return instance.enumeratePhysicalDevices();}
-    auto Get_surface() {return surface;}
 
 private:
     void Create_instance();
@@ -30,7 +32,6 @@ private:
                                                            vk::DebugUtilsMessageTypeFlagsEXT type,
                                                            const vk::DebugUtilsMessengerCallbackDataEXT * p_callback_data,
                                                            void * p_user_data);
-
     vk::raii::Context context{};
     vk::raii::Instance instance = nullptr;
     vk::raii::SurfaceKHR surface = nullptr;

@@ -29,7 +29,8 @@ find_package(glm REQUIRED)
 set(PLATFORM_SRC src/eruptor/platform.cpp
 src/eruptor/platform/core.cpp
 src/eruptor/platform/device.cpp
-src/eruptor/platform/window.cpp)
+src/eruptor/platform/window.cpp
+src/eruptor/platform/swapchain.cpp)
 
 Make_library(TARGET eruptor
 SOURCES PLATFORM_SRC
