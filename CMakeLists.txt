@@ -33,12 +33,21 @@ src/eruptor/platform/window.cpp
 src/eruptor/platform/swapchain.cpp
 src/eruptor/platform/pipeline.cpp)
 
-Make_library(TARGET eruptor
+set(RESOURCE_SRC src/eruptor/resource/resource_manager.cpp
+src/eruptor/resource/resource_handle.cpp
+src/eruptor/resource/resource.cpp)
+
+Make_library(TARGET eruptor_platform
 SOURCES PLATFORM_SRC
-LIBRARIES_TO_LINK_PUB Vulkan::Vulkan glm::glm glfw
+LIBRARIES_TO_LINK_PRIV Vulkan::Vulkan glm::glm glfw
+COMPILATION_FEATURES cxx_std_23)
+
+Make_library(TARGET eruptor_resource
+SOURCES RESOURCE_SRC
+LIBRARIES_TO_LINK_PRIV eruptor_platform
 COMPILATION_FEATURES cxx_std_23)
 
 add_executable(app src/main.cpp)
-target_link_libraries(app PUBLIC eruptor)
+target_link_libraries(app PUBLIC eruptor_resource)
 
 install(TARGETS app RUNTIME DESTINATION bin)

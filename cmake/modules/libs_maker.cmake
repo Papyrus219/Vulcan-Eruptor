@@ -4,8 +4,8 @@ option(PAP_CMAKE_SILENCE_MAKE_LIBRARY OFF "Turn off  Make_library debug messages
 option(PAP_CMAKE_SILENCE_MAKE_HEADER_LIBRARY OFF "Turn off  Make_header_library debug messages.")
 
 function(Make_library)
-    set(no_values HAS_CUSTOM_INCLUDE_PATH)
-    set(single_values TARGET SOURCES CUSTOM_INCLUDE_PATH)
+    set(no_values)
+    set(single_values TARGET SOURCES)
     set(multi_values COMPILATION_FEATURES LIBRARIES_TO_LINK_PUB LIBRARIES_TO_LINK_PRIV)
 
     cmake_parse_arguments(
@@ -19,16 +19,19 @@ function(Make_library)
 
     add_library(${arg_TARGET} ${${arg_SOURCES}})
 
-    if(arg_HAS_CUSTOM_INCLUDE_PATH)
-        target_include_directories(${arg_TARGET} PUBLIC arg_CUSTOM_INCLUDE_PATH)
-    else()
-        target_include_directories(${arg_TARGET} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/libs/${arg_TARGET}")
-    endif()
+    target_include_directories(${arg_TARGET} PRIVATE ${PROJECT_SOURCE_DIR}/include//libs/)
 
     target_compile_features(${arg_TARGET} PRIVATE ${arg_COMPILATION_FEATURES})
-    target_link_libraries(${arg_TARGET}
-    PUBLIC ${arg_LIBRARIES_TO_LINK_PUB}
-    PRIVATE ${arg_LIBRARIES_TO_LINK_PRIV})
+
+    if(arg_LIBRARIES_TO_LINK_PUB)
+        target_link_libraries(${arg_TARGET} PUBLIC ${arg_LIBRARIES_TO_LINK_PUB})
+    endif()
+
+    if(arg_LIBRARIES_TO_LINK_PRIV)
+        target_link_libraries(${arg_TARGET} PRIVATE ${arg_LIBRARIES_TO_LINK_PRIV})
+    endif()
+
+    message(STATUS "PATH=${arg_CUSTOM_INCLUDE_PATH}")
 
     if(NOT PAP_CMAKE_SILENCE_MAKE_LIBRARY)
         message("Setup ${arg_TARGET} library: Done")
@@ -36,8 +39,8 @@ function(Make_library)
 endfunction()
 
 function(Make_header_library)
-    set(no_values HAS_CUSTOM_INCLUDE_PATH)
-    set(single_values TARGET CUSTOM_INCLUDE_PATH)
+    set(no_values)
+    set(single_values TARGET)
     set(multi_values COMPILATION_FEATURES LIBRARIES_TO_LINK)
 
     cmake_parse_arguments(
@@ -51,11 +54,7 @@ function(Make_header_library)
 
     add_library(${arg_TARGET} INTERFACE)
 
-    if(arg_HAS_CUSTOM_INCLUDE_PATH)
-        target_include_directories(${arg_TARGET} INTERFACE arg_CUSTOM_INCLUDE_PATH)
-    else()
-        target_include_directories(${arg_TARGET} INTERFACE "include/libs/${arg_TARGET}")
-    endif()
+    target_include_directories(${arg_TARGET} INTERFACE ${PROJECT_SOURCE_DIR}/include/libs/)
 
     target_compile_features(${arg_TARGET} INTERFACE cxx_std_23)
     target_link_libraries(${arg_TARGET} INTERFACE ${LIBRARIES_TO_LINK})
