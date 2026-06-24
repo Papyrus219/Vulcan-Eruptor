@@ -1,10 +1,10 @@
-#ifndef ERUPTOR_PLATFORM_SWAPCHAIN_HPP
-#define ERUPTOR_PLATFORM_SWAPCHAIN_HPP
+#ifndef ERUPTOR_HARDWARE_SWAPCHAIN_HPP
+#define ERUPTOR_HARDWARE_SWAPCHAIN_HPP
 
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_raii.hpp>
 
-namespace eruptor::platform
+namespace eruptor::hardware
 {
 
 class Core;
@@ -15,6 +15,10 @@ class Swapchain
 {
 public:
     void Init(Device & device, Window & window, const vk::raii::SurfaceKHR & surface);
+
+    const vk::raii::SwapchainKHR & Get_swapchain_handle() const {return swap_chain;}
+    const vk::SurfaceFormatKHR & Get_surface_format() const {return swap_chain_surface_format;}
+    const vk::Extent2D & Get_extent() const {return swap_chain_extent;}
 
 private:
     void Create_swap_chain(Device & device, Window & window, const vk::raii::SurfaceKHR & surface);
@@ -34,4 +38,4 @@ private:
 
 }
 
-#endif // ERUPTOR_PLATFORM_SWAPCHAIN_HPP
+#endif // ERUPTOR_HARDWARE_SWAPCHAIN_HPP

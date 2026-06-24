@@ -1,5 +1,5 @@
-#ifndef ERUPTOR_PLATFORM_WINDOW_HPP
-#define ERUPTOR_PLATFORM_WINDOW_HPP
+#ifndef ERUPTOR_HARDWARE_PLATFORM_WINDOW_HPP
+#define ERUPTOR_HARDWARE_PLATFORM_WINDOW_HPP
 
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_raii.hpp>
@@ -7,7 +7,7 @@
 #include <glm/glm.hpp>
 #include <string_view>
 
-namespace eruptor::platform
+namespace eruptor::hardware
 {
 
 class Core;
@@ -27,4 +27,4 @@ private:
 
 }
 
-#endif // ERUPTOR_PLATFORM_WINDOW_HPP
+#endif // ERUPTOR_HARDWARE_PLATFORM_WINDOW_HPP

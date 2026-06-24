@@ -6,31 +6,30 @@
 namespace eruptor::resource
 {
 
-class Resource_manager;
+struct Mesh_tag{};
+struct Texture_tag{};
 
-template<typename T>
+template<typename TAG>
 class Resource_handle
 {
 public:
-    Resource_handle() = default;
-    Resource_handle(const uint32_t & id, Resource_manager * manager);
+    constexpr explicit Resource_handle() = default;
+    constexpr explicit Resource_handle(const uint32_t & id): resource_id{id} {}
 
-    T* Get() const;
+    bool Is_valid() const {return resource_id != 0;}
+    const uint32_t & Get_id() const {return resource_id;}
 
-    bool Is_valid() const;
+    bool operator==(const Resource_handle & other) const {return this->resource_id == other.resource_id;}
+    bool operator!=(const Resource_handle & other) const {return this->resource_id != other.resource_id;}
 
-    const uint32_t & Get_id() const;
-
-    T* operator->() const;
-
-    T& operator*() const;
-
-    operator bool() const;
+    operator bool() const {return resource_id != 0;}
 
 private:
     uint32_t resource_id{};
-    Resource_manager * resource_manager{};
 };
+
+using Mesh_handle = Resource_handle<Mesh_tag>;
+using Texture_handle = Resource_handle<Texture_tag>;
 
 }
 

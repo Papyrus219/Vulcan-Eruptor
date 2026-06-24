@@ -1,17 +1,17 @@
-#include <Eruptor/lib/platform/core.hpp>
-#include <Eruptor/lib/platform/globals.hpp>
+#include <Eruptor/lib/hardware/core.hpp>
+#include <Eruptor/lib/hardware/globals.hpp>
 #include <iostream>
 
-using namespace eruptor::platform;
+using namespace eruptor::hardware;
 
-void eruptor::platform::Core::Init(GLFWwindow * window)
+void eruptor::hardware::Core::Init(GLFWwindow * window)
 {
     Create_instance();
     Setup_debug_messenger();
     Create_surface(window);
 }
 
-void eruptor::platform::Core::Create_surface(GLFWwindow* window)
+void eruptor::hardware::Core::Create_surface(GLFWwindow* window)
 {
     VkSurfaceKHR _surface{};
     if(glfwCreateWindowSurface(*instance, window, nullptr, &_surface) != 0)
@@ -22,7 +22,7 @@ void eruptor::platform::Core::Create_surface(GLFWwindow* window)
     surface = vk::raii::SurfaceKHR{instance, _surface};
 }
 
-void eruptor::platform::Core::Create_instance()
+void eruptor::hardware::Core::Create_instance()
 {
     vk::ApplicationInfo app_info{};
     app_info.pApplicationName = "idk";
@@ -79,7 +79,7 @@ void eruptor::platform::Core::Create_instance()
     instance = vk::raii::Instance{context, create_info};
 }
 
-void eruptor::platform::Core::Setup_debug_messenger()
+void eruptor::hardware::Core::Setup_debug_messenger()
 {
     if(!enableValidationLayers) return;
 
@@ -95,7 +95,7 @@ void eruptor::platform::Core::Setup_debug_messenger()
             debug_messenger = instance.createDebugUtilsMessengerEXT(debug_utils_messenger_create_info_ext);
 }
 
-VKAPI_ATTR vk::Bool32 VKAPI_CALL eruptor::platform::Core::debug_callback(vk::DebugUtilsMessageSeverityFlagBitsEXT severity,
+VKAPI_ATTR vk::Bool32 VKAPI_CALL eruptor::hardware::Core::debug_callback(vk::DebugUtilsMessageSeverityFlagBitsEXT severity,
                                                                         vk::DebugUtilsMessageTypeFlagsEXT type,
                                                                         const vk::DebugUtilsMessengerCallbackDataEXT * p_callback_data,
                                                                         void * p_user_data)
@@ -105,7 +105,7 @@ VKAPI_ATTR vk::Bool32 VKAPI_CALL eruptor::platform::Core::debug_callback(vk::Deb
     return vk::False;
 }
 
-std::vector<const char *> eruptor::platform::Core::Get_required_instance_extensions()
+std::vector<const char *> eruptor::hardware::Core::Get_required_instance_extensions()
 {
     uint32_t glfw_extension_count{};
     auto glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);

@@ -1,6 +1,6 @@
-#include <Eruptor/lib/platform.hpp>
+#include <Eruptor/lib/hardware.hpp>
 
-void eruptor::platform::Platform::Init()
+void eruptor::hardware::Hardware::Init()
 {
     window.Init();
     window.Create_window( "Test", {800,600} );

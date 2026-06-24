@@ -1,10 +1,10 @@
-#ifndef ERUPTOR_PLATFORM_DEVICE_HPP
-#define ERUPTOR_PLATFORM_DEVICE_HPP
+#ifndef ERUPTOR_HARDWARE_DEVICE_HPP
+#define ERUPTOR_HARDWARE_DEVICE_HPP
 
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_raii.hpp>
 
-namespace eruptor::platform
+namespace eruptor::hardware
 {
 
 class Core;
@@ -43,4 +43,4 @@ private:
 
 }
 
-#endif // ERUPTOR_PLATFORM_DEVICE_HPP
+#endif // ERUPTOR_HARDWARE_DEVICE_HPP

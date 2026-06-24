@@ -1,38 +1,38 @@
-#include <Eruptor/lib/platform/device.hpp>
-#include <Eruptor/lib/platform/core.hpp>
-#include <Eruptor/lib/platform/window.hpp>
-#include <Eruptor/lib/platform/utility_structures.hpp>
+#include <Eruptor/lib/hardware/device.hpp>
+#include <Eruptor/lib/hardware/core.hpp>
+#include <Eruptor/lib/hardware/window.hpp>
+#include <Eruptor/lib/hardware/utility_structures.hpp>
 #include <map>
 #include <set>
 
-void eruptor::platform::Device::Init(Core & core)
+void eruptor::hardware::Device::Init(Core & core)
 {
     Pick_physical_device(core);
     Create_logical_device(core);
 }
 
-bool eruptor::platform::Device::Get_is_one_queue_family()
+bool eruptor::hardware::Device::Get_is_one_queue_family()
 {
     return (graphics_index == transfer_index && transfer_index == compute_index);
 }
 
 
-vk::SurfaceCapabilitiesKHR eruptor::platform::Device::Get_surface_capabilities(const vk::raii::SurfaceKHR & surface)
+vk::SurfaceCapabilitiesKHR eruptor::hardware::Device::Get_surface_capabilities(const vk::raii::SurfaceKHR & surface)
 {
     return physical_device.getSurfaceCapabilitiesKHR( surface );
 }
 
-std::vector<vk::SurfaceFormatKHR> eruptor::platform::Device::Get_surface_formats(const vk::raii::SurfaceKHR & surface)
+std::vector<vk::SurfaceFormatKHR> eruptor::hardware::Device::Get_surface_formats(const vk::raii::SurfaceKHR & surface)
 {
     return physical_device.getSurfaceFormatsKHR( surface );
 }
 
-std::vector<vk::PresentModeKHR> eruptor::platform::Device::Get_surface_present_modes(const vk::raii::SurfaceKHR & surface)
+std::vector<vk::PresentModeKHR> eruptor::hardware::Device::Get_surface_present_modes(const vk::raii::SurfaceKHR & surface)
 {
     return physical_device.getSurfacePresentModesKHR( surface );
 }
 
-void eruptor::platform::Device::Pick_physical_device(Core & core)
+void eruptor::hardware::Device::Pick_physical_device(Core & core)
 {
     auto physical_devices = core.Get_physical_devices();
     if(physical_devices.empty())
@@ -105,7 +105,7 @@ void eruptor::platform::Device::Pick_physical_device(Core & core)
     }
 }
 
-void eruptor::platform::Device::Create_logical_device(Core & core)
+void eruptor::hardware::Device::Create_logical_device(Core & core)
 {
     std::vector<vk::QueueFamilyProperties> queue_family_properties = physical_device.getQueueFamilyProperties();
 
@@ -217,7 +217,7 @@ void eruptor::platform::Device::Create_logical_device(Core & core)
     compute_queue = vk::raii::Queue{device, compute_index, 0};
 }
 
-bool eruptor::platform::Device::Is_device_sutiable(const vk::raii::PhysicalDevice & device, Core & core)
+bool eruptor::hardware::Device::Is_device_sutiable(const vk::raii::PhysicalDevice & device, Core & core)
 {
     auto device_properties = device.getProperties();
     auto device_features = device.getFeatures();

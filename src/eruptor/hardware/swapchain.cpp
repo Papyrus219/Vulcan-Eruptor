@@ -1,18 +1,18 @@
-#include <Eruptor/lib/platform/swapchain.hpp>
-#include <Eruptor/lib/platform/core.hpp>
-#include <Eruptor/lib/platform/device.hpp>
-#include <Eruptor/lib/platform/window.hpp>
+#include <Eruptor/lib/hardware/swapchain.hpp>
+#include <Eruptor/lib/hardware/core.hpp>
+#include <Eruptor/lib/hardware/device.hpp>
+#include <Eruptor/lib/hardware/window.hpp>
 #include <cstdint>
 #include <limits>
 #include <algorithm>
 
-void eruptor::platform::Swapchain::Init(Device & device, Window & window, const vk::raii::SurfaceKHR & surface)
+void eruptor::hardware::Swapchain::Init(Device & device, Window & window, const vk::raii::SurfaceKHR & surface)
 {
     Create_swap_chain(device, window, surface);
     Create_image_views(device);
 }
 
-void eruptor::platform::Swapchain::Create_swap_chain(Device& device, Window& window, const vk::raii::SurfaceKHR & surface)
+void eruptor::hardware::Swapchain::Create_swap_chain(Device& device, Window& window, const vk::raii::SurfaceKHR & surface)
 {
     vk::SurfaceCapabilitiesKHR surface_capabilities = device.Get_surface_capabilities( surface );
     swap_chain_extent = Choose_swap_extent(window, surface_capabilities);
@@ -43,7 +43,7 @@ void eruptor::platform::Swapchain::Create_swap_chain(Device& device, Window& win
     swap_chain_images = swap_chain.getImages();
 }
 
-void eruptor::platform::Swapchain::Create_image_views(Device & device)
+void eruptor::hardware::Swapchain::Create_image_views(Device & device)
 {
     assert(swap_chain_image_views.empty());
 
@@ -61,7 +61,7 @@ void eruptor::platform::Swapchain::Create_image_views(Device & device)
     }
 }
 
-vk::SurfaceFormatKHR eruptor::platform::Swapchain::Choose_swap_surface_format(const std::vector<vk::SurfaceFormatKHR> & avalible_formats)
+vk::SurfaceFormatKHR eruptor::hardware::Swapchain::Choose_swap_surface_format(const std::vector<vk::SurfaceFormatKHR> & avalible_formats)
 {
     const auto format_it =
     std::ranges::find_if(avalible_formats, [](const auto & format)
@@ -73,7 +73,7 @@ vk::SurfaceFormatKHR eruptor::platform::Swapchain::Choose_swap_surface_format(co
     return format_it != avalible_formats.end() ? *format_it : avalible_formats[0];
 }
 
-vk::PresentModeKHR eruptor::platform::Swapchain::Choose_swap_present_mode(const std::vector<vk::PresentModeKHR>& avalible_present_modes)
+vk::PresentModeKHR eruptor::hardware::Swapchain::Choose_swap_present_mode(const std::vector<vk::PresentModeKHR>& avalible_present_modes)
 {
     assert(std::ranges::any_of(avalible_present_modes, [](auto present_mode) {return present_mode == vk::PresentModeKHR::eFifo;}));
 
@@ -84,7 +84,7 @@ vk::PresentModeKHR eruptor::platform::Swapchain::Choose_swap_present_mode(const 
             }) ? vk::PresentModeKHR::eMailbox : vk::PresentModeKHR::eFifo;
 }
 
-vk::Extent2D eruptor::platform::Swapchain::Choose_swap_extent(Window & window, const vk::SurfaceCapabilitiesKHR& capabilities)
+vk::Extent2D eruptor::hardware::Swapchain::Choose_swap_extent(Window & window, const vk::SurfaceCapabilitiesKHR& capabilities)
 {
     if(capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
     {
@@ -99,7 +99,7 @@ vk::Extent2D eruptor::platform::Swapchain::Choose_swap_extent(Window & window, c
     };
 }
 
-uint32_t eruptor::platform::Swapchain::Choose_swap_min_image_count(const vk::SurfaceCapabilitiesKHR& capabilities)
+uint32_t eruptor::hardware::Swapchain::Choose_swap_min_image_count(const vk::SurfaceCapabilitiesKHR& capabilities)
 {
     auto min_image_count = std::max(3u, capabilities.minImageCount);
     if((0 < capabilities.maxImageCount) && (capabilities.minImageCount < min_image_count))

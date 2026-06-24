@@ -1,5 +1,5 @@
-#ifndef ERUPTOR_CORE_HPP
-#define ERUPTOR_CORE_HPP
+#ifndef ERUPTOR_HARDWARE_CORE_HPP
+#define ERUPTOR_HARDWARE_CORE_HPP
 
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_raii.hpp>
@@ -8,7 +8,7 @@
 #include <vector>
 #include <string_view>
 
-namespace eruptor::platform
+namespace eruptor::hardware
 {
 
 class Core

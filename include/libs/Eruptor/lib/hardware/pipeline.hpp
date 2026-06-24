@@ -1,0 +1,28 @@
+#ifndef ERUPTOR_HARDWARE_PIPELINE_HPP
+#define ERUPTOR_HARDWARE_PIPELINE_HPP
+
+#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan_raii.hpp>
+#include <filesystem>
+#include <vector>
+
+namespace eruptor::hardware
+{
+
+class Device;
+class Swapchain;
+
+class Pipeline
+{
+public:
+    void Init(Device & device, Swapchain & swapchain);
+private:
+    void Create_graphics_pipeline(Device & device, vk::Extent2D & swapchain_extent);
+    [[nodiscard]] vk::raii::ShaderModule Create_shader_module(Device & device, const std::vector<char>& code) const;
+
+    static std::vector<char> Read_file(const std::filesystem::path & path);
+};
+
+}
+
+#endif // ERUPTOR_HARDWARE_PIPELINE_HPP

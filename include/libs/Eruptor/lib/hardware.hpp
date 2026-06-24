@@ -1,15 +1,15 @@
 #ifndef ERUPTOR_PLATFORM_PLATFORM_HPP
-#define ERUPTOR_PLATFORM_PLATFORM_HPP
+#define ERUPTOR_HARDWARE_HARDWARE_HPP
 
-#include <Eruptor/lib/platform/core.hpp>
-#include <Eruptor/lib/platform/device.hpp>
-#include <Eruptor/lib/platform/window.hpp>
-#include <Eruptor/lib/platform/swapchain.hpp>
+#include <Eruptor/lib/hardware/core.hpp>
+#include <Eruptor/lib/hardware/device.hpp>
+#include <Eruptor/lib/hardware/window.hpp>
+#include <Eruptor/lib/hardware/swapchain.hpp>
 
-namespace eruptor::platform
+namespace eruptor::hardware
 {
 
-class Platform
+class Hardware
 {
 public:
     void Init();
