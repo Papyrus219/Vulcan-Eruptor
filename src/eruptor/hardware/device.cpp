@@ -33,6 +33,24 @@ vma::raii::Image eruptor::hardware::Device::Create_image(uint32_t width, uint32_
     return alocator.createImage(image_info, alloc_info);
 }
 
+vk::raii::ImageView eruptor::hardware::Device::Create_image_view(const vk::Image& image, vk::Format format)
+{
+    vk::ImageSubresourceRange sub_resource_range{};
+    sub_resource_range.aspectMask = vk::ImageAspectFlagBits::eColor;
+    sub_resource_range.baseMipLevel = 0;
+    sub_resource_range.levelCount = 1;
+    sub_resource_range.baseArrayLayer = 0;
+    sub_resource_range.layerCount = 1;
+
+    vk::ImageViewCreateInfo view_info{};
+    view_info.image = image;
+    view_info.viewType = vk::ImageViewType::e2D;
+    view_info.format = format;
+    view_info.subresourceRange = sub_resource_range;
+
+    return vk::raii::ImageView{device, view_info};
+}
+
 bool eruptor::hardware::Device::Get_is_one_queue_family()
 {
     return (queues.graphics_index == queues.transfer_index && queues.transfer_index == queues.compute_index);

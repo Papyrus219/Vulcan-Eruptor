@@ -12,7 +12,11 @@ struct Mesh
     std::vector<Vertex> vertecies{};
     std::vector<uint32_t> indices{};
 
-    uint32_t first_vetex_id_in_buffor{};
+    uint32_t vertex_offset{};
+    uint32_t indices_offset{};
+
+    uint32_t vertex_amount{};
+    uint32_t indices_amount{};
 };
 
 }

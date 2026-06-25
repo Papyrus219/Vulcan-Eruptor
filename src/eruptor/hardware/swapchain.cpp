@@ -47,17 +47,9 @@ void eruptor::hardware::Swapchain::Create_image_views(Device & device)
 {
     assert(swap_chain_image_views.empty());
 
-    vk::ImageViewCreateInfo image_view_create_info{};
-    image_view_create_info.viewType = vk::ImageViewType::e2D;
-    image_view_create_info.format = swap_chain_surface_format.format;
-    image_view_create_info.subresourceRange = {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1};
-    image_view_create_info.components =
-    {vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity,          vk::ComponentSwizzle::eIdentity};
-
     for(auto & image : swap_chain_images)
     {
-        image_view_create_info.image = image;
-        swap_chain_image_views.push_back( vk::raii::ImageView{device.Get_device_handle(), image_view_create_info} );
+        swap_chain_image_views.push_back( device.Create_image_view(image, swap_chain_surface_format.format) );
     }
 }
 

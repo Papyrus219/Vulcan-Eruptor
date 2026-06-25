@@ -44,6 +44,7 @@ public:
     vma::raii::Allocator & Get_alocator_handle() {return alocator;}
 
     vma::raii::Image Create_image(uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties);
+    vk::raii::ImageView Create_image_view(vk::Image const & image, vk::Format format);
 
     bool Get_is_one_queue_family();
 
