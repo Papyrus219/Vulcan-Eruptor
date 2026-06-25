@@ -23,7 +23,10 @@ src/eruptor/hardware/core.cpp
 src/eruptor/hardware/device.cpp
 src/eruptor/hardware/window.cpp
 src/eruptor/hardware/swapchain.cpp
-src/eruptor/hardware/pipeline.cpp)
+src/eruptor/hardware/pipeline.cpp
+src/eruptor/hardware/vertex_buffer.cpp
+src/eruptor/hardware/command_manager.cpp
+src/eruptor/hardware/mesh.cpp)
 
 set(RESOURCE_SRC src/eruptor/resource/resource_manager.cpp
 src/eruptor/resource/resource_handle.cpp

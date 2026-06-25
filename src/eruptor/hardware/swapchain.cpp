@@ -110,3 +110,12 @@ uint32_t eruptor::hardware::Swapchain::Choose_swap_min_image_count(const vk::Sur
     return min_image_count;
 }
 
+vk::Format eruptor::hardware::Swapchain::Find_depth_format(Device & device)
+{
+    return device.Find_supported_format(
+        {vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint},
+         vk::ImageTiling::eOptimal,
+         vk::FormatFeatureFlagBits::eDepthStencilAttachment
+    );
+}
+

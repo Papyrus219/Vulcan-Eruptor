@@ -5,6 +5,8 @@
 #include <map>
 #include <set>
 
+#define VMA_IMPLEMENTATION
+
 void eruptor::hardware::Device::Init(Core & core)
 {
     Pick_physical_device(core);
@@ -14,7 +16,7 @@ void eruptor::hardware::Device::Init(Core & core)
 
 bool eruptor::hardware::Device::Get_is_one_queue_family()
 {
-    return (graphics_index == transfer_index && transfer_index == compute_index);
+    return (queues.graphics_index == queues.transfer_index && queues.transfer_index == queues.compute_index);
 }
 
 
@@ -31,6 +33,21 @@ std::vector<vk::SurfaceFormatKHR> eruptor::hardware::Device::Get_surface_formats
 std::vector<vk::PresentModeKHR> eruptor::hardware::Device::Get_surface_present_modes(const vk::raii::SurfaceKHR & surface)
 {
     return physical_device.getSurfacePresentModesKHR( surface );
+}
+
+vk::Format eruptor::hardware::Device::Find_supported_format(const std::vector<vk::Format>& candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features)
+{
+    for (const auto format : candidates) {
+        vk::FormatProperties props = physical_device.getFormatProperties(format);
+
+        if (((tiling == vk::ImageTiling::eLinear) && ((props.linearTilingFeatures & features) == features)) ||
+            ((tiling == vk::ImageTiling::eOptimal) && ((props.optimalTilingFeatures & features) == features)))
+        {
+            return format;
+        }
+    }
+
+    throw std::runtime_error("failed to find supported format!");
 }
 
 void eruptor::hardware::Device::Pick_physical_device(Core & core)
@@ -117,7 +134,7 @@ void eruptor::hardware::Device::Create_logical_device(Core & core)
     {
         if((queue_family_properties[i].queueFlags & vk::QueueFlagBits::eGraphics) && (physical_device.getSurfaceSupportKHR(i, core.Get_surface_handle())))
         {
-            graphics_index = i;
+            queues.graphics_index = i;
         }
 
         if((queue_family_properties[i].queueFlags & vk::QueueFlagBits::eTransfer))
@@ -167,18 +184,18 @@ void eruptor::hardware::Device::Create_logical_device(Core & core)
         }
     }
 
-    if(graphics_index == ~0)
+    if(queues.graphics_index == ~0)
     {
         throw std::runtime_error{"Could not find a queue for graphics and present -> terminating"};
     }
 
-    transfer_index = transfer_choise.index;
-    compute_index = compute_choise.index;
+    queues.transfer_index = transfer_choise.index;
+    queues.compute_index = compute_choise.index;
 
     std::set<uint32_t> unique_queues{};
-    unique_queues.insert(graphics_index);
-    unique_queues.insert(transfer_index);
-    unique_queues.insert(compute_index);
+    unique_queues.insert(queues.graphics_index);
+    unique_queues.insert(queues.transfer_index);
+    unique_queues.insert(queues.compute_index);
 
     std::vector<vk::DeviceQueueCreateInfo> device_queue_create_infos{};
 
@@ -213,9 +230,9 @@ void eruptor::hardware::Device::Create_logical_device(Core & core)
 
     device = vk::raii::Device{physical_device, device_create_info};
 
-    graphics_queue = vk::raii::Queue{device, graphics_index, 0};
-    transfer_queue = vk::raii::Queue{device, transfer_index, 0};
-    compute_queue = vk::raii::Queue{device, compute_index, 0};
+    queues.graphics_queue = vk::raii::Queue{device, queues.graphics_index, 0};
+    queues.transfer_queue = vk::raii::Queue{device, queues.transfer_index, 0};
+    queues.compute_queue = vk::raii::Queue{device, queues.compute_index, 0};
 }
 
 void eruptor::hardware::Device::Create_alocator(Core& core)

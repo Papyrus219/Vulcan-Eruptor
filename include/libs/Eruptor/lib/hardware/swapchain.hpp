@@ -29,6 +29,8 @@ private:
     vk::Extent2D Choose_swap_extent(Window & window, const vk::SurfaceCapabilitiesKHR & capabilities);
     uint32_t Choose_swap_min_image_count(const vk::SurfaceCapabilitiesKHR & capabilities);
 
+    vk::Format Find_depth_format(Device & device);
+
     vk::raii::SwapchainKHR swap_chain = nullptr;
     std::vector<vk::Image> swap_chain_images{};
     std::vector<vk::ImageView> swap_chain_image_views{};
