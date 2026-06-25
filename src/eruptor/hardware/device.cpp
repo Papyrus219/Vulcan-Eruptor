@@ -9,6 +9,7 @@ void eruptor::hardware::Device::Init(Core & core)
 {
     Pick_physical_device(core);
     Create_logical_device(core);
+    Create_alocator(core);
 }
 
 bool eruptor::hardware::Device::Get_is_one_queue_family()
@@ -215,6 +216,14 @@ void eruptor::hardware::Device::Create_logical_device(Core & core)
     graphics_queue = vk::raii::Queue{device, graphics_index, 0};
     transfer_queue = vk::raii::Queue{device, transfer_index, 0};
     compute_queue = vk::raii::Queue{device, compute_index, 0};
+}
+
+void eruptor::hardware::Device::Create_alocator(Core& core)
+{
+    vma::AllocatorCreateInfo alocator_create_info{};
+    alocator_create_info.physicalDevice = physical_device;
+
+    alocator = vma::raii::Allocator{core.Get_instance_handle(), device, alocator_create_info};
 }
 
 bool eruptor::hardware::Device::Is_device_sutiable(const vk::raii::PhysicalDevice & device, Core & core)

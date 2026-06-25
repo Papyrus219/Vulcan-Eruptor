@@ -1,8 +1,12 @@
 #ifndef ERUPTOR_HARDWARE_DEVICE_HPP
 #define ERUPTOR_HARDWARE_DEVICE_HPP
 
+#define VMA_IMPLEMENTATION
+
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_raii.hpp>
+#include <vk_mem_alloc.hpp>
+#include <vk_mem_alloc_raii.hpp>
 
 namespace eruptor::hardware
 {
@@ -26,9 +30,11 @@ public:
 private:
     vk::raii::PhysicalDevice physical_device = nullptr;
     vk::raii::Device device = nullptr;
+    vma::raii::Allocator alocator = nullptr;
 
     void Pick_physical_device(Core & core);
     void Create_logical_device(Core & core);
+    void Create_alocator(Core & core);
 
     bool Is_device_sutiable(const vk::raii::PhysicalDevice & device, Core & core);
 

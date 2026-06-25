@@ -31,8 +31,6 @@ function(Make_library)
         target_link_libraries(${arg_TARGET} PRIVATE ${arg_LIBRARIES_TO_LINK_PRIV})
     endif()
 
-    message(STATUS "PATH=${arg_CUSTOM_INCLUDE_PATH}")
-
     if(NOT PAP_CMAKE_SILENCE_MAKE_LIBRARY)
         message("Setup ${arg_TARGET} library: Done")
     endif()

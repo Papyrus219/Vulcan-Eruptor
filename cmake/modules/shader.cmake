@@ -4,7 +4,7 @@ function(add_slang_shader_target TARGET)
   cmake_parse_arguments("SHADER" "" "" "SOURCES" ${ARGN})
 
   set(SHADERS_DIR ${CMAKE_CURRENT_BINARY_DIR}/shaders)
-  set(ENTRY_POINTS -entry vertMain -entry fragMain)
+  set(ENTRY_POINTS -entry Vert_main -entry Frag_main)
 
   if(NOT SLANGC_EXECUTABLE)
       find_program(SLANGC_EXECUTABLE NAMES slangc REQUIRED)
