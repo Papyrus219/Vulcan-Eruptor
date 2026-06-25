@@ -14,6 +14,25 @@ void eruptor::hardware::Device::Init(Core & core)
     Create_alocator(core);
 }
 
+vma::raii::Image eruptor::hardware::Device::Create_image(uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties)
+{
+    vk::ImageCreateInfo image_info{};
+    image_info.imageType = vk::ImageType::e2D;
+    image_info.format = format;
+    image_info.extent = vk::Extent3D{width, height, 1};
+    image_info.mipLevels = 1;
+    image_info.arrayLayers = 1;
+    image_info.samples = vk::SampleCountFlagBits::e1;
+    image_info.tiling = tiling;
+    image_info.usage = usage;
+    image_info.sharingMode = vk::SharingMode::eConcurrent;
+
+    vma::AllocationCreateInfo alloc_info{};
+    alloc_info.usage = vma::MemoryUsage::eAuto;
+
+    return alocator.createImage(image_info, alloc_info);
+}
+
 bool eruptor::hardware::Device::Get_is_one_queue_family()
 {
     return (queues.graphics_index == queues.transfer_index && queues.transfer_index == queues.compute_index);

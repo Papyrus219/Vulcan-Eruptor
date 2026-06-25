@@ -24,6 +24,7 @@ private:
     void Create_swap_chain(Device & device, Window & window, const vk::raii::SurfaceKHR & surface);
     void Create_image_views(Device & device);
 
+
     vk::SurfaceFormatKHR Choose_swap_surface_format(const std::vector<vk::SurfaceFormatKHR> & avalible_formats);
     vk::PresentModeKHR Choose_swap_present_mode(const std::vector<vk::PresentModeKHR> & avalible_present_modes);
     vk::Extent2D Choose_swap_extent(Window & window, const vk::SurfaceCapabilitiesKHR & capabilities);

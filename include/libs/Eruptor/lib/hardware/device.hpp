@@ -43,7 +43,7 @@ public:
     const vk::raii::PhysicalDevice & Get_physical_device_handle() {return physical_device;}
     vma::raii::Allocator & Get_alocator_handle() {return alocator;}
 
-    vma::raii::Image Create_image();
+    vma::raii::Image Create_image(uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties);
 
     bool Get_is_one_queue_family();
 
