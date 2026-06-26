@@ -10,6 +10,7 @@ void eruptor::hardware::Geometry_buffer::Init(vma::raii::Allocator& alocator, vk
     vk::BufferCreateInfo stage_buffer_info{};
     stage_buffer_info.usage = vk::BufferUsageFlagBits::eTransferSrc;
     stage_buffer_info.size = max_vertex_buffor_size + max_index_buffor_size;
+    stage_buffer_info.sharingMode = vk::SharingMode::eExclusive;
 
     vma::AllocationCreateInfo stage_alloc_info{};
     stage_alloc_info.usage = vma::MemoryUsage::eAuto;
@@ -20,6 +21,7 @@ void eruptor::hardware::Geometry_buffer::Init(vma::raii::Allocator& alocator, vk
     vk::BufferCreateInfo vertex_create_info{};
     vertex_create_info.usage = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
     vertex_create_info.size = max_vertex_buffor_size;
+    vertex_create_info.sharingMode = vk::SharingMode::eExclusive;
 
     vma::AllocationCreateInfo vertex_alocation_info{};
     vertex_alocation_info.usage = vma::MemoryUsage::eAuto;
@@ -27,6 +29,7 @@ void eruptor::hardware::Geometry_buffer::Init(vma::raii::Allocator& alocator, vk
     vk::BufferCreateInfo index_create_info{};
     index_create_info.usage = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst;
     index_create_info.size = max_index_buffor_size;
+    index_create_info.sharingMode = vk::SharingMode::eExclusive;
 
     vma::AllocationCreateInfo index_alocation_info{};
     index_alocation_info.usage = vma::MemoryUsage::eAuto;

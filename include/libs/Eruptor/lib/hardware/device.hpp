@@ -14,6 +14,8 @@ class Core;
 class Queues
 {
 public:
+    std::vector<uint32_t> Get_unique_indices();
+
     uint32_t Get_graphics_queue_index() {return graphics_index;}
     uint32_t Get_transfer_queue_index() {return transfer_index;}
     uint32_t Get_compute_queue_index() {return compute_index;}
@@ -44,7 +46,7 @@ public:
     vma::raii::Allocator & Get_alocator_handle() {return alocator;}
 
     vma::raii::Image Create_image(uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties);
-    vk::raii::ImageView Create_image_view(vk::Image const & image, vk::Format format);
+    vk::raii::ImageView Create_image_view(vk::Image const & image, vk::Format format, vk::ImageAspectFlags aspect_flags);
 
     bool Get_is_one_queue_family();
 

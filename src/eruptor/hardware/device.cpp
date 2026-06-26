@@ -5,8 +5,6 @@
 #include <map>
 #include <set>
 
-#define VMA_IMPLEMENTATION
-
 void eruptor::hardware::Device::Init(Core & core)
 {
     Pick_physical_device(core);
@@ -25,7 +23,7 @@ vma::raii::Image eruptor::hardware::Device::Create_image(uint32_t width, uint32_
     image_info.samples = vk::SampleCountFlagBits::e1;
     image_info.tiling = tiling;
     image_info.usage = usage;
-    image_info.sharingMode = vk::SharingMode::eConcurrent;
+    image_info.sharingMode = Get_is_one_queue_family()? vk::SharingMode::eExclusive : vk::SharingMode::eConcurrent;
 
     vma::AllocationCreateInfo alloc_info{};
     alloc_info.usage = vma::MemoryUsage::eAuto;
@@ -33,10 +31,10 @@ vma::raii::Image eruptor::hardware::Device::Create_image(uint32_t width, uint32_
     return alocator.createImage(image_info, alloc_info);
 }
 
-vk::raii::ImageView eruptor::hardware::Device::Create_image_view(const vk::Image& image, vk::Format format)
+vk::raii::ImageView eruptor::hardware::Device::Create_image_view(const vk::Image& image, vk::Format format, vk::ImageAspectFlags aspect_flags)
 {
     vk::ImageSubresourceRange sub_resource_range{};
-    sub_resource_range.aspectMask = vk::ImageAspectFlagBits::eColor;
+    sub_resource_range.aspectMask = aspect_flags;
     sub_resource_range.baseMipLevel = 0;
     sub_resource_range.levelCount = 1;
     sub_resource_range.baseArrayLayer = 0;
@@ -321,4 +319,15 @@ bool eruptor::hardware::Device::Is_device_sutiable(const vk::raii::PhysicalDevic
 
     return has_geometry_shader && supports_all_required_extensions && supports_graphics && supports_required_features && supports_presentation;
 }
+
+std::vector<uint32_t> eruptor::hardware::Queues::Get_unique_indices()
+{
+    std::vector<uint32_t> result{ graphics_index };
+    if(transfer_index != graphics_index) result.push_back(transfer_index);
+    if(compute_index != transfer_index) result.push_back(compute_index);
+
+    return result;
+}
+
+
 

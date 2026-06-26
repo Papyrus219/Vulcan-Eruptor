@@ -26,12 +26,12 @@ public:
 private:
     Device * device{};
 
-    std::vector<vk::raii::CommandBuffer> graphics_command_buffers{};
-    std::vector<vk::raii::CommandBuffer> compute_command_buffers{};
-
     vk::raii::CommandPool compute_command_pool = nullptr;
     vk::raii::CommandPool graphic_command_pool = nullptr;
     vk::raii::CommandPool transfer_command_pool = nullptr;
+
+    std::vector<vk::raii::CommandBuffer> graphics_command_buffers{};
+    std::vector<vk::raii::CommandBuffer> compute_command_buffers{};
 };
 
 }

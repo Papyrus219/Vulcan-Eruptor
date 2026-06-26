@@ -7,10 +7,12 @@
 #include <Eruptor/lib/hardware/swapchain.hpp>
 #include <Eruptor/lib/hardware/pipeline.hpp>
 #include <Eruptor/lib/hardware/command_manager.hpp>
-#include <Eruptor/lib/hardware/vertex_buffer.hpp>
+#include <Eruptor/lib/hardware/geometry_buffer.hpp>
 
 namespace eruptor::hardware
 {
+
+///@TODO Add utilities namespace
 
 class Hardware
 {
@@ -23,7 +25,7 @@ public:
     Swapchain & Get_swapchain() {return swapchain;}
     Pipeline & Get_pipeline() {return pipeline;}
     Command_manager & Get_command_manager() {return command_manager;}
-    Vertex_buffer & Get_vertex_buffer() {return vertex_buffer;}
+    Geometry_buffer & Get_geometry_buffer() {return geometry_buffer;}
 
 private:
     Core core{};
@@ -32,7 +34,7 @@ private:
     Swapchain swapchain{};
     Pipeline pipeline{};
     Command_manager command_manager{};
-    Vertex_buffer vertex_buffer{};
+    Geometry_buffer geometry_buffer{};
 
     static constexpr int MAX_FRAMES_IN_FLIGHT{2};
 };

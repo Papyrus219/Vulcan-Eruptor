@@ -9,5 +9,5 @@ void eruptor::hardware::Hardware::Init()
     swapchain.Init(device, window, core.Get_surface_handle());
     pipeline.Init(device, swapchain);
     command_manager.Init(device, MAX_FRAMES_IN_FLIGHT);
-    vertex_buffer.Init( device.Get_alocator_handle() );
+    geometry_buffer.Init( device.Get_alocator_handle(), 10000, 10000 );
 }

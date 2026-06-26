@@ -10,6 +10,7 @@ void eruptor::hardware::Swapchain::Init(Device & device, Window & window, const 
 {
     Create_swap_chain(device, window, surface);
     Create_image_views(device);
+    Create_depth_resources(device);
 }
 
 void eruptor::hardware::Swapchain::Create_swap_chain(Device& device, Window& window, const vk::raii::SurfaceKHR & surface)
@@ -23,6 +24,8 @@ void eruptor::hardware::Swapchain::Create_swap_chain(Device& device, Window& win
 
     std::vector<vk::PresentModeKHR> avalible_present_modes = device.Get_surface_present_modes( surface );
 
+    auto indices_unique = device.queues.Get_unique_indices();
+
     vk::SwapchainCreateInfoKHR swap_chain_create_info{};
     swap_chain_create_info.surface = surface;
     swap_chain_create_info.minImageCount = min_image_count;
@@ -31,8 +34,7 @@ void eruptor::hardware::Swapchain::Create_swap_chain(Device& device, Window& win
     swap_chain_create_info.imageExtent = swap_chain_extent;
     swap_chain_create_info.imageArrayLayers = 1;
     swap_chain_create_info.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
-    swap_chain_create_info.imageSharingMode =
-    device.Get_is_one_queue_family()? vk::SharingMode::eExclusive : vk::SharingMode::eConcurrent;
+    swap_chain_create_info.imageSharingMode = vk::SharingMode::eExclusive;
     swap_chain_create_info.preTransform = surface_capabilities.currentTransform;
     swap_chain_create_info.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
     swap_chain_create_info.presentMode = Choose_swap_present_mode( avalible_present_modes );
@@ -49,8 +51,16 @@ void eruptor::hardware::Swapchain::Create_image_views(Device & device)
 
     for(auto & image : swap_chain_images)
     {
-        swap_chain_image_views.push_back( device.Create_image_view(image, swap_chain_surface_format.format) );
+        swap_chain_image_views.push_back( device.Create_image_view(image, swap_chain_surface_format.format, vk::ImageAspectFlagBits::eColor) );
     }
+}
+
+void eruptor::hardware::Swapchain::Create_depth_resources(Device& device)
+{
+    vk::Format depth_format = Find_depth_format(device);
+
+    depth_image = device.Create_image(swap_chain_extent.width, swap_chain_extent.height, depth_format, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment, vk::MemoryPropertyFlagBits::eDeviceLocal);
+    depth_image_view = device.Create_image_view(depth_image, depth_format, vk::ImageAspectFlagBits::eDepth);
 }
 
 vk::SurfaceFormatKHR eruptor::hardware::Swapchain::Choose_swap_surface_format(const std::vector<vk::SurfaceFormatKHR> & avalible_formats)

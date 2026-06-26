@@ -24,9 +24,11 @@ src/eruptor/hardware/device.cpp
 src/eruptor/hardware/window.cpp
 src/eruptor/hardware/swapchain.cpp
 src/eruptor/hardware/pipeline.cpp
-src/eruptor/hardware/vertex_buffer.cpp
+src/eruptor/hardware/geometry_buffer.cpp
 src/eruptor/hardware/command_manager.cpp
-src/eruptor/hardware/mesh.cpp)
+src/eruptor/hardware/mesh.cpp
+src/eruptor/hardware/utilities.cpp
+src/eruptor/hardware/vma.cpp)
 
 set(RESOURCE_SRC src/eruptor/resource/resource_manager.cpp
 src/eruptor/resource/resource_handle.cpp
@@ -40,14 +42,15 @@ LIBRARIES_TO_LINK_PRIV Vulkan::Vulkan glm::glm glfw VulkanMemoryAllocator-Hpp::V
 COMPILATION_FEATURES cxx_std_23)
 
 add_dependencies(eruptor_hardware main_shader)
-target_include_directories(eruptor_hardware PRIVATE ${vmahpp_SOURCE_DIR})
+target_include_directories(eruptor_hardware PUBLIC ${vmahpp_SOURCE_DIR})
 
 Make_library(TARGET eruptor_resource
 SOURCES RESOURCE_SRC
-LIBRARIES_TO_LINK_PRIV eruptor_hardware
+LIBRARIES_TO_LINK_PUB eruptor_hardware
 COMPILATION_FEATURES cxx_std_23)
 
 add_executable(app src/main.cpp)
 target_link_libraries(app PUBLIC eruptor_resource)
+target_include_directories(app PRIVATE include/libs/)
 
 install(TARGETS app RUNTIME DESTINATION bin)

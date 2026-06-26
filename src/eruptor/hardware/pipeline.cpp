@@ -6,13 +6,12 @@
 
 void eruptor::hardware::Pipeline::Init(Device& device, Swapchain & swapchain)
 {
-    auto swapchain_extent = swapchain.Get_extent();
-    Create_graphics_pipeline(device, swapchain_extent);
+    Create_graphics_pipeline(device, swapchain);
 }
 
-void eruptor::hardware::Pipeline::Create_graphics_pipeline(Device& device, vk::Extent2D & swapchain_extent)
+void eruptor::hardware::Pipeline::Create_graphics_pipeline(Device& device, Swapchain & swapchain)
 {
-    vk::raii::ShaderModule shader_module = Create_shader_module(device, Read_file("./shaders/shader.slang.spv"));
+    vk::raii::ShaderModule shader_module = Create_shader_module(device, Read_file("./shaders/slang.spv"));
 
     vk::PipelineShaderStageCreateInfo vertex_shader_stage_info{};
     vertex_shader_stage_info.stage = vk::ShaderStageFlagBits::eVertex;
@@ -42,6 +41,7 @@ void eruptor::hardware::Pipeline::Create_graphics_pipeline(Device& device, vk::E
     vk::PipelineInputAssemblyStateCreateInfo input_assembly{};
     input_assembly.topology = vk::PrimitiveTopology::eTriangleList;
 
+    auto swapchain_extent = swapchain.Get_extent();
     vk::Viewport viewport{0.0f, 0.0f, static_cast<float>(swapchain_extent.width), static_cast<float>(swapchain_extent.height), 0.0f, 1.0f};
     vk::Rect2D scissor{vk::Offset2D{0, 0}, swapchain_extent};
 
@@ -56,6 +56,62 @@ void eruptor::hardware::Pipeline::Create_graphics_pipeline(Device& device, vk::E
     rasterizer.rasterizerDiscardEnable = vk::False;
     rasterizer.polygonMode = vk::PolygonMode::eFill;
     rasterizer.cullMode = vk::CullModeFlagBits::eBack;
+    rasterizer.frontFace = vk::FrontFace::eClockwise;
+    rasterizer.depthBiasEnable = vk::False;
+    rasterizer.lineWidth = 1.0f;
+
+    vk::PipelineMultisampleStateCreateInfo multisampling{};
+    multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
+    multisampling.sampleShadingEnable = vk::False;
+
+    vk::PipelineDepthStencilStateCreateInfo depth_stencil{};
+    depth_stencil.depthTestEnable = vk::True;
+    depth_stencil.depthWriteEnable = vk::True;
+    depth_stencil.depthCompareOp = vk::CompareOp::eLess;
+    depth_stencil.depthBoundsTestEnable = vk::False;
+    depth_stencil.stencilTestEnable = vk::False;
+
+    vk::PipelineColorBlendAttachmentState color_blend_attachment{};
+    color_blend_attachment.blendEnable = vk::False;
+    color_blend_attachment.srcColorBlendFactor = vk::BlendFactor::eSrc1Alpha;
+    color_blend_attachment.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+    color_blend_attachment.colorBlendOp = vk::BlendOp::eAdd;
+    color_blend_attachment.srcAlphaBlendFactor = vk::BlendFactor::eOne;
+    color_blend_attachment.dstAlphaBlendFactor = vk::BlendFactor::eZero;
+    color_blend_attachment.alphaBlendOp = vk::BlendOp::eAdd;
+    color_blend_attachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+
+    vk::PipelineColorBlendStateCreateInfo color_blending{};
+    color_blending.logicOpEnable = vk::False;
+    color_blending.logicOp = vk::LogicOp::eCopy;
+    color_blending.attachmentCount = 1;
+    color_blending.pAttachments = &color_blend_attachment;
+
+    vk::PipelineLayoutCreateInfo pipeline_layout_info{};
+    pipeline_layout_info.setLayoutCount = 0;
+    pipeline_layout_info.pushConstantRangeCount = 0;
+
+    pipeline_layout = vk::raii::PipelineLayout{device.Get_device_handle(), pipeline_layout_info};
+
+    vk::StructureChain<vk::GraphicsPipelineCreateInfo, vk::PipelineRenderingCreateInfo> pipeline_create_info_chain = {vk::GraphicsPipelineCreateInfo{}, vk::PipelineRenderingCreateInfo{}};
+
+    pipeline_create_info_chain.get<vk::GraphicsPipelineCreateInfo>().stageCount = 2;
+    pipeline_create_info_chain.get<vk::GraphicsPipelineCreateInfo>().pStages = shader_stages;
+    pipeline_create_info_chain.get<vk::GraphicsPipelineCreateInfo>().pVertexInputState = &vertex_input_info;
+    pipeline_create_info_chain.get<vk::GraphicsPipelineCreateInfo>().pInputAssemblyState = &input_assembly;
+    pipeline_create_info_chain.get<vk::GraphicsPipelineCreateInfo>().pViewportState = &viewport_state;
+    pipeline_create_info_chain.get<vk::GraphicsPipelineCreateInfo>().pRasterizationState = &rasterizer;
+    pipeline_create_info_chain.get<vk::GraphicsPipelineCreateInfo>().pDepthStencilState = &depth_stencil;
+    pipeline_create_info_chain.get<vk::GraphicsPipelineCreateInfo>().pMultisampleState = &multisampling;
+    pipeline_create_info_chain.get<vk::GraphicsPipelineCreateInfo>().pColorBlendState = &color_blending;
+    pipeline_create_info_chain.get<vk::GraphicsPipelineCreateInfo>().pDynamicState = &dynamic_state_info;
+    pipeline_create_info_chain.get<vk::GraphicsPipelineCreateInfo>().layout = pipeline_layout;
+    pipeline_create_info_chain.get<vk::GraphicsPipelineCreateInfo>().renderPass = nullptr;
+    pipeline_create_info_chain.get<vk::PipelineRenderingCreateInfo>().colorAttachmentCount = 1;
+    pipeline_create_info_chain.get<vk::PipelineRenderingCreateInfo>().pColorAttachmentFormats = & swapchain.Get_surface_format().format;
+    pipeline_create_info_chain.get<vk::PipelineRenderingCreateInfo>().depthAttachmentFormat = swapchain.Find_depth_format(device);
+
+    graphics_pipeline = vk::raii::Pipeline{device.Get_device_handle(), nullptr, pipeline_create_info_chain.get<vk::GraphicsPipelineCreateInfo>()};
 }
 
 vk::raii::ShaderModule eruptor::hardware::Pipeline::Create_shader_module(Device& device, const std::vector<char>& code) const
@@ -73,7 +129,7 @@ std::vector<char> eruptor::hardware::Pipeline::Read_file(const std::filesystem::
 
     if(!file.is_open())
     {
-        throw std::runtime_error{"failed to open file!"};
+        throw std::runtime_error{"Shader: failed to open file: " + path.string()};
     }
 
     std::vector<char> buffer(file.tellg());

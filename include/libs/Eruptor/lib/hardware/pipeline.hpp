@@ -17,10 +17,13 @@ class Pipeline
 public:
     void Init(Device & device, Swapchain & swapchain);
 private:
-    void Create_graphics_pipeline(Device & device, vk::Extent2D & swapchain_extent);
+    void Create_graphics_pipeline(Device & device, Swapchain & swapchain);
     [[nodiscard]] vk::raii::ShaderModule Create_shader_module(Device & device, const std::vector<char>& code) const;
 
     static std::vector<char> Read_file(const std::filesystem::path & path);
+
+    vk::raii::Pipeline graphics_pipeline = nullptr;
+    vk::raii::PipelineLayout pipeline_layout = nullptr;
 };
 
 }
