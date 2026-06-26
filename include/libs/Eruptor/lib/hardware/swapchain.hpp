@@ -35,7 +35,7 @@ private:
     uint32_t Choose_swap_min_image_count(const vk::SurfaceCapabilitiesKHR & capabilities);
 
     vk::raii::SwapchainKHR swap_chain = nullptr;
-    std::vector<vma::Image> swap_chain_images{};
+    std::vector<vk::Image> swap_chain_images{};
     std::vector<vk::ImageView> swap_chain_image_views{};
     vk::SurfaceFormatKHR swap_chain_surface_format{};
     vk::Extent2D swap_chain_extent{};

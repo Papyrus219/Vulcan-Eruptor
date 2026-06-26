@@ -23,7 +23,7 @@ vma::raii::Image eruptor::hardware::Device::Create_image(uint32_t width, uint32_
     image_info.samples = vk::SampleCountFlagBits::e1;
     image_info.tiling = tiling;
     image_info.usage = usage;
-    image_info.sharingMode = Get_is_one_queue_family()? vk::SharingMode::eExclusive : vk::SharingMode::eConcurrent;
+    image_info.sharingMode = vk::SharingMode::eExclusive;
 
     vma::AllocationCreateInfo alloc_info{};
     alloc_info.usage = vma::MemoryUsage::eAuto;

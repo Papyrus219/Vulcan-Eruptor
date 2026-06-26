@@ -73,7 +73,7 @@ void eruptor::hardware::Pipeline::Create_graphics_pipeline(Device& device, Swapc
 
     vk::PipelineColorBlendAttachmentState color_blend_attachment{};
     color_blend_attachment.blendEnable = vk::False;
-    color_blend_attachment.srcColorBlendFactor = vk::BlendFactor::eSrc1Alpha;
+    color_blend_attachment.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
     color_blend_attachment.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
     color_blend_attachment.colorBlendOp = vk::BlendOp::eAdd;
     color_blend_attachment.srcAlphaBlendFactor = vk::BlendFactor::eOne;

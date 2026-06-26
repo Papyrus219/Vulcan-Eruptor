@@ -28,6 +28,7 @@ src/eruptor/hardware/geometry_buffer.cpp
 src/eruptor/hardware/command_manager.cpp
 src/eruptor/hardware/mesh.cpp
 src/eruptor/hardware/utilities.cpp
+src/eruptor/hardware/texture.cpp
 src/eruptor/hardware/vma.cpp)
 
 set(RESOURCE_SRC src/eruptor/resource/resource_manager.cpp
