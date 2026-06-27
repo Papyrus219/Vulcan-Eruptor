@@ -9,12 +9,18 @@
 namespace eruptor::hardware
 {
 
+class Device;
+
 class Texture
 {
 public:
+    void Init(Device & device, int width, int height, vk::DeviceSize offset_in_stage_buffer);
 
 private:
+    vk::DeviceSize offset_in_stage_buffer{};
+
     vma::raii::Image texture_image = nullptr;
+    vk::raii::ImageView texture_view = nullptr;
 };
 
 }

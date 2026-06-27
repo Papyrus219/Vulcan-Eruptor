@@ -5,7 +5,6 @@
 #include <vulkan/vulkan_raii.hpp>
 #include <vk_mem_alloc.hpp>
 #include <vk_mem_alloc_raii.hpp>
-#include <Eruptor/lib/hardware/vertex.hpp>
 
 namespace eruptor::hardware
 {
@@ -26,14 +25,6 @@ public:
 private:
     vma::raii::Buffer vertex_buffer = nullptr;
     vma::raii::Buffer index_buffer = nullptr;
-    vma::raii::Buffer staging_buffer = nullptr;
-
-    vk::DeviceSize max_vertex_buffor_size{};
-    vk::DeviceSize max_index_buffor_size{};
-    void * stanging_mapped_data{};
-
-    std::vector<Vertex> vertecies{};
-    std::vector<uint32_t> indices{};
 };
 
 }

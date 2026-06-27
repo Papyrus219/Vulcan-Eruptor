@@ -1,6 +1,6 @@
-#include <Eruptor/lib/hardware/geometry_buffer.hpp>
-#include <Eruptor/lib/hardware/command_manager.hpp>
-#include <Eruptor/lib/hardware/mesh.hpp>
+#include <Eruptor/lib/hardware//resources/geometry_buffer.hpp>
+#include <Eruptor/lib/hardware//resources/command_manager.hpp>
+#include <Eruptor/lib/hardware/resources/mesh.hpp>
 
 void eruptor::hardware::Geometry_buffer::Init(vma::raii::Allocator& alocator, vk::DeviceSize max_vertex_buffor_size, vk::DeviceSize max_index_buffor_size)
 {

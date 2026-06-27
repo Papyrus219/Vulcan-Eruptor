@@ -24,12 +24,14 @@ src/eruptor/hardware/device.cpp
 src/eruptor/hardware/window.cpp
 src/eruptor/hardware/swapchain.cpp
 src/eruptor/hardware/pipeline.cpp
-src/eruptor/hardware/geometry_buffer.cpp
 src/eruptor/hardware/command_manager.cpp
-src/eruptor/hardware/mesh.cpp
+src/eruptor/hardware/vma.cpp
 src/eruptor/hardware/utilities.cpp
-src/eruptor/hardware/texture.cpp
-src/eruptor/hardware/vma.cpp)
+
+src/eruptor/hardware/resources/resource_manager.cpp
+src/eruptor/hardware/resources/geometry_buffer.cpp
+src/eruptor/hardware/resources/texture.cpp
+)
 
 set(RESOURCE_SRC src/eruptor/resource/resource_manager.cpp
 src/eruptor/resource/resource_handle.cpp

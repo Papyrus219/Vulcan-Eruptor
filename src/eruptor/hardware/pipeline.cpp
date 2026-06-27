@@ -1,7 +1,7 @@
 #include <Eruptor/lib/hardware/pipeline.hpp>
 #include <Eruptor/lib/hardware/device.hpp>
 #include <Eruptor/lib/hardware/swapchain.hpp>
-#include <Eruptor/lib/hardware/vertex.hpp>
+#include <Eruptor/lib/hardware/resources/vertex.hpp>
 #include <fstream>
 
 void eruptor::hardware::Pipeline::Init(Device& device, Swapchain & swapchain)

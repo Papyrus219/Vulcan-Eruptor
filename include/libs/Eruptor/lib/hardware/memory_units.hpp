@@ -3,7 +3,10 @@
 
 #include <vulkan/vulkan.hpp>
 
-namespace eruptor::hardware::units
+namespace eruptor::hardware
+{
+
+inline namespace units
 {
 
 consteval vk::DeviceSize operator""_KiB(unsigned long long size)
@@ -34,6 +37,8 @@ consteval vk::DeviceSize operator""_MiB(long double size)
 consteval vk::DeviceSize operator""_GiB(long double size)
 {
     return static_cast<vk::DeviceSize>( size * 1024_MiB );
+}
+
 }
 
 }
