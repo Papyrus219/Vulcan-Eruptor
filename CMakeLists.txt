@@ -8,6 +8,7 @@ include(cmake/modules/libs_maker.cmake)
 include(cmake/modules/shader.cmake)
 
 find_package(Vulkan REQUIRED)
+find_package(assimp REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(glm REQUIRED)
 
@@ -49,7 +50,7 @@ target_include_directories(eruptor_hardware PUBLIC ${vmahpp_SOURCE_DIR})
 
 Make_library(TARGET eruptor_resource
 SOURCES RESOURCE_SRC
-LIBRARIES_TO_LINK_PUB eruptor_hardware
+LIBRARIES_TO_LINK_PUB eruptor_hardware assimp::assimp
 COMPILATION_FEATURES cxx_std_23)
 
 add_executable(app src/main.cpp)

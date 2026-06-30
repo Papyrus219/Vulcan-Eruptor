@@ -28,9 +28,13 @@ public:
     uint32_t Stage_mesh_data(Mesh_data & mesh_data);
     uint32_t Stage_texture_data(Texture_data & texture_data);
 
+    void Upload_data_to_GPU();
+
 private:
     std::vector<Mesh> meshes{};
     std::vector<Texture> textures{};
+
+    Geometry_buffer geometry_buffer{};
 
     vma::raii::Buffer geometry_staging_buffer = nullptr;
     vma::raii::Buffer texture_stage_buffer = nullptr;
@@ -38,9 +42,11 @@ private:
     void * geometry_stage_mapped_data{};
     void * texture_stage_mapped_memory{};
 
-    vk::raii::Fence vertex_stage_fence = nullptr;
-    vk::raii::Fence index_stage_fence = nullptr;
-    std::vector<vk::raii::Fence> textures_stage_fences{};
+    void * vertex_buffer_mapped_memory{};
+    void * index_buffer_mapped_memory{};
+
+    vk::raii::Fence upload_complete_fence = nullptr;
+    vk::raii::Semaphore transpose_complete_semafore = nullptr;
 
     vk::DeviceSize max_texture_buffor_size{};
     vk::DeviceSize max_vertex_buffor_size{};
@@ -60,7 +66,7 @@ struct Mesh_data
 
     std::vector<Vertex> vertecies{};
     std::vector<uint32_t> indices{};
-    uint32_t texture_id{};
+    uint32_t material_id{};
 };
 
 struct Texture_data
@@ -69,6 +75,7 @@ struct Texture_data
     int height{};
     int tex_chanels{};
     unsigned char * pixels{};
+    vk::Format format{};
 };
 
 }

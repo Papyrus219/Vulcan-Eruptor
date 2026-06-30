@@ -1,8 +1,8 @@
-#include <Eruptor/lib/hardware//resources/geometry_buffer.hpp>
-#include <Eruptor/lib/hardware//resources/command_manager.hpp>
+#include <Eruptor/lib/hardware/resources/geometry_buffer.hpp>
+#include <Eruptor/lib/hardware/command_manager.hpp>
 #include <Eruptor/lib/hardware/resources/mesh.hpp>
 
-void eruptor::hardware::Geometry_buffer::Init(vma::raii::Allocator& alocator, vk::DeviceSize max_vertex_buffor_size, vk::DeviceSize max_index_buffor_size)
+void eruptor::hardware::Geometry_buffer::Init()
 {
     this->max_vertex_buffor_size = max_vertex_buffor_size;
     this->max_index_buffor_size = max_index_buffor_size;
@@ -18,25 +18,6 @@ void eruptor::hardware::Geometry_buffer::Init(vma::raii::Allocator& alocator, vk
 
     vma::AllocationInfo stage_alloc_result{};
 
-    vk::BufferCreateInfo vertex_create_info{};
-    vertex_create_info.usage = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
-    vertex_create_info.size = max_vertex_buffor_size;
-    vertex_create_info.sharingMode = vk::SharingMode::eExclusive;
-
-    vma::AllocationCreateInfo vertex_alocation_info{};
-    vertex_alocation_info.usage = vma::MemoryUsage::eAuto;
-
-    vk::BufferCreateInfo index_create_info{};
-    index_create_info.usage = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst;
-    index_create_info.size = max_index_buffor_size;
-    index_create_info.sharingMode = vk::SharingMode::eExclusive;
-
-    vma::AllocationCreateInfo index_alocation_info{};
-    index_alocation_info.usage = vma::MemoryUsage::eAuto;
-
-    staging_buffer = alocator.createBuffer(stage_buffer_info, stage_alloc_info, &stage_alloc_result);
-    vertex_buffer = alocator.createBuffer(vertex_create_info, vertex_alocation_info);
-    index_buffer = alocator.createBuffer(index_create_info, index_alocation_info);
 
     stanging_mapped_data = stage_alloc_result.pMappedData;
 }

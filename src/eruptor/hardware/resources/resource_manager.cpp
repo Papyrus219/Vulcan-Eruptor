@@ -1,6 +1,7 @@
 #include <Eruptor/lib/hardware/resources/resource_manager.hpp>
 #include <Eruptor/lib/hardware/command_manager.hpp>
 #include <Eruptor/lib/hardware/device.hpp>
+#include <Eruptor/lib/hardware/utilities.hpp>
 
 void eruptor::hardware::Resource_manager::Init(vma::raii::Allocator & allocator, vk::DeviceSize max_texture_buffor_size, vk::DeviceSize max_vertex_buffor_size, vk::DeviceSize max_index_buffor_size)
 {
@@ -27,10 +28,30 @@ void eruptor::hardware::Resource_manager::Init(vma::raii::Allocator & allocator,
     geometry_staging_buffer = allocator.createBuffer(stage_buffer_info, stage_alloc_info, stage_alloc_result);
     geometry_stage_mapped_data = stage_alloc_result.pMappedData;
 
+    vk::BufferCreateInfo vertex_create_info{};
+    vertex_create_info.usage = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
+    vertex_create_info.size = max_vertex_buffor_size;
+    vertex_create_info.sharingMode = vk::SharingMode::eExclusive;
+
+    vma::AllocationCreateInfo vertex_alocation_info{};
+    vertex_alocation_info.usage = vma::MemoryUsage::eAuto;
+
+    vk::BufferCreateInfo index_create_info{};
+    index_create_info.usage = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst;
+    index_create_info.size = max_index_buffor_size;
+    index_create_info.sharingMode = vk::SharingMode::eExclusive;
+
+    vma::AllocationCreateInfo index_alocation_info{};
+    index_alocation_info.usage = vma::MemoryUsage::eAuto;
+
+    geometry_buffer.vertex_buffer = allocator.createBuffer(vertex_create_info, vertex_alocation_info);
+    geometry_buffer.index_buffer = allocator.createBuffer(index_create_info, index_alocation_info);
+
+    vk::SemaphoreCreateInfo semaphore_info{};
+    transpose_complete_semafore = vk::raii::Semaphore(device->Get_device_handle(), semaphore_info);
+
     vk::FenceCreateInfo fence_info{};
-    fence_info.flags = vk::FenceCreateFlagBits::eSignaled;
-    vertex_stage_fence = vk::raii::Fence{device->Get_device_handle(), fence_info};
-    index_stage_fence = vk::raii::Fence{device->Get_device_handle(), fence_info};
+    upload_complete_fence = vk::raii::Fence(device->Get_device_handle(), fence_info);
 }
 
 void eruptor::hardware::Resource_manager::Assign_command_manager(Command_manager & command_manager)
@@ -62,7 +83,7 @@ uint32_t eruptor::hardware::Resource_manager::Stage_mesh_data(Mesh_data & mesh_d
     tmp_mesh.indices_offset = curr_index_offset / sizeof(uint32_t);
     tmp_mesh.indices_amount = mesh_data.indices.size();
     tmp_mesh.vertex_amount = mesh_data.vertecies.size();
-    tmp_mesh.texture_id = mesh_data.texture_id;
+    tmp_mesh.material_id = mesh_data.material_id;
 
     meshes.push_back( std::move(tmp_mesh) );
 
@@ -74,9 +95,11 @@ uint32_t eruptor::hardware::Resource_manager::Stage_mesh_data(Mesh_data & mesh_d
 
 uint32_t eruptor::hardware::Resource_manager::Stage_texture_data(Texture_data & texture_data)
 {
-    vk::DeviceSize image_size = texture_data.width * texture_data.height * 4;
+    vk::DeviceSize image_size = texture_data.width * texture_data.height * texture_data.tex_chanels;
 
-    if(curr_texture_offset + image_size > max_texture_buffor_size)
+    vk::DeviceSize alligned_size = (image_size + 3) & ~3;
+
+    if(curr_texture_offset + alligned_size > max_texture_buffor_size)
     {
         throw std::runtime_error{"ERROR::RESOURCE_MANAGER::Texture stage buffer overflow."};
     }
@@ -84,17 +107,146 @@ uint32_t eruptor::hardware::Resource_manager::Stage_texture_data(Texture_data & 
     memcpy(reinterpret_cast<char *>(texture_stage_mapped_memory) + curr_texture_offset, texture_data.pixels, image_size);
 
     Texture tmp_tex{};
-    tmp_tex.Init(*device, texture_data.width, texture_data.height, curr_texture_offset);
+    tmp_tex.Init(*device, texture_data.width, texture_data.height, texture_data.format, curr_texture_offset);
+    tmp_tex.offset_in_stage_buffer = curr_texture_offset;
+    tmp_tex.image_size = image_size;
+    tmp_tex.width = texture_data.width;
+    tmp_tex.height = texture_data.height;
 
     textures.push_back( std::move(tmp_tex) );
 
-    curr_texture_offset += image_size;
-
-    vk::FenceCreateInfo fence_info{};
-    fence_info.flags = vk::FenceCreateFlagBits::eSignaled;
-    textures_stage_fences.emplace_back(device->Get_device_handle(), fence_info);
+    curr_texture_offset += alligned_size;
 
     return textures.size() - 1;
+}
+
+void eruptor::hardware::Resource_manager::Upload_data_to_GPU()
+{
+    device->Get_device_handle().resetFences({upload_complete_fence});
+
+    auto & transpose_command_buffer = command_manager->Begin_transfer_command_record();
+
+    std::vector<vk::ImageMemoryBarrier> transpose_bariers{};
+    transpose_bariers.reserve( textures.size() );
+
+    vk::ImageMemoryBarrier tmp_barrier{};
+    tmp_barrier.oldLayout = vk::ImageLayout::eUndefined;
+    tmp_barrier.newLayout = vk::ImageLayout::eTransferDstOptimal;
+    tmp_barrier.srcQueueFamilyIndex = vk::QueueFamilyIgnored;
+    tmp_barrier.dstQueueFamilyIndex = vk::QueueFamilyIgnored;
+    tmp_barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+    tmp_barrier.subresourceRange.levelCount = 1;
+    tmp_barrier.subresourceRange.layerCount = 1;
+    tmp_barrier.srcAccessMask = {};
+    tmp_barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
+
+    for(auto & tex : textures)
+    {
+        tmp_barrier.image = tex.texture_image;
+        transpose_bariers.push_back( tmp_barrier );
+    }
+
+    transpose_command_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe, vk::PipelineStageFlagBits::eTransfer, {}, nullptr, nullptr, transpose_bariers);
+    transpose_bariers.clear();
+
+    transpose_command_buffer.copyBuffer(*geometry_staging_buffer, *geometry_buffer.vertex_buffer, vk::BufferCopy{0, 0, curr_vertex_offset});
+    transpose_command_buffer.copyBuffer(*geometry_staging_buffer, *geometry_buffer.index_buffer, vk::BufferCopy{max_vertex_buffor_size, 0, curr_index_offset});
+
+    vk::BufferImageCopy region{};
+    region.bufferRowLength = 0;
+    region.bufferImageHeight = 0;
+    region.imageSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+    region.imageSubresource.mipLevel = 0;
+    region.imageSubresource.baseArrayLayer = 0;
+    region.imageSubresource.layerCount = 1;
+    region.imageOffset = vk::Offset3D{0, 0, 0};
+
+    for(auto & tex : textures)
+    {
+        region.bufferOffset = tex.offset_in_stage_buffer;
+        region.imageExtent = vk::Extent3D{tex.width, tex.height, 1};
+
+        transpose_command_buffer.copyBufferToImage(texture_stage_buffer, tex.texture_image, vk::ImageLayout::eTransferDstOptimal, region);
+    }
+
+    if(device->queues.Get_graphics_queue_index() == device->queues.Get_transfer_queue_index())
+    {
+        tmp_barrier.oldLayout = vk::ImageLayout::eTransferDstOptimal;
+        tmp_barrier.newLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+        tmp_barrier.srcQueueFamilyIndex = vk::QueueFamilyIgnored;
+        tmp_barrier.dstQueueFamilyIndex = vk::QueueFamilyIgnored;
+        tmp_barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+        tmp_barrier.subresourceRange.levelCount = 1;
+        tmp_barrier.subresourceRange.layerCount = 1;
+        tmp_barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+        tmp_barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+
+        for(auto & tex : textures)
+        {
+            tmp_barrier.image = tex.texture_image;
+            transpose_bariers.push_back( tmp_barrier );
+        }
+        transpose_command_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eFragmentShader, {}, nullptr, nullptr, transpose_bariers);
+
+        command_manager->End_command_record(transpose_command_buffer);
+        command_manager->Submit_transfer_commands( transpose_command_buffer, {}, {}, {}, upload_complete_fence );
+
+        transpose_bariers.clear();
+    }
+    else
+    {
+        tmp_barrier.oldLayout = vk::ImageLayout::eTransferDstOptimal;
+        tmp_barrier.newLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+        tmp_barrier.srcQueueFamilyIndex = device->queues.Get_transfer_queue_index();
+        tmp_barrier.dstQueueFamilyIndex = device->queues.Get_graphics_queue_index();
+        tmp_barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+        tmp_barrier.subresourceRange.levelCount = 1;
+        tmp_barrier.subresourceRange.layerCount = 1;
+        tmp_barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+        tmp_barrier.dstAccessMask = {};
+
+        for(auto & tex : textures)
+        {
+            tmp_barrier.image = tex.texture_image;
+            transpose_bariers.push_back( tmp_barrier );
+        }
+        transpose_command_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eFragmentShader, {}, nullptr, nullptr, transpose_bariers);
+
+        std::vector<vk::Semaphore> semafores{};
+        semafores.push_back(transpose_complete_semafore);
+
+        command_manager->End_command_record(transpose_command_buffer);
+        command_manager->Submit_transfer_commands(transpose_command_buffer, {}, {}, semafores);
+        transpose_bariers.clear();
+
+        auto & graphic_command_buffer = command_manager->Begin_ownership_graphic_command_record();
+
+        tmp_barrier.oldLayout = vk::ImageLayout::eTransferDstOptimal;
+        tmp_barrier.newLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+        tmp_barrier.srcQueueFamilyIndex = device->queues.Get_transfer_queue_index();
+        tmp_barrier.dstQueueFamilyIndex = device->queues.Get_graphics_queue_index();
+        tmp_barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+        tmp_barrier.subresourceRange.levelCount = 1;
+        tmp_barrier.subresourceRange.layerCount = 1;
+        tmp_barrier.srcAccessMask = {};
+        tmp_barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+
+        for(auto & tex : textures)
+        {
+            tmp_barrier.image = tex.texture_image;
+            transpose_bariers.push_back( tmp_barrier );
+        }
+        graphic_command_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eFragmentShader, vk::PipelineStageFlagBits::eFragmentShader, {}, nullptr, nullptr, transpose_bariers);
+
+        command_manager->End_command_record(graphic_command_buffer);
+        command_manager->Submit_graphic_commands(graphic_command_buffer, std::vector<vk::PipelineStageFlags>{vk::PipelineStageFlagBits::eFragmentShader}, semafores, {}, upload_complete_fence);
+    }
+
+    auto result = device->Get_device_handle().waitForFences({upload_complete_fence}, vk::True, UINT64_MAX);
+
+    curr_index_offset = 0;
+    curr_vertex_offset = 0;
+    curr_texture_offset = 0;
 }
 
 void eruptor::hardware::Mesh_data::Clear()
@@ -102,3 +254,11 @@ void eruptor::hardware::Mesh_data::Clear()
     vertecies.clear();
     indices.clear();
 }
+
+
+
+
+
+
+
+
