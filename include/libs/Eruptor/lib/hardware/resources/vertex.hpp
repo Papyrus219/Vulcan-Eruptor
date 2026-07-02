@@ -34,8 +34,8 @@ struct Vertex
 
         attribute_descriptions[1].location = 1;
         attribute_descriptions[1].binding = 0;
-        attribute_descriptions[0].format = vk::Format::eR32G32B32Sfloat;
-        attribute_descriptions[0].offset = offsetof(Vertex, normals);
+        attribute_descriptions[1].format = vk::Format::eR32G32B32Sfloat;
+        attribute_descriptions[1].offset = offsetof(Vertex, normals);
 
         attribute_descriptions[2].location = 2;
         attribute_descriptions[2].binding = 0;

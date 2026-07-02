@@ -320,7 +320,7 @@ bool eruptor::hardware::Device::Is_device_sutiable(const vk::raii::PhysicalDevic
     return has_geometry_shader && supports_all_required_extensions && supports_graphics && supports_required_features && supports_presentation;
 }
 
-std::vector<uint32_t> eruptor::hardware::Queues::Get_unique_indices()
+std::vector<uint32_t> eruptor::hardware::Device::Queues::Get_unique_indices()
 {
     std::vector<uint32_t> result{ graphics_index };
     if(transfer_index != graphics_index) result.push_back(transfer_index);

@@ -10,51 +10,108 @@
 void eruptor::resource::Resource_manager::Init(hardware::Resource_manager & hw_resource_manager)
 {
     this->hw_resource_manager = &hw_resource_manager;
+
+    hardware::Texture_data tex_data{};
+    tex_data.pixels = stbi_load("../../textures/nothing.png", &tex_data.width, &tex_data.height, &tex_data.tex_chanels, STBI_rgb_alpha);
+
+    if(!tex_data.pixels)
+    {
+        throw std::runtime_error{"failed to load nothing texture!"};
+    }
+
+    tex_data.format = vk::Format::eR8G8B8A8Srgb;
+
+    textures_handles.push_back( Texture_handle{ hw_resource_manager.Stage_texture_data( tex_data ) } );
+    stbi_image_free( tex_data.pixels );
 }
 
-void eruptor::resource::Resource_manager::Load_model(Model & model, const std::filesystem::path & path)
+eruptor::resource::Model & eruptor::resource::Resource_manager::Get_model(Model_handle & model_handle)
+{
+    return models[ model_handle.Get_id() ];
+}
+
+eruptor::resource::Material eruptor::resource::Resource_manager::Get_material(Material_handle & material_handle)
+{
+    return materials[ material_handle.Get_id() ];
+}
+
+eruptor::resource::Model_handle eruptor::resource::Resource_manager::Add_model(const std::filesystem::path & path)
+{
+    auto it = std::ranges::find_if(models,
+              [&path](const Model & model)
+              {
+                return model.path == path;
+              });
+
+    if(it != models.end())
+    {
+        return Model_handle{ static_cast<uint32_t>( it - models.begin() ) };
+    }
+
+    models.push_back({Status::PENDING, path});
+    return Model_handle{ static_cast<uint32_t>(models.size() - 1) };
+}
+
+void eruptor::resource::Resource_manager::Load_models()
+{
+    for(auto & model : models)
+    {
+        Load_model(model);
+    }
+
+    hw_resource_manager->Upload_data_to_GPU();
+}
+
+void eruptor::resource::Resource_manager::Load_model(Model & model)
 {
     Assimp::Importer importer{};
-    const aiScene * scene = importer.ReadFile(path, aiProcess_Triangulate);
+    const aiScene * scene = importer.ReadFile(model.path, aiProcess_Triangulate);
 
     if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
+        model.status = Status::ERROR;
         throw std::runtime_error{" ERROR::REOUURCE::RESOURCE_MANAGER::Failed to load model."};
     }
-    auto directory = path.parent_path();
+    auto directory = model.path.parent_path();
 
-    Process_node(scene->mRootNode, scene, model);
+    Process_node(scene->mRootNode, scene, model, directory);
+    model.status = Status::LODADED;
 }
 
-void eruptor::resource::Resource_manager::Process_node(aiNode* node, const aiScene* scene, Model& model)
+void eruptor::resource::Resource_manager::Process_node(aiNode* node, const aiScene* scene, Model& model, const std::filesystem::path & directory)
 {
     for(auto i{0u}; i < node->mNumMeshes; i++)
     {
         aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-        Process_mesh(mesh, scene, model);
+        Process_mesh(mesh, scene, model, directory);
     }
 
     for(auto i{0u}; i < node->mNumChildren; i++)
     {
-        Process_node(node->mChildren[i], scene, model);
+        Process_node(node->mChildren[i], scene, model, directory);
     }
 }
 
-void eruptor::resource::Resource_manager::Process_mesh(aiMesh* mesh, const aiScene* scene, Model& model)
+void eruptor::resource::Resource_manager::Process_mesh(aiMesh* mesh, const aiScene* scene, Model& model, const std::filesystem::path & directory)
 {
+    hardware::Mesh_data mesh_data{};
     if(mesh->mMaterialIndex >= 0)
     {
         Material material{};
         aiMaterial * ai_material = scene->mMaterials[mesh->mMaterialIndex];
 
-       material.diffuse_texture_handle = Load_material_texture(ai_material, aiTextureType_DIFFUSE, Texture_type::DIFFUSE);
-       material.specular_texture_handle = Load_material_texture(ai_material, aiTextureType_SPECULAR, Texture_type::SPECULAR);
+        material.diffuse_texture_handle = Load_material_texture(ai_material, aiTextureType_DIFFUSE, Texture_type::DIFFUSE, directory);
+        material.specular_texture_handle = Load_material_texture(ai_material, aiTextureType_SPECULAR, Texture_type::SPECULAR, directory);
 
-       this->materials.push_back(material);
-       model.materials_handles.emplace_back( static_cast<uint32_t>(materials.size() - 1) ) ;
+        this->materials.push_back(material);
+        model.materials_handles.emplace_back( static_cast<uint32_t>(materials.size() - 1) ) ;
+        mesh_data.material_id = materials.size() - 1;
+    }
+    else
+    {
+        mesh_data.material_id = 0;
     }
 
-    hardware::Mesh_data mesh_data{};
     for(auto i{0u}; i < mesh->mNumVertices; i++)
     {
         hardware::Vertex vertex{};
@@ -95,24 +152,30 @@ void eruptor::resource::Resource_manager::Process_mesh(aiMesh* mesh, const aiSce
         }
     }
 
-    mesh_data.material_id = model.materials_handles.size() - 1;
-
     Mesh_handle mesh_handle{ hw_resource_manager->Stage_mesh_data( mesh_data ) };
     mesh_handles.push_back(mesh_handle);
     model.Meshes_handles.push_back( mesh_handle );
 }
 
-eruptor::resource::Texture_handle eruptor::resource::Resource_manager::Load_material_texture(aiMaterial* mat, aiTextureType ai_type, Texture_type type)
+eruptor::resource::Texture_handle eruptor::resource::Resource_manager::Load_material_texture(aiMaterial* mat, aiTextureType ai_type, Texture_type type, const std::filesystem::path & directory)
 {
     hardware::Texture_data tex_data{};
 
     aiString str{};
-    mat->GetTexture(ai_type, 0, &str);
+    if(mat->GetTexture(ai_type, 0, &str) != AI_SUCCESS)
+    {
+        return Texture_handle{0};
+    }
     tex_data.format = (type == Texture_type::DIFFUSE)? vk::Format::eR8G8B8A8Srgb : vk::Format::eR8Unorm;
+
+    if(str.Empty())
+    {
+        return Texture_handle{0};
+    }
 
     int loaded_chanels = (type == Texture_type::DIFFUSE)? STBI_rgb_alpha : STBI_grey;
 
-    tex_data.pixels = stbi_load(str.C_Str(), &tex_data.width, &tex_data.height, &tex_data.tex_chanels, loaded_chanels);
+    tex_data.pixels = stbi_load( (directory / std::filesystem::path{str.C_Str()}.filename()).string().c_str()  , &tex_data.width, &tex_data.height, &tex_data.tex_chanels, loaded_chanels);
 
     if(!tex_data.pixels)
     {
@@ -123,6 +186,8 @@ eruptor::resource::Texture_handle eruptor::resource::Resource_manager::Load_mate
 
     Texture_handle tex_handle{ hw_resource_manager->Stage_texture_data(tex_data)};
     textures_handles.push_back(tex_handle);
+
+    stbi_image_free(tex_data.pixels);
 
     return tex_handle;
 }

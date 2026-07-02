@@ -64,6 +64,17 @@ void eruptor::hardware::Resource_manager::Assign_device(Device & device)
     this->device = &device;
 }
 
+eruptor::hardware::Mesh eruptor::hardware::Resource_manager::Get_mesh(uint32_t mesh_index)
+{
+    return meshes[ mesh_index ];
+}
+
+vk::ImageView eruptor::hardware::Resource_manager::Get_texture_view(uint32_t texture_index)
+{
+    return *textures[ texture_index ].texture_view;
+}
+
+
 uint32_t eruptor::hardware::Resource_manager::Stage_mesh_data(Mesh_data & mesh_data)
 {
     if(curr_vertex_offset + (mesh_data.vertecies.size() * sizeof(Vertex)) > max_vertex_buffor_size)
@@ -118,6 +129,12 @@ uint32_t eruptor::hardware::Resource_manager::Stage_texture_data(Texture_data & 
     curr_texture_offset += alligned_size;
 
     return textures.size() - 1;
+}
+
+void eruptor::hardware::Resource_manager::Bind_geometry_buffer(vk::raii::CommandBuffer & command_buffer)
+{
+    command_buffer.bindVertexBuffers(0, *geometry_buffer.vertex_buffer, {0});
+    command_buffer.bindIndexBuffer(*geometry_buffer.index_buffer, 0, vk::IndexType::eUint32);
 }
 
 void eruptor::hardware::Resource_manager::Upload_data_to_GPU()

@@ -16,6 +16,9 @@ class Pipeline
 {
 public:
     void Init(Device & device, Swapchain & swapchain);
+
+    vk::raii::Pipeline & Get_pipeline_handle() {return graphics_pipeline;}
+
 private:
     void Create_graphics_pipeline(Device & device, Swapchain & swapchain);
     [[nodiscard]] vk::raii::ShaderModule Create_shader_module(Device & device, const std::vector<char>& code) const;

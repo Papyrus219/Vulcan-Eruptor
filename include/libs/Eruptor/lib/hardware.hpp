@@ -7,12 +7,12 @@
 #include <Eruptor/lib/hardware/swapchain.hpp>
 #include <Eruptor/lib/hardware/pipeline.hpp>
 #include <Eruptor/lib/hardware/command_manager.hpp>
-#include <Eruptor/lib/hardware/geometry_buffer.hpp>
+#include <Eruptor/lib/hardware/resources/resource_manager.hpp>
 
 namespace eruptor::hardware
 {
 
-///@TODO Add utilities namespace
+///@TODO Add missing components and make first demo.
 
 class Hardware
 {
@@ -25,8 +25,9 @@ public:
     Swapchain & Get_swapchain() {return swapchain;}
     Pipeline & Get_pipeline() {return pipeline;}
     Command_manager & Get_command_manager() {return command_manager;}
-    Geometry_buffer & Get_geometry_buffer() {return geometry_buffer;}
+    Resource_manager & Get_resource_manager() {return resource_manager;}
 
+    static constexpr int MAX_FRAMES_IN_FLIGHT{2};
 private:
     Core core{};
     Device device{};
@@ -34,9 +35,7 @@ private:
     Swapchain swapchain{};
     Pipeline pipeline{};
     Command_manager command_manager{};
-    Geometry_buffer geometry_buffer{};
-
-    static constexpr int MAX_FRAMES_IN_FLIGHT{2};
+    Resource_manager resource_manager{};
 };
 
 }

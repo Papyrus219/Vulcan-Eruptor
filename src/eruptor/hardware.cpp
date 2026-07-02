@@ -12,5 +12,8 @@ void eruptor::hardware::Hardware::Init()
     swapchain.Init(device, window, core.Get_surface_handle());
     pipeline.Init(device, swapchain);
     command_manager.Init(device, MAX_FRAMES_IN_FLIGHT);
-    geometry_buffer.Init( device.Get_alocator_handle(), 20_GiB, 10_GiB);
+
+    resource_manager.Assign_device( device );
+    resource_manager.Assign_command_manager( command_manager );
+    resource_manager.Init(device.Get_alocator_handle(), 64_MiB, 64_MiB, 64_MiB );
 }

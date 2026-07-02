@@ -1,6 +1,6 @@
 #include <Eruptor/lib/hardware/utilities.hpp>
 
-void eruptor::hardware::utilities::Transition_image_layout(vk::raii::CommandBuffer & commad_buffer, const vk::raii::Image & image, vk::ImageLayout old_layout, vk::ImageLayout new_layout, uint32_t src_queue, uint32_t dst_queue, vk::ImageAspectFlags image_aspect_flags)
+void eruptor::hardware::utilities::Transition_image_layout(vk::raii::CommandBuffer & commad_buffer, const vk::Image & image, vk::ImageLayout old_layout, vk::ImageLayout new_layout, uint32_t src_queue, uint32_t dst_queue, vk::ImageAspectFlags image_aspect_flags)
 {
     vk::ImageMemoryBarrier barrier{};
     barrier.oldLayout = old_layout;
@@ -31,6 +31,20 @@ void eruptor::hardware::utilities::Transition_image_layout(vk::raii::CommandBuff
 
         source_stage      = vk::PipelineStageFlagBits::eTransfer;
         destination_stage = vk::PipelineStageFlagBits::eFragmentShader;
+    }
+    else if (old_layout == vk::ImageLayout::eUndefined && new_layout == vk::ImageLayout::eColorAttachmentOptimal)
+    {
+        barrier.srcAccessMask = {};
+        barrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+        source_stage      = vk::PipelineStageFlagBits::eTopOfPipe;
+        destination_stage = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+    }
+    else if (old_layout == vk::ImageLayout::eColorAttachmentOptimal && new_layout == vk::ImageLayout::ePresentSrcKHR)
+    {
+        barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+        barrier.dstAccessMask = {};
+        source_stage      = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+        destination_stage = vk::PipelineStageFlagBits::eBottomOfPipe;
     }
     else
     {

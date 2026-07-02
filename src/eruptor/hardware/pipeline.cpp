@@ -55,7 +55,7 @@ void eruptor::hardware::Pipeline::Create_graphics_pipeline(Device& device, Swapc
     rasterizer.depthClampEnable = vk::False;
     rasterizer.rasterizerDiscardEnable = vk::False;
     rasterizer.polygonMode = vk::PolygonMode::eFill;
-    rasterizer.cullMode = vk::CullModeFlagBits::eBack;
+    rasterizer.cullMode = vk::CullModeFlagBits::eNone;
     rasterizer.frontFace = vk::FrontFace::eClockwise;
     rasterizer.depthBiasEnable = vk::False;
     rasterizer.lineWidth = 1.0f;

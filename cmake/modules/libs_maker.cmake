@@ -19,7 +19,7 @@ function(Make_library)
 
     add_library(${arg_TARGET} ${${arg_SOURCES}})
 
-    target_include_directories(${arg_TARGET} PRIVATE ${PROJECT_SOURCE_DIR}/include//libs/)
+    target_include_directories(${arg_TARGET} PUBLIC ${PROJECT_SOURCE_DIR}/include/libs/)
 
     target_compile_features(${arg_TARGET} PRIVATE ${arg_COMPILATION_FEATURES})
 

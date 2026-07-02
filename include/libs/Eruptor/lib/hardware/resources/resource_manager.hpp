@@ -25,8 +25,13 @@ public:
     void Assign_command_manager(Command_manager & command_manager);
     void Assign_device(Device & device);
 
+    Mesh Get_mesh(uint32_t mesh_index);
+    vk::ImageView Get_texture_view(uint32_t texture_index);
+
     uint32_t Stage_mesh_data(Mesh_data & mesh_data);
     uint32_t Stage_texture_data(Texture_data & texture_data);
+
+    void Bind_geometry_buffer(vk::raii::CommandBuffer & command_buffer);
 
     void Upload_data_to_GPU();
 

@@ -22,6 +22,11 @@ public:
     const vk::SurfaceFormatKHR & Get_surface_format() const {return swap_chain_surface_format;}
     const vk::Extent2D & Get_extent() const {return swap_chain_extent;}
 
+    uint32_t Get_image_count() {return swap_chain_images.size();}
+
+    vk::Image & Get_image(uint32_t id) {return swap_chain_images[id]; }
+    vk::raii::ImageView & Get_image_view(uint32_t id) {return swap_chain_image_views[id];}
+
     vk::Format Find_depth_format(Device & device);
 
 private:
@@ -36,7 +41,7 @@ private:
 
     vk::raii::SwapchainKHR swap_chain = nullptr;
     std::vector<vk::Image> swap_chain_images{};
-    std::vector<vk::ImageView> swap_chain_image_views{};
+    std::vector<vk::raii::ImageView> swap_chain_image_views{};
     vk::SurfaceFormatKHR swap_chain_surface_format{};
     vk::Extent2D swap_chain_extent{};
 
