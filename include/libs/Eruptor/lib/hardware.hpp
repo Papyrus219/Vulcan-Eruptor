@@ -5,6 +5,7 @@
 #include <Eruptor/lib/hardware/device.hpp>
 #include <Eruptor/lib/hardware/window.hpp>
 #include <Eruptor/lib/hardware/swapchain.hpp>
+#include <Eruptor/lib/hardware/uniform_buffers.hpp>
 #include <Eruptor/lib/hardware/pipeline.hpp>
 #include <Eruptor/lib/hardware/command_manager.hpp>
 #include <Eruptor/lib/hardware/resources/resource_manager.hpp>
@@ -22,6 +23,7 @@ public:
     Core & Get_core() {return core;}
     Window & Get_window() {return window;}
     Device & Get_device() {return device;}
+    Uniform_buffers & Get_uniform_buffers() {return uniform_buffers;}
     Swapchain & Get_swapchain() {return swapchain;}
     Pipeline & Get_pipeline() {return pipeline;}
     Command_manager & Get_command_manager() {return command_manager;}
@@ -32,6 +34,7 @@ private:
     Core core{};
     Device device{};
     Window window{};
+    Uniform_buffers uniform_buffers{};
     Swapchain swapchain{};
     Pipeline pipeline{};
     Command_manager command_manager{};

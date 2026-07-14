@@ -10,7 +10,8 @@ void eruptor::hardware::Hardware::Init()
     core.Init(window.Get_glfw_window());
     device.Init(core);
     swapchain.Init(device, window, core.Get_surface_handle());
-    pipeline.Init(device, swapchain);
+    uniform_buffers.Init(device, MAX_FRAMES_IN_FLIGHT);
+    pipeline.Init(device, swapchain, uniform_buffers);
     command_manager.Init(device, MAX_FRAMES_IN_FLIGHT);
 
     resource_manager.Assign_device( device );

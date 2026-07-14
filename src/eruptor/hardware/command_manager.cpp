@@ -81,6 +81,16 @@ vk::raii::CommandBuffer & eruptor::hardware::Command_manager::Begin_ownership_gr
     return graphic_ownership_command_buffor;
 }
 
+vk::raii::CommandBuffer & eruptor::hardware::Command_manager::Get_graphic_command_buffor(int current_frame)
+{
+    return graphics_command_buffers[ current_frame ];
+}
+
+vk::raii::CommandBuffer & eruptor::hardware::Command_manager::Get_compute_command_buffor(int current_frame)
+{
+    return compute_command_buffers[ current_frame ];
+}
+
 void eruptor::hardware::Command_manager::End_command_record(vk::raii::CommandBuffer& command_buffer)
 {
     command_buffer.end();

@@ -12,13 +12,17 @@ int main()
     auto & rend = test.Get_renderer();
     auto & men = test.Get_resource_manager();
 
-    auto handle = men.Add_model("../../tmp_models/cube.obj");
+    auto handle_1 = men.Add_model("../../tmp_models/cube.obj");
 
     men.Load_models();
 
     while(rend.Is_window_open())
     {
-        rend.Render_model( handle );
+        rend.Begin_frame();
+
+        rend.Render_model( handle_1 );
+
+        rend.End_frame();
     }
 
     return 0;

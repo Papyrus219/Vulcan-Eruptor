@@ -24,6 +24,7 @@ src/eruptor/hardware/core.cpp
 src/eruptor/hardware/device.cpp
 src/eruptor/hardware/window.cpp
 src/eruptor/hardware/swapchain.cpp
+src/eruptor/hardware/uniform_buffers.cpp
 src/eruptor/hardware/pipeline.cpp
 src/eruptor/hardware/command_manager.cpp
 src/eruptor/hardware/vma.cpp

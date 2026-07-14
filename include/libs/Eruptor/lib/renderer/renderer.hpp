@@ -27,6 +27,8 @@ public:
 
     bool Is_window_open();
 
+    void Begin_frame();
+    void End_frame();
     void Render_model(resource::Model_handle model_handle);
 
 private:
@@ -35,7 +37,8 @@ private:
     hardware::Hardware * hardware{};
     resource::Resource_manager * rs_resource_manager{};
 
-    uint32_t current_frame = 0;
+    uint32_t current_image_index{};
+    uint32_t current_frame{};
 };
 
 }

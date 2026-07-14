@@ -1,15 +1,16 @@
 #include <Eruptor/lib/hardware/pipeline.hpp>
 #include <Eruptor/lib/hardware/device.hpp>
 #include <Eruptor/lib/hardware/swapchain.hpp>
+#include <Eruptor/lib/hardware/uniform_buffers.hpp>
 #include <Eruptor/lib/hardware/resources/vertex.hpp>
 #include <fstream>
 
-void eruptor::hardware::Pipeline::Init(Device& device, Swapchain & swapchain)
+void eruptor::hardware::Pipeline::Init(Device& device, Swapchain & swapchain, Uniform_buffers & uniforms_buffers)
 {
-    Create_graphics_pipeline(device, swapchain);
+    Create_graphics_pipeline(device, swapchain, uniforms_buffers);
 }
 
-void eruptor::hardware::Pipeline::Create_graphics_pipeline(Device& device, Swapchain & swapchain)
+void eruptor::hardware::Pipeline::Create_graphics_pipeline(Device& device, Swapchain & swapchain, Uniform_buffers & uniforms_buffers)
 {
     vk::raii::ShaderModule shader_module = Create_shader_module(device, Read_file("./shaders/slang.spv"));
 
@@ -56,7 +57,7 @@ void eruptor::hardware::Pipeline::Create_graphics_pipeline(Device& device, Swapc
     rasterizer.rasterizerDiscardEnable = vk::False;
     rasterizer.polygonMode = vk::PolygonMode::eFill;
     rasterizer.cullMode = vk::CullModeFlagBits::eNone;
-    rasterizer.frontFace = vk::FrontFace::eClockwise;
+    rasterizer.frontFace = vk::FrontFace::eCounterClockwise;
     rasterizer.depthBiasEnable = vk::False;
     rasterizer.lineWidth = 1.0f;
 
@@ -88,7 +89,7 @@ void eruptor::hardware::Pipeline::Create_graphics_pipeline(Device& device, Swapc
     color_blending.pAttachments = &color_blend_attachment;
 
     vk::PipelineLayoutCreateInfo pipeline_layout_info{};
-    pipeline_layout_info.setLayoutCount = 0;
+    pipeline_layout_info.setSetLayouts( *uniforms_buffers.Get_descriptor_set_layout() );
     pipeline_layout_info.pushConstantRangeCount = 0;
 
     pipeline_layout = vk::raii::PipelineLayout{device.Get_device_handle(), pipeline_layout_info};

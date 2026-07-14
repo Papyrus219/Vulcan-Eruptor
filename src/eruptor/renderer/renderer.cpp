@@ -39,14 +39,13 @@ void eruptor::renderer::Renderer::Init(hardware::Hardware & hardware, resource::
     }
 }
 
-void eruptor::renderer::Renderer::Render_model(resource::Model_handle model_handle)
+void eruptor::renderer::Renderer::Begin_frame()
 {
-
     auto & device = hardware->Get_device();
     auto & swap_chain = hardware->Get_swapchain();
     auto & hw_resource_manager = hardware->Get_resource_manager();
     auto & command_manager = hardware->Get_command_manager();
-    auto & command_buffor = command_manager.Begin_graphic_command_record(0);
+    auto & command_buffor = command_manager.Begin_graphic_command_record(current_frame);
 
     auto fenceResult = device.Get_device_handle().waitForFences(*frame_syncs[current_frame].in_flight_fences, vk::True, UINT64_MAX);
     if (fenceResult != vk::Result::eSuccess)
@@ -60,13 +59,13 @@ void eruptor::renderer::Renderer::Render_model(resource::Model_handle model_hand
     hardware::utilities::Transition_image_layout(
         command_buffor,
         swap_chain.Get_image(imageIndex),
-        vk::ImageLayout::eUndefined,
-        vk::ImageLayout::eColorAttachmentOptimal,
-        vk::QueueFamilyIgnored,
-        vk::QueueFamilyIgnored,
-        vk::ImageAspectFlagBits::eColor
+                                                 vk::ImageLayout::eUndefined,
+                                                 vk::ImageLayout::eColorAttachmentOptimal,
+                                                 vk::QueueFamilyIgnored,
+                                                 vk::QueueFamilyIgnored,
+                                                 vk::ImageAspectFlagBits::eColor
     );
-    vk::ClearValue              clearColor     = vk::ClearColorValue(0.0f, 0.0f, 0.0f, 1.0f);
+    vk::ClearValue              clearColor     = vk::ClearColorValue(0.6f, 0.7f, 0.2f, 1.0f);
     vk::RenderingAttachmentInfo attachmentInfo = {};
     attachmentInfo.setImageView(swap_chain.Get_image_view(imageIndex));
     attachmentInfo.setImageLayout(vk::ImageLayout::eColorAttachmentOptimal);
@@ -90,26 +89,26 @@ void eruptor::renderer::Renderer::Render_model(resource::Model_handle model_hand
 
     hw_resource_manager.Bind_geometry_buffer( command_buffor );
 
-    auto & model = rs_resource_manager->Get_model( model_handle );
+    current_image_index = imageIndex;
+}
 
-    for(auto mesh_handle : model.Meshes_handles)
-    {
-        auto mesh = hw_resource_manager.Get_mesh( mesh_handle );
-
-        command_buffor.drawIndexed(mesh.indices_amount, 1, mesh.indices_offset, mesh.vertex_offset, 0);
-    }
+void eruptor::renderer::Renderer::End_frame()
+{
+    auto & command_manager = hardware->Get_command_manager();
+    auto & command_buffor = command_manager.Get_graphic_command_buffor( current_frame );
+    auto & device = hardware->Get_device();
+    auto & swap_chain = hardware->Get_swapchain();
 
     command_buffor.endRendering();
 
-            // After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
-    hardware::utilities::Transition_image_layout(
+   hardware::utilities::Transition_image_layout(
         command_buffor,
-        swap_chain.Get_image(imageIndex),
-        vk::ImageLayout::eColorAttachmentOptimal,
-        vk::ImageLayout::ePresentSrcKHR,
-        vk::QueueFamilyIgnored,                // srcAccessMask
-        vk::QueueFamilyIgnored,                                     // dstAccessMask
-        vk::ImageAspectFlagBits::eColor                  // dstStage
+        swap_chain.Get_image(current_image_index),
+                                                 vk::ImageLayout::eColorAttachmentOptimal,
+                                                 vk::ImageLayout::ePresentSrcKHR,
+                                                 vk::QueueFamilyIgnored,                // srcAccessMask
+                                                 vk::QueueFamilyIgnored,                                     // dstAccessMask
+                                                 vk::ImageAspectFlagBits::eColor                  // dstStage
     );
 
     command_buffor.end();
@@ -117,23 +116,38 @@ void eruptor::renderer::Renderer::Render_model(resource::Model_handle model_hand
 
     device.queues.Get_graphics_queue_handle().waitIdle();
 
-        vk::PresentInfoKHR presentInfoKHR{};
-        presentInfoKHR.setWaitSemaphores( *frame_syncs[current_frame].render_finished );
-        presentInfoKHR.setSwapchains( *swap_chain.Get_swapchain_handle() );
-        presentInfoKHR.setImageIndices( imageIndex );
+    vk::PresentInfoKHR presentInfoKHR{};
+    presentInfoKHR.setWaitSemaphores( *frame_syncs[current_frame].render_finished );
+    presentInfoKHR.setSwapchains( *swap_chain.Get_swapchain_handle() );
+    presentInfoKHR.setImageIndices( current_image_index );
 
-        result = device.queues.Get_graphics_queue_handle().presentKHR(presentInfoKHR);
-        switch (result)
-        {
-            case vk::Result::eSuccess:
-                break;
-            case vk::Result::eSuboptimalKHR:
-                break;
-            default:
-                break;        // an unexpected result is returned!
-        }
+    auto result = device.queues.Get_graphics_queue_handle().presentKHR(presentInfoKHR);
+    switch (result)
+    {
+        case vk::Result::eSuccess:
+            break;
+        case vk::Result::eSuboptimalKHR:
+            break;
+        default:
+            break;
+    }
 
-    current_frame = (current_frame + 1) % static_cast<uint32_t>(frame_syncs.size());
+    current_frame = (current_frame + 1) % static_cast<uint32_t>(hardware->MAX_FRAMES_IN_FLIGHT);
+}
+
+void eruptor::renderer::Renderer::Render_model(resource::Model_handle model_handle)
+{
+    auto & command_buffor = hardware->Get_command_manager().Get_graphic_command_buffor( current_frame );
+    auto & hw_resource_manager = hardware->Get_resource_manager();
+    auto & model = rs_resource_manager->Get_model( model_handle );
+
+    for(auto mesh_handle : model.Meshes_handles)
+    {
+        auto mesh = hw_resource_manager.Get_mesh( mesh_handle );
+
+        hardware->Get_uniform_buffers().Bind_mvp_buffer(command_buffor, current_frame, hardware->Get_pipeline());
+        command_buffor.drawIndexed(mesh.indices_amount, 1, mesh.indices_offset, mesh.vertex_offset, 0);
+    }
 }
 
 bool eruptor::renderer::Renderer::Is_window_open()

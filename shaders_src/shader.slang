@@ -12,13 +12,19 @@ struct VertexOutput
     float2 frag_tex_coord;
 };
 
+struct Unifrom_buffer_mvp
+{
+    float4 model;
+    float4 view;
+    float4 projection;
+};
+ConstantBuffer<Unifrom_buffer_mvp> ub_mvp;
+
 [shader("vertex")]
 VertexOutput Vert_main(VSInput input)
 {
     VertexOutput output;
-    float4 localPos = float4(input.in_position * 0.5, 1.0); // skaluj, żeby cała kostka mieściła się w z: 0..1 po prostym triku
-    output.pos = localPos;
-    output.pos.z = output.pos.z * 0.5 + 0.5; // wepchnij Z z zakresu [-0.5,0.5] w [0,1] dla Vulkan NDC
+    output.pos = mul(ub_mvp.projection, mul(ub_mvp.view, mul(ub_mvp.model, float4(input.in_position, 1.0))));
     output.frag_tex_coord = input.in_tex_coord;
     output.normals = input.normals;
     return output;
