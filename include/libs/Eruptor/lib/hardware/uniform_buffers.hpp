@@ -28,7 +28,7 @@ public:
 
     vk::raii::DescriptorSetLayout & Get_descriptor_set_layout() {return descriptor_set_layout;}
 
-    void Bind_mvp_buffer(vk::raii::CommandBuffer & command_buffer, uint32_t frame_index, Pipeline & pipeline);
+    void Bind_mvp_buffer(vk::raii::CommandBuffer & command_buffer, uint32_t frame_index, Pipeline & pipeline, const glm::mat4 & view);
 private:
     void Create_descriptor_set_layouts(const vk::raii::Device & device);
     void Create_uniform_buffers(vma::raii::Allocator & alocator, const uint32_t MAX_FRAMES_IN_FLIGHTS);

@@ -38,15 +38,24 @@ set(RESOURCE_SRC src/eruptor/resource/resource_manager.cpp
 src/eruptor/resource/resource_handle.cpp
 src/eruptor/resource/resource.cpp)
 
-set(RENDERER_SRC src/eruptor/renderer/renderer.cpp)
+set(RENDERER_SRC src/eruptor/renderer/renderer.cpp
+src/eruptor/renderer/cameras.cpp)
+
+set(EVENT_SRC src/eruptor/event/event_manager.cpp
+src/eruptor/event/event_listener.cpp)
 
 set(ENGINE_SRC src/eruptor/eruptor.cpp)
 
 add_slang_shader_target(main_shader SOURCES ${CMAKE_SOURCE_DIR}/shaders_src/shader.slang)
 
+Make_library(TARGET eruptor_event
+SOURCES EVENT_SRC
+COMPILATION_FEATURES cxx_std_23)
+
 Make_library(TARGET eruptor_hardware
 SOURCES HARDWARE_SRC
 LIBRARIES_TO_LINK_PUB Vulkan::Vulkan glm::glm glfw VulkanMemoryAllocator-Hpp::VulkanMemoryAllocator-Hpp
+LIBRARIES_TO_LINK_PRIV eruptor_event
 COMPILATION_FEATURES cxx_std_23)
 
 add_dependencies(eruptor_hardware main_shader)
@@ -56,16 +65,18 @@ target_include_directories(eruptor_hardware PUBLIC ${vmahpp_SOURCE_DIR}/include)
 Make_library(TARGET eruptor_resource
 SOURCES RESOURCE_SRC
 LIBRARIES_TO_LINK_PRIV eruptor_hardware assimp::assimp
+LIBRARIES_TO_LINK_PRIV eruptor_event
 COMPILATION_FEATURES cxx_std_23)
 
 Make_library(TARGET eruptor_renderer
 SOURCES RENDERER_SRC
 LIBRARIES_TO_LINK_PRIV eruptor_hardware eruptor_resource Vulkan::Vulkan
+LIBRARIES_TO_LINK_PRIV eruptor_event
 COMPILATION_FEATURES cxx_std_23)
 
 Make_library(TARGET eruptor_engine
 SOURCES ENGINE_SRC
-LIBRARIES_TO_LINK_PRIV eruptor_hardware
+LIBRARIES_TO_LINK_PRIV eruptor_hardware eruptor_event
 LIBRARIES_TO_LINK_PUB eruptor_resource eruptor_renderer
 COMPILATION_FEATURES cxx_std_23)
 

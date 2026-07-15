@@ -14,9 +14,9 @@ struct VertexOutput
 
 struct Unifrom_buffer_mvp
 {
-    float4 model;
-    float4 view;
-    float4 projection;
+    float4x4 model;
+    float4x4 view;
+    float4x4 projection;
 };
 ConstantBuffer<Unifrom_buffer_mvp> ub_mvp;
 

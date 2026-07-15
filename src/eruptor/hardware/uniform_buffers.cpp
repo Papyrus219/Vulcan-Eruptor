@@ -90,11 +90,12 @@ void eruptor::hardware::Uniform_buffers::Create_descriptors_sets(const vk::raii:
     }
 }
 
-void eruptor::hardware::Uniform_buffers::Bind_mvp_buffer(vk::raii::CommandBuffer& command_buffer, uint32_t frame_index, Pipeline & pipeline)
+void eruptor::hardware::Uniform_buffers::Bind_mvp_buffer(vk::raii::CommandBuffer& command_buffer, uint32_t frame_index, Pipeline & pipeline, const glm::mat4 & view)
 {
     hardware::Uniform_buffer_mvp ubo{};
+    ubo.model = glm::translate(ubo.model, {0.0f, 0.0f, -2.0f});
     ubo.model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.view = view;
     ubo.proj = glm::perspective(glm::radians(45.0f), static_cast<float>(800) / static_cast<float>(600), 0.1f, 10.0f);
     ubo.proj[1][1] *= -1;
 

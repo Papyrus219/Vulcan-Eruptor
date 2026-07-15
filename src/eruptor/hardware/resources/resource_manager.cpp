@@ -227,7 +227,7 @@ void eruptor::hardware::Resource_manager::Upload_data_to_GPU()
             tmp_barrier.image = tex.texture_image;
             transpose_bariers.push_back( tmp_barrier );
         }
-        transpose_command_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eFragmentShader, {}, nullptr, nullptr, transpose_bariers);
+        transpose_command_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eBottomOfPipe, {}, nullptr, nullptr, transpose_bariers);
 
         std::vector<vk::Semaphore> semafores{};
         semafores.push_back(transpose_complete_semafore);
@@ -253,7 +253,7 @@ void eruptor::hardware::Resource_manager::Upload_data_to_GPU()
             tmp_barrier.image = tex.texture_image;
             transpose_bariers.push_back( tmp_barrier );
         }
-        graphic_command_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eFragmentShader, vk::PipelineStageFlagBits::eFragmentShader, {}, nullptr, nullptr, transpose_bariers);
+        graphic_command_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe, vk::PipelineStageFlagBits::eFragmentShader, {}, nullptr, nullptr, transpose_bariers);
 
         command_manager->End_command_record(graphic_command_buffer);
         command_manager->Submit_graphic_commands(graphic_command_buffer, std::vector<vk::PipelineStageFlags>{vk::PipelineStageFlagBits::eFragmentShader}, semafores, {}, upload_complete_fence);
@@ -271,7 +271,6 @@ void eruptor::hardware::Mesh_data::Clear()
     vertecies.clear();
     indices.clear();
 }
-
 
 
 

@@ -57,7 +57,7 @@ void eruptor::hardware::Pipeline::Create_graphics_pipeline(Device& device, Swapc
     rasterizer.rasterizerDiscardEnable = vk::False;
     rasterizer.polygonMode = vk::PolygonMode::eFill;
     rasterizer.cullMode = vk::CullModeFlagBits::eNone;
-    rasterizer.frontFace = vk::FrontFace::eCounterClockwise;
+    rasterizer.frontFace = vk::FrontFace::eClockwise;
     rasterizer.depthBiasEnable = vk::False;
     rasterizer.lineWidth = 1.0f;
 
@@ -66,8 +66,8 @@ void eruptor::hardware::Pipeline::Create_graphics_pipeline(Device& device, Swapc
     multisampling.sampleShadingEnable = vk::False;
 
     vk::PipelineDepthStencilStateCreateInfo depth_stencil{};
-    depth_stencil.depthTestEnable = vk::True;
-    depth_stencil.depthWriteEnable = vk::True;
+    depth_stencil.depthTestEnable = vk::False;
+    depth_stencil.depthWriteEnable = vk::False;
     depth_stencil.depthCompareOp = vk::CompareOp::eLess;
     depth_stencil.depthBoundsTestEnable = vk::False;
     depth_stencil.stencilTestEnable = vk::False;

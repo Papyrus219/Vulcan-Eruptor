@@ -2,6 +2,7 @@
 #include <Eruptor/lib/hardware.hpp>
 #include <Eruptor/lib/hardware/utilities.hpp>
 #include <Eruptor/lib/resource/resource_manager.hpp>
+#include <Eruptor/lib/event/event_manager.hpp>
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_raii.hpp>
 #include <iostream>
@@ -13,7 +14,7 @@ struct eruptor::renderer::Frame_sync
     vk::raii::Fence in_flight_fences = nullptr;
 };
 
-eruptor::renderer::Renderer::Renderer()
+eruptor::renderer::Renderer::Renderer(): event_manager{event::event_manager}
 {
 
 }
@@ -37,6 +38,8 @@ void eruptor::renderer::Renderer::Init(hardware::Hardware & hardware, resource::
         frame_syncs.back().render_finished = vk::raii::Semaphore{device.Get_device_handle(), vk::SemaphoreCreateInfo{}};
         frame_syncs.back().in_flight_fences = vk::raii::Fence{device.Get_device_handle(), fence_info};
     }
+
+    event_manager.Add_listener( *this );
 }
 
 void eruptor::renderer::Renderer::Begin_frame()
@@ -73,6 +76,13 @@ void eruptor::renderer::Renderer::Begin_frame()
     attachmentInfo.setStoreOp(vk::AttachmentStoreOp::eStore);
     attachmentInfo.setClearValue( clearColor );
 
+    vk::RenderingAttachmentInfo depth_info{};
+    depth_info.setImageView( hardware->Get_swapchain().Get_depth_image_view() );
+    depth_info.setImageLayout( vk::ImageLayout::eDepthStencilAttachmentOptimal );
+    depth_info.setLoadOp( vk::AttachmentLoadOp::eClear );
+    depth_info.setStoreOp( vk::AttachmentStoreOp::eDontCare );
+    depth_info.setClearValue( vk::ClearDepthStencilValue{1.0f, 0} );
+
     vk::Rect2D render_area{};
     render_area.setOffset({0,0});
     render_area.setExtent( swap_chain.Get_extent() );
@@ -81,6 +91,7 @@ void eruptor::renderer::Renderer::Begin_frame()
     renderingInfo.setRenderArea( render_area );
     renderingInfo.setLayerCount(1);
     renderingInfo.setColorAttachments( attachmentInfo );
+    //renderingInfo.setPDepthAttachment( &depth_info );
 
     command_buffor.beginRendering(renderingInfo);
     command_buffor.bindPipeline(vk::PipelineBindPoint::eGraphics, hardware->Get_pipeline().Get_pipeline_handle());
@@ -106,9 +117,9 @@ void eruptor::renderer::Renderer::End_frame()
         swap_chain.Get_image(current_image_index),
                                                  vk::ImageLayout::eColorAttachmentOptimal,
                                                  vk::ImageLayout::ePresentSrcKHR,
-                                                 vk::QueueFamilyIgnored,                // srcAccessMask
-                                                 vk::QueueFamilyIgnored,                                     // dstAccessMask
-                                                 vk::ImageAspectFlagBits::eColor                  // dstStage
+                                                 vk::QueueFamilyIgnored,
+                                                 vk::QueueFamilyIgnored,
+                                                 vk::ImageAspectFlagBits::eColor
     );
 
     command_buffor.end();
@@ -133,6 +144,8 @@ void eruptor::renderer::Renderer::End_frame()
     }
 
     current_frame = (current_frame + 1) % static_cast<uint32_t>(hardware->MAX_FRAMES_IN_FLIGHT);
+
+    hardware->Get_window().Update();
 }
 
 void eruptor::renderer::Renderer::Render_model(resource::Model_handle model_handle)
@@ -145,15 +158,19 @@ void eruptor::renderer::Renderer::Render_model(resource::Model_handle model_hand
     {
         auto mesh = hw_resource_manager.Get_mesh( mesh_handle );
 
-        hardware->Get_uniform_buffers().Bind_mvp_buffer(command_buffor, current_frame, hardware->Get_pipeline());
+        hardware->Get_uniform_buffers().Bind_mvp_buffer(command_buffor, current_frame, hardware->Get_pipeline(), fly_camera.Get_view_matrix());
         command_buffor.drawIndexed(mesh.indices_amount, 1, mesh.indices_offset, mesh.vertex_offset, 0);
     }
 }
 
-bool eruptor::renderer::Renderer::Is_window_open()
+void eruptor::renderer::Renderer::On_event(event::Event & event)
 {
-    glfwPollEvents();
-    return !glfwWindowShouldClose(hardware->Get_window().Get_glfw_window());
+
+}
+
+eruptor::hardware::Window & eruptor::renderer::Renderer::Get_window()
+{
+    return hardware->Get_window();
 }
 
 eruptor::renderer::Renderer::~Renderer()

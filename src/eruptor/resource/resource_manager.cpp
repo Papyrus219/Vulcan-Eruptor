@@ -2,10 +2,15 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <Eruptor/lib/resource/stb_image.h>
 #include <Eruptor/lib/hardware/resources/resource_manager.hpp>
+#include <Eruptor/lib/event/event_manager.hpp>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+eruptor::resource::Resource_manager::Resource_manager(): event_manager{ event::event_manager }
+{
+
+}
 
 void eruptor::resource::Resource_manager::Init(hardware::Resource_manager & hw_resource_manager)
 {
@@ -23,6 +28,8 @@ void eruptor::resource::Resource_manager::Init(hardware::Resource_manager & hw_r
 
     textures_handles.push_back( Texture_handle{ hw_resource_manager.Stage_texture_data( tex_data ) } );
     stbi_image_free( tex_data.pixels );
+
+    event_manager.Add_listener( *this );
 }
 
 eruptor::resource::Model & eruptor::resource::Resource_manager::Get_model(Model_handle & model_handle)
@@ -192,10 +199,7 @@ eruptor::resource::Texture_handle eruptor::resource::Resource_manager::Load_mate
     return tex_handle;
 }
 
+void eruptor::resource::Resource_manager::On_event(event::Event& event)
+{
 
-
-
-
-
-
-
+}

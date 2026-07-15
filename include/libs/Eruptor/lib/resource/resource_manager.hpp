@@ -3,6 +3,7 @@
 
 #include <Eruptor/lib/resource/model.hpp>
 #include <Eruptor/lib/resource/material.hpp>
+#include <Eruptor/lib/event/event_listener.hpp>
 #include <assimp/material.h>
 #include <filesystem>
 
@@ -17,6 +18,11 @@ namespace eruptor::hardware
     struct Texture_data;
 }
 
+namespace eruptor::event
+{
+    class Event_manager;
+}
+
 namespace eruptor::resource
 {
 
@@ -26,9 +32,11 @@ enum class Texture_type
     SPECULAR
 };
 
-class Resource_manager
+class Resource_manager: public eruptor::event::Event_listener
 {
 public:
+    Resource_manager();
+
     void Init(hardware::Resource_manager & hw_resource_manager);
 
     Model & Get_model(Model_handle & model_handle);
@@ -36,6 +44,8 @@ public:
 
     Model_handle Add_model(const std::filesystem::path & path);
     void Load_models();
+
+    void On_event(event::Event & event) override;
 
 private:
     void Load_model(Model & model);
@@ -48,6 +58,8 @@ private:
     std::vector<Material> materials{};
     std::vector<Texture_handle> textures_handles{};
     std::vector<Mesh_handle> mesh_handles{};
+
+    event::Event_manager & event_manager;
 
     hardware::Resource_manager * hw_resource_manager{};
 };
