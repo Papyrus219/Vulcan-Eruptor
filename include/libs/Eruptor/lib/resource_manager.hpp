@@ -45,7 +45,7 @@ public:
     Model_handle Add_model(const std::filesystem::path & path);
     void Load_models();
 
-    void On_event(event::Event & event) override;
+    void On_event(const event::Event & event) override;
 
 private:
     void Load_model(Model & model);

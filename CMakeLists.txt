@@ -46,6 +46,9 @@ src/eruptor/event/event_listener.cpp)
 
 set(ENGINE_SRC src/eruptor/eruptor.cpp)
 
+set(APP_SRC src/main.cpp
+src/app.cpp)
+
 add_slang_shader_target(main_shader SOURCES ${CMAKE_SOURCE_DIR}/shaders_src/shader.slang)
 
 Make_library(TARGET eruptor_event
@@ -80,8 +83,8 @@ LIBRARIES_TO_LINK_PRIV eruptor_hardware eruptor_event
 LIBRARIES_TO_LINK_PUB eruptor_resource eruptor_renderer
 COMPILATION_FEATURES cxx_std_23)
 
-add_executable(app src/main.cpp)
-target_link_libraries(app PUBLIC eruptor_engine)
-target_include_directories(app PRIVATE include/libs/)
+add_executable(app ${APP_SRC})
+target_link_libraries(app PUBLIC eruptor_engine eruptor_event)
+target_include_directories(app PRIVATE include/)
 
 install(TARGETS app RUNTIME DESTINATION bin)

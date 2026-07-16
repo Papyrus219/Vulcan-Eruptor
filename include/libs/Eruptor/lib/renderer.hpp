@@ -1,7 +1,7 @@
 #ifndef ERUPTOR_RENDERER_RENDERER_HPP
 #define ERUPTOR_RENDERER_RENDERER_HPP
 
-#include <Eruptor/lib/resource/resource_manager.hpp>
+#include <Eruptor/lib/resource_manager.hpp>
 #include <Eruptor/lib/resource/resource_handle.hpp>
 #include <Eruptor/lib/event/event_listener.hpp>
 #include <Eruptor/lib/renderer/cameras.hpp>
@@ -37,7 +37,7 @@ public:
     void End_frame();
     void Render_model(resource::Model_handle model_handle);
 
-    void On_event(event::Event & event) override;
+    void On_event(const event::Event & event) override;
 
     eruptor::hardware::Window & Get_window();
     Fly_camera & Get_camera() {return fly_camera;}

@@ -1,8 +1,9 @@
 #ifndef ERUPTOR_ERUPTOR_HPP
 #define ERUPTOR_ERUPTOR_HPP
 
-#include <Eruptor/lib/renderer/renderer.hpp>
-#include <Eruptor/lib/resource/resource_manager.hpp>
+#include <Eruptor/lib/renderer.hpp>
+#include <Eruptor/lib/resource_manager.hpp>
+#include <Eruptor/lib/hardware/window.hpp>
 #include <memory>
 
 namespace eruptor
