@@ -12,7 +12,7 @@ class Event_manager
 {
 public:
     void Add_listener(Event_listener & listener);
-    void Announce_event(Event & event);
+    void Announce_event(const Event & event);
 
 private:
     std::vector<Event_listener *> listeners{};

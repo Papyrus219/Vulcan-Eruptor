@@ -1,4 +1,4 @@
-#include <Eruptor/lib/resource/resource_manager.hpp>
+#include <Eruptor/lib/resource_manager.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 #include <Eruptor/lib/resource/stb_image.h>
 #include <Eruptor/lib/hardware/resources/resource_manager.hpp>
@@ -199,7 +199,7 @@ eruptor::resource::Texture_handle eruptor::resource::Resource_manager::Load_mate
     return tex_handle;
 }
 
-void eruptor::resource::Resource_manager::On_event(event::Event& event)
+void eruptor::resource::Resource_manager::On_event(const event::Event & event)
 {
 
 }

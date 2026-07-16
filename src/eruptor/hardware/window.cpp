@@ -30,7 +30,7 @@ void eruptor::hardware::Window::Update()
     if( glfwWindowShouldClose( window ) )
     {
         event::Event event{};
-        event.type = event::Event_type::CLOSE_WINDOW;
+        event = event::Event::Close_window{};
 
         event_manager.Announce_event( event );
     }
@@ -49,172 +49,175 @@ struct
 #define HANDLE_KEY(glfw_key, state_field, event_key) \
 case glfw_key:                                   \
     key_states.state_field = pressed;            \
-    event.key_type = eruptor::event::Key::event_key; \
+    key_type = eruptor::event::Key::event_key;   \
     break;
+
 
 void eruptor::hardware::Window::Key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    bool pressed = (action != GLFW_RELEASE);
+    const bool pressed = action != GLFW_RELEASE;
 
-    eruptor::event::Event event{};
-    event.type = pressed
-    ? eruptor::event::Event_type::KEY_PRESSED
-    : eruptor::event::Event_type::KEY_RELEASE;
+    eruptor::event::Key key_type{eruptor::event::Key::NONE};
 
-        switch (key)
-        {
-            HANDLE_KEY(GLFW_KEY_ESCAPE, esc, ESC)
+    switch (key)
+    {
+        HANDLE_KEY(GLFW_KEY_ESCAPE, esc, ESC)
 
-            HANDLE_KEY(GLFW_KEY_F1,  f1,  F1)
-            HANDLE_KEY(GLFW_KEY_F2,  f2,  F2)
-            HANDLE_KEY(GLFW_KEY_F3,  f3,  F3)
-            HANDLE_KEY(GLFW_KEY_F4,  f4,  F4)
-            HANDLE_KEY(GLFW_KEY_F5,  f5,  F5)
-            HANDLE_KEY(GLFW_KEY_F6,  f6,  F6)
-            HANDLE_KEY(GLFW_KEY_F7,  f7,  F7)
-            HANDLE_KEY(GLFW_KEY_F8,  f8,  F8)
-            HANDLE_KEY(GLFW_KEY_F9,  f9,  F9)
-            HANDLE_KEY(GLFW_KEY_F10, f10, F10)
-            HANDLE_KEY(GLFW_KEY_F11, f11, F11)
-            HANDLE_KEY(GLFW_KEY_F12, f12, F12)
+        HANDLE_KEY(GLFW_KEY_F1,  f1,  F1)
+        HANDLE_KEY(GLFW_KEY_F2,  f2,  F2)
+        HANDLE_KEY(GLFW_KEY_F3,  f3,  F3)
+        HANDLE_KEY(GLFW_KEY_F4,  f4,  F4)
+        HANDLE_KEY(GLFW_KEY_F5,  f5,  F5)
+        HANDLE_KEY(GLFW_KEY_F6,  f6,  F6)
+        HANDLE_KEY(GLFW_KEY_F7,  f7,  F7)
+        HANDLE_KEY(GLFW_KEY_F8,  f8,  F8)
+        HANDLE_KEY(GLFW_KEY_F9,  f9,  F9)
+        HANDLE_KEY(GLFW_KEY_F10, f10, F10)
+        HANDLE_KEY(GLFW_KEY_F11, f11, F11)
+        HANDLE_KEY(GLFW_KEY_F12, f12, F12)
 
-            HANDLE_KEY(GLFW_KEY_GRAVE_ACCENT, backtic, BACKTIC)
+        HANDLE_KEY(GLFW_KEY_GRAVE_ACCENT, backtic, BACKTIC)
 
-            HANDLE_KEY(GLFW_KEY_1, key_1, KEY_1)
-            HANDLE_KEY(GLFW_KEY_2, key_2, KEY_2)
-            HANDLE_KEY(GLFW_KEY_3, key_3, KEY_3)
-            HANDLE_KEY(GLFW_KEY_4, key_4, KEY_4)
-            HANDLE_KEY(GLFW_KEY_5, key_5, KEY_5)
-            HANDLE_KEY(GLFW_KEY_6, key_6, KEY_6)
-            HANDLE_KEY(GLFW_KEY_7, key_7, KEY_7)
-            HANDLE_KEY(GLFW_KEY_8, key_8, KEY_8)
-            HANDLE_KEY(GLFW_KEY_9, key_9, KEY_9)
-            HANDLE_KEY(GLFW_KEY_0, key_0, KEY_0)
+        HANDLE_KEY(GLFW_KEY_1, key_1, KEY_1)
+        HANDLE_KEY(GLFW_KEY_2, key_2, KEY_2)
+        HANDLE_KEY(GLFW_KEY_3, key_3, KEY_3)
+        HANDLE_KEY(GLFW_KEY_4, key_4, KEY_4)
+        HANDLE_KEY(GLFW_KEY_5, key_5, KEY_5)
+        HANDLE_KEY(GLFW_KEY_6, key_6, KEY_6)
+        HANDLE_KEY(GLFW_KEY_7, key_7, KEY_7)
+        HANDLE_KEY(GLFW_KEY_8, key_8, KEY_8)
+        HANDLE_KEY(GLFW_KEY_9, key_9, KEY_9)
+        HANDLE_KEY(GLFW_KEY_0, key_0, KEY_0)
 
-            HANDLE_KEY(GLFW_KEY_MINUS, minus, MINUS)
-            HANDLE_KEY(GLFW_KEY_EQUAL, plus, PLUS)
-            HANDLE_KEY(GLFW_KEY_BACKSPACE, backspace, BACKSPACE)
+        HANDLE_KEY(GLFW_KEY_MINUS, minus, MINUS)
+        HANDLE_KEY(GLFW_KEY_EQUAL, plus, PLUS)
+        HANDLE_KEY(GLFW_KEY_BACKSPACE, backspace, BACKSPACE)
 
-            HANDLE_KEY(GLFW_KEY_INSERT, ins, INS)
-            HANDLE_KEY(GLFW_KEY_HOME, home, HOME)
-            HANDLE_KEY(GLFW_KEY_PAGE_UP, pgup, PGUP)
+        HANDLE_KEY(GLFW_KEY_INSERT, ins, INS)
+        HANDLE_KEY(GLFW_KEY_HOME, home, HOME)
+        HANDLE_KEY(GLFW_KEY_PAGE_UP, pgup, PGUP)
 
-            HANDLE_KEY(GLFW_KEY_NUM_LOCK, num, NUM)
+        HANDLE_KEY(GLFW_KEY_NUM_LOCK, num, NUM)
 
-            HANDLE_KEY(GLFW_KEY_BACKSLASH, backslash, BACKSLASH)
+        HANDLE_KEY(GLFW_KEY_BACKSLASH, backslash, BACKSLASH)
 
-            HANDLE_KEY(GLFW_KEY_KP_MULTIPLY, asterisk, ASTERISK)
-            HANDLE_KEY(GLFW_KEY_KP_SUBTRACT, num_minus, NUM_MINUS)
+        HANDLE_KEY(GLFW_KEY_KP_MULTIPLY, asterisk, ASTERISK)
+        HANDLE_KEY(GLFW_KEY_KP_SUBTRACT, num_minus, NUM_MINUS)
 
-            HANDLE_KEY(GLFW_KEY_TAB, tab, TAB)
+        HANDLE_KEY(GLFW_KEY_TAB, tab, TAB)
 
-            HANDLE_KEY(GLFW_KEY_Q, q, Q)
-            HANDLE_KEY(GLFW_KEY_W, w, W)
-            HANDLE_KEY(GLFW_KEY_E, e, E)
-            HANDLE_KEY(GLFW_KEY_R, r, R)
-            HANDLE_KEY(GLFW_KEY_T, t, T)
-            HANDLE_KEY(GLFW_KEY_Y, y, Y)
-            HANDLE_KEY(GLFW_KEY_U, u, U)
-            HANDLE_KEY(GLFW_KEY_I, i, I)
-            HANDLE_KEY(GLFW_KEY_O, o, O)
-            HANDLE_KEY(GLFW_KEY_P, p, P)
+        HANDLE_KEY(GLFW_KEY_Q, q, Q)
+        HANDLE_KEY(GLFW_KEY_W, w, W)
+        HANDLE_KEY(GLFW_KEY_E, e, E)
+        HANDLE_KEY(GLFW_KEY_R, r, R)
+        HANDLE_KEY(GLFW_KEY_T, t, T)
+        HANDLE_KEY(GLFW_KEY_Y, y, Y)
+        HANDLE_KEY(GLFW_KEY_U, u, U)
+        HANDLE_KEY(GLFW_KEY_I, i, I)
+        HANDLE_KEY(GLFW_KEY_O, o, O)
+        HANDLE_KEY(GLFW_KEY_P, p, P)
 
-            HANDLE_KEY(GLFW_KEY_LEFT_BRACKET, left_brasket, LEFT_BRASKET)
-            HANDLE_KEY(GLFW_KEY_RIGHT_BRACKET, right_brasket, RIGHT_BRASKET)
+        HANDLE_KEY(GLFW_KEY_LEFT_BRACKET, left_brasket, LEFT_BRASKET)
+        HANDLE_KEY(GLFW_KEY_RIGHT_BRACKET, right_brasket, RIGHT_BRASKET)
 
-            HANDLE_KEY(GLFW_KEY_KP_DIVIDE, slash, SLASH)
+        HANDLE_KEY(GLFW_KEY_KP_DIVIDE, slash, SLASH)
 
-            HANDLE_KEY(GLFW_KEY_DELETE, del, DEL)
-            HANDLE_KEY(GLFW_KEY_END, end, END)
-            HANDLE_KEY(GLFW_KEY_PAGE_DOWN, pgdn, PGDN)
+        HANDLE_KEY(GLFW_KEY_DELETE, del, DEL)
+        HANDLE_KEY(GLFW_KEY_END, end, END)
+        HANDLE_KEY(GLFW_KEY_PAGE_DOWN, pgdn, PGDN)
 
-            HANDLE_KEY(GLFW_KEY_KP_7, num_7, NUM_7)
-            HANDLE_KEY(GLFW_KEY_KP_8, num_8, NUM_8)
-            HANDLE_KEY(GLFW_KEY_KP_9, num_9, NUM_9)
-            HANDLE_KEY(GLFW_KEY_KP_ADD, num_plus, NUM_PLUS)
+        HANDLE_KEY(GLFW_KEY_KP_7, num_7, NUM_7)
+        HANDLE_KEY(GLFW_KEY_KP_8, num_8, NUM_8)
+        HANDLE_KEY(GLFW_KEY_KP_9, num_9, NUM_9)
+        HANDLE_KEY(GLFW_KEY_KP_ADD, num_plus, NUM_PLUS)
 
-            HANDLE_KEY(GLFW_KEY_CAPS_LOCK, capslock, CAPSLOCK)
+        HANDLE_KEY(GLFW_KEY_CAPS_LOCK, capslock, CAPSLOCK)
 
-            HANDLE_KEY(GLFW_KEY_A, a, A)
-            HANDLE_KEY(GLFW_KEY_S, s, S)
-            HANDLE_KEY(GLFW_KEY_D, d, D)
-            HANDLE_KEY(GLFW_KEY_F, f, F)
-            HANDLE_KEY(GLFW_KEY_G, g, G)
-            HANDLE_KEY(GLFW_KEY_H, h, H)
-            HANDLE_KEY(GLFW_KEY_J, j, J)
-            HANDLE_KEY(GLFW_KEY_K, k, K)
-            HANDLE_KEY(GLFW_KEY_L, l, L)
+        HANDLE_KEY(GLFW_KEY_A, a, A)
+        HANDLE_KEY(GLFW_KEY_S, s, S)
+        HANDLE_KEY(GLFW_KEY_D, d, D)
+        HANDLE_KEY(GLFW_KEY_F, f, F)
+        HANDLE_KEY(GLFW_KEY_G, g, G)
+        HANDLE_KEY(GLFW_KEY_H, h, H)
+        HANDLE_KEY(GLFW_KEY_J, j, J)
+        HANDLE_KEY(GLFW_KEY_K, k, K)
+        HANDLE_KEY(GLFW_KEY_L, l, L)
 
-            HANDLE_KEY(GLFW_KEY_SEMICOLON, semicolom, SEMICOLOM)
-            HANDLE_KEY(GLFW_KEY_APOSTROPHE, apostrofe, APOSTROFE)
+        HANDLE_KEY(GLFW_KEY_SEMICOLON, semicolom, SEMICOLOM)
+        HANDLE_KEY(GLFW_KEY_APOSTROPHE, apostrofe, APOSTROFE)
 
-            HANDLE_KEY(GLFW_KEY_ENTER, enter, ENTER)
+        HANDLE_KEY(GLFW_KEY_ENTER, enter, ENTER)
 
-            HANDLE_KEY(GLFW_KEY_KP_4, num_4, NUM_4)
-            HANDLE_KEY(GLFW_KEY_KP_5, num_5, NUM_5)
-            HANDLE_KEY(GLFW_KEY_KP_6, mum_6, MUM_6)
+        HANDLE_KEY(GLFW_KEY_KP_4, num_4, NUM_4)
+        HANDLE_KEY(GLFW_KEY_KP_5, num_5, NUM_5)
+        HANDLE_KEY(GLFW_KEY_KP_6, mum_6, MUM_6)
 
-            HANDLE_KEY(GLFW_KEY_LEFT_SHIFT, left_shift, LEFT_SHIFT)
+        HANDLE_KEY(GLFW_KEY_LEFT_SHIFT, left_shift, LEFT_SHIFT)
 
-            HANDLE_KEY(GLFW_KEY_Z, z, Z)
-            HANDLE_KEY(GLFW_KEY_X, x, X)
-            HANDLE_KEY(GLFW_KEY_C, c, C)
-            HANDLE_KEY(GLFW_KEY_V, v, V)
-            HANDLE_KEY(GLFW_KEY_B, b, B)
-            HANDLE_KEY(GLFW_KEY_N, n, N)
-            HANDLE_KEY(GLFW_KEY_M, m, M)
+        HANDLE_KEY(GLFW_KEY_Z, z, Z)
+        HANDLE_KEY(GLFW_KEY_X, x, X)
+        HANDLE_KEY(GLFW_KEY_C, c, C)
+        HANDLE_KEY(GLFW_KEY_V, v, V)
+        HANDLE_KEY(GLFW_KEY_B, b, B)
+        HANDLE_KEY(GLFW_KEY_N, n, N)
+        HANDLE_KEY(GLFW_KEY_M, m, M)
 
-            HANDLE_KEY(GLFW_KEY_COMMA, tri_left_brasket, TRI_LEFT_BRASKET)
-            HANDLE_KEY(GLFW_KEY_PERIOD, tri_right_brasket, TRI_RIGHT_BRASKET)
-            HANDLE_KEY(GLFW_KEY_SLASH, question_mark, QUESTION_MARK)
+        HANDLE_KEY(GLFW_KEY_COMMA, tri_left_brasket, TRI_LEFT_BRASKET)
+        HANDLE_KEY(GLFW_KEY_PERIOD, tri_right_brasket, TRI_RIGHT_BRASKET)
+        HANDLE_KEY(GLFW_KEY_SLASH, question_mark, QUESTION_MARK)
 
-            HANDLE_KEY(GLFW_KEY_RIGHT_SHIFT, right_shift, RIGHT_SHIFT)
+        HANDLE_KEY(GLFW_KEY_RIGHT_SHIFT, right_shift, RIGHT_SHIFT)
 
-            HANDLE_KEY(GLFW_KEY_UP, up, UP)
+        HANDLE_KEY(GLFW_KEY_UP, up, UP)
 
-            HANDLE_KEY(GLFW_KEY_KP_1, num_1, NUM_1)
-            HANDLE_KEY(GLFW_KEY_KP_2, num_2, NUM_2)
-            HANDLE_KEY(GLFW_KEY_KP_3, num_3, NUM_3)
-            HANDLE_KEY(GLFW_KEY_KP_ENTER, num_enter, NUM_ENTER)
+        HANDLE_KEY(GLFW_KEY_KP_1, num_1, NUM_1)
+        HANDLE_KEY(GLFW_KEY_KP_2, num_2, NUM_2)
+        HANDLE_KEY(GLFW_KEY_KP_3, num_3, NUM_3)
+        HANDLE_KEY(GLFW_KEY_KP_ENTER, num_enter, NUM_ENTER)
 
-            HANDLE_KEY(GLFW_KEY_LEFT_CONTROL, left_ctrl, LEFT_CTRL)
-            HANDLE_KEY(GLFW_KEY_LEFT_ALT, left_alt, LEFT_ALT)
-            HANDLE_KEY(GLFW_KEY_SPACE, space, SPACE)
-            HANDLE_KEY(GLFW_KEY_RIGHT_ALT, right_alt, RIGHT_ALT)
-            HANDLE_KEY(GLFW_KEY_RIGHT_CONTROL, right_ctr, RIGHT_CTR)
+        HANDLE_KEY(GLFW_KEY_LEFT_CONTROL, left_ctrl, LEFT_CTRL)
+        HANDLE_KEY(GLFW_KEY_LEFT_ALT, left_alt, LEFT_ALT)
+        HANDLE_KEY(GLFW_KEY_SPACE, space, SPACE)
+        HANDLE_KEY(GLFW_KEY_RIGHT_ALT, right_alt, RIGHT_ALT)
+        HANDLE_KEY(GLFW_KEY_RIGHT_CONTROL, right_ctr, RIGHT_CTR)
 
-            HANDLE_KEY(GLFW_KEY_LEFT, left, LEFT)
-            HANDLE_KEY(GLFW_KEY_DOWN, down, DOWN)
-            HANDLE_KEY(GLFW_KEY_RIGHT, right, RIGHT)
+        HANDLE_KEY(GLFW_KEY_LEFT, left, LEFT)
+        HANDLE_KEY(GLFW_KEY_DOWN, down, DOWN)
+        HANDLE_KEY(GLFW_KEY_RIGHT, right, RIGHT)
 
-            HANDLE_KEY(GLFW_KEY_KP_0, num_0, NUM_0)
-            HANDLE_KEY(GLFW_KEY_KP_DECIMAL, num_comma, NUM_COMMA)
+        HANDLE_KEY(GLFW_KEY_KP_0, num_0, NUM_0)
+        HANDLE_KEY(GLFW_KEY_KP_DECIMAL, num_comma, NUM_COMMA)
 
-            default:
-                event.key_type = eruptor::event::Key::NONE;
-                break;
-        }
+        default:
+            return;
+    }
 
-        if (event.key_type != eruptor::event::Key::NONE)
-        {
-            event::event_manager.Announce_event( event );
-        }
+    if(pressed)
+    {
+        event::event_manager.Announce_event( eruptor::event::Event{ eruptor::event::Event::Key_pressed{.key_type = key_type} } );
+    }
+    else
+    {
+        event::event_manager.Announce_event( eruptor::event::Event{ eruptor::event::Event::Key_release{.key_type = key_type} } );
+    }
 }
+
 
 void eruptor::hardware::Window::Mouse_callback(GLFWwindow* window, double x_pos, double y_pos)
 {
     static float last_x{}, last_y{};
 
+    event::Event::Mouse_moved mouse_moved{};
+    mouse_moved.x_offset = x_pos - last_x;
+    mouse_moved.y_offset = y_pos - last_y;
+
     event::Event event{};
-    event.type = event::Event_type::MOUSE_MOVED;
-    event.mouse_move_x_offset = x_pos - last_x;
-    event.mouse_move_y_offset = y_pos - last_y;
+    event = mouse_moved;
 
     event::event_manager.Announce_event( event );
 
     last_x = x_pos;
     last_y = y_pos;
-
 }
 
 bool eruptor::hardware::Window::Is_key_pressed(event::Key key)

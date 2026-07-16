@@ -9,7 +9,7 @@ namespace eruptor::event
 class Event_listener
 {
 public:
-    virtual void On_event(Event & event) = 0;
+    virtual void On_event(const Event & event) = 0;
 
     virtual ~Event_listener() = default;
 };

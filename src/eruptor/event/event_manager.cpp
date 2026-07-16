@@ -16,12 +16,12 @@ void eruptor::event::Event_manager::Add_listener(Event_listener & listener)
     listeners.push_back( &listener );
 }
 
-void eruptor::event::Event_manager::Announce_event(Event & event)
+void eruptor::event::Event_manager::Announce_event(const Event & event)
 {
     for(auto listener : listeners)
     {
         listener->On_event(event);
 
-        if(event.procesed) break;
+        if(event.processed) break;
     }
 }

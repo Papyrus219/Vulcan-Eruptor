@@ -1,7 +1,7 @@
-#include <Eruptor/lib/renderer/renderer.hpp>
+#include <Eruptor/lib/renderer.hpp>
 #include <Eruptor/lib/hardware.hpp>
 #include <Eruptor/lib/hardware/utilities.hpp>
-#include <Eruptor/lib/resource/resource_manager.hpp>
+#include <Eruptor/lib/resource_manager.hpp>
 #include <Eruptor/lib/event/event_manager.hpp>
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_raii.hpp>
@@ -163,7 +163,7 @@ void eruptor::renderer::Renderer::Render_model(resource::Model_handle model_hand
     }
 }
 
-void eruptor::renderer::Renderer::On_event(event::Event & event)
+void eruptor::renderer::Renderer::On_event(const event::Event & event)
 {
 
 }

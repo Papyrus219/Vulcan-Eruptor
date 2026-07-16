@@ -1,4 +1,5 @@
 #ifndef ERUPTOR_HARDWARE_PLATFORM_WINDOW_HPP
+#define ERUPTOR_HARDWARE_PLATFORM_WINDOW_HPP
 
 #include <Eruptor/lib/event/keys.hpp>
 #include <GLFW/glfw3.h>
@@ -35,7 +36,6 @@ private:
     event::Event_manager & event_manager;
 
     GLFWwindow * window{};
-
 };
 
 }
