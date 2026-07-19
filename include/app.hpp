@@ -2,6 +2,7 @@
 #define OVUM_APP_HPP
 
 #include <Eruptor/eruptor.hpp>
+#include <Eruptor/lib/scene/scene.hpp>
 #include <Eruptor/lib/event/event_manager.hpp>
 
 namespace ovum
@@ -22,6 +23,8 @@ private:
     void Render();
 
     bool is_running{true};
+
+    eruptor::scene::Scene main_scene{};
 
     std::chrono::high_resolution_clock app_clock{};
     std::chrono::high_resolution_clock::time_point last_time{};

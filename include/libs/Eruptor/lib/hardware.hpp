@@ -9,6 +9,7 @@
 #include <Eruptor/lib/hardware/pipeline.hpp>
 #include <Eruptor/lib/hardware/command_manager.hpp>
 #include <Eruptor/lib/hardware/resources/resource_manager.hpp>
+#include <Eruptor/lib/hardware/resources/push_constant.hpp>
 
 namespace eruptor::hardware
 {

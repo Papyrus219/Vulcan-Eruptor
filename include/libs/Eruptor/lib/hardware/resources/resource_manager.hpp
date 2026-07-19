@@ -27,6 +27,10 @@ public:
 
     Mesh Get_mesh(uint32_t mesh_index);
     vk::ImageView Get_texture_view(uint32_t texture_index);
+    vk::raii::Sampler & Get_texture_sampler() {return texture_sampler;};
+
+    vk::raii::DescriptorSetLayout & Get_texture_set_layout() { return texture_set_layout; }
+    vk::raii::DescriptorSet & Get_texture_descriptor_set(uint32_t texture_index) { return textures[texture_index].descriptor_set; }
 
     uint32_t Stage_mesh_data(Mesh_data & mesh_data);
     uint32_t Stage_texture_data(Texture_data & texture_data);
@@ -36,13 +40,19 @@ public:
     void Upload_data_to_GPU();
 
 private:
-    std::vector<Mesh> meshes{};
-    std::vector<Texture> textures{};
+    static constexpr uint32_t MAX_TEXTURES{256};
+
+    vk::raii::Sampler texture_sampler = nullptr;
+    vk::raii::DescriptorPool texture_descriptor_pool = nullptr;
+    vk::raii::DescriptorSetLayout texture_set_layout = nullptr;
 
     Geometry_buffer geometry_buffer{};
 
     vma::raii::Buffer geometry_staging_buffer = nullptr;
     vma::raii::Buffer texture_stage_buffer = nullptr;
+
+    std::vector<Mesh> meshes{};
+    std::vector<Texture> textures{};
 
     void * geometry_stage_mapped_data{};
     void * texture_stage_mapped_memory{};

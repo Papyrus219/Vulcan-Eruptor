@@ -54,6 +54,13 @@ void eruptor::hardware::utilities::Transition_image_layout(vk::raii::CommandBuff
         source_stage      = vk::PipelineStageFlagBits::eColorAttachmentOutput;
         destination_stage = vk::PipelineStageFlagBits::eBottomOfPipe;
     }
+    else if (old_layout == vk::ImageLayout::eUndefined && new_layout == vk::ImageLayout::eDepthStencilAttachmentOptimal)
+    {
+        barrier.srcAccessMask = {};
+        barrier.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+        source_stage      = vk::PipelineStageFlagBits::eTopOfPipe;
+        destination_stage = vk::PipelineStageFlagBits::eEarlyFragmentTests;
+    }
     else
     {
         throw std::invalid_argument("unsupported layout transition!");

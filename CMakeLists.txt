@@ -32,6 +32,7 @@ src/eruptor/hardware/utilities.cpp
 
 src/eruptor/hardware/resources/resource_manager.cpp
 src/eruptor/hardware/resources/texture.cpp
+src/eruptor/hardware/resources/push_constant.cpp
 )
 
 set(RESOURCE_SRC src/eruptor/resource/resource_manager.cpp
@@ -40,6 +41,10 @@ src/eruptor/resource/resource.cpp)
 
 set(RENDERER_SRC src/eruptor/renderer/renderer.cpp
 src/eruptor/renderer/cameras.cpp)
+
+set(SCENE_SRC src/eruptor/scene/scene.cpp
+src/eruptor/scene/render_object.cpp
+src/eruptor/scene/transformation.cpp)
 
 set(EVENT_SRC src/eruptor/event/event_manager.cpp
 src/eruptor/event/event_listener.cpp)
@@ -67,14 +72,17 @@ target_include_directories(eruptor_hardware PUBLIC ${vmahpp_SOURCE_DIR}/include)
 
 Make_library(TARGET eruptor_resource
 SOURCES RESOURCE_SRC
-LIBRARIES_TO_LINK_PRIV eruptor_hardware assimp::assimp
-LIBRARIES_TO_LINK_PRIV eruptor_event
+LIBRARIES_TO_LINK_PRIV eruptor_hardware assimp::assimp eruptor_event
+COMPILATION_FEATURES cxx_std_23)
+
+Make_library(TARGET eruptor_scene
+SOURCES SCENE_SRC
+LIBRARIES_TO_LINK_PRIV eruptor_resource glm::glm
 COMPILATION_FEATURES cxx_std_23)
 
 Make_library(TARGET eruptor_renderer
 SOURCES RENDERER_SRC
-LIBRARIES_TO_LINK_PRIV eruptor_hardware eruptor_resource Vulkan::Vulkan
-LIBRARIES_TO_LINK_PRIV eruptor_event
+LIBRARIES_TO_LINK_PRIV eruptor_hardware eruptor_resource eruptor_scene Vulkan::Vulkan eruptor_event
 COMPILATION_FEATURES cxx_std_23)
 
 Make_library(TARGET eruptor_engine
@@ -84,7 +92,7 @@ LIBRARIES_TO_LINK_PUB eruptor_resource eruptor_renderer
 COMPILATION_FEATURES cxx_std_23)
 
 add_executable(app ${APP_SRC})
-target_link_libraries(app PUBLIC eruptor_engine eruptor_event)
+target_link_libraries(app PUBLIC eruptor_engine eruptor_event eruptor_scene)
 target_include_directories(app PRIVATE include/)
 
 install(TARGETS app RUNTIME DESTINATION bin)

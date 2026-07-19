@@ -22,6 +22,7 @@ public:
     const vk::SurfaceFormatKHR & Get_surface_format() const {return swap_chain_surface_format;}
     const vk::Extent2D & Get_extent() const {return swap_chain_extent;}
 
+    vk::raii::Image & Get_depth_image() {return depth_image;}
     const vk::raii::ImageView & Get_depth_image_view() {return depth_image_view;}
 
     uint32_t Get_image_count() {return swap_chain_images.size();}

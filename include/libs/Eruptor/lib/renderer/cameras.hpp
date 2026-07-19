@@ -36,7 +36,7 @@ protected:
 
     float yaw{};
     float pitch{};
-    float movement_speed{2.5f};
+    float movement_speed{10.5f};
     float mouse_sensivity{0.1f};
     float zoom{45.0f};
 };
@@ -44,6 +44,8 @@ protected:
 class Fly_camera: public Camera
 {
 public:
+    Fly_camera(glm::vec3 position_ = {}, glm::vec3 up_ = {0.0f, 1.0f, 0.0f}, float yaw_ = -90.0f, float pitch_ =  {}): Camera{position_, up_, yaw_, pitch_} {};
+
     void Process_keyboard(Camera_movement_direction direction , float delta_time);
     void Process_mouse_scroll(float y_offset);
     void Process_mouse_movement(float x_offset, float y_offset, bool constrain_pitch = true);

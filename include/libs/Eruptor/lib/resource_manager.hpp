@@ -5,6 +5,7 @@
 #include <Eruptor/lib/resource/material.hpp>
 #include <Eruptor/lib/event/event_listener.hpp>
 #include <assimp/material.h>
+#include <glm/glm.hpp>
 #include <filesystem>
 
 struct aiScene;
@@ -50,8 +51,8 @@ public:
 private:
     void Load_model(Model & model);
 
-    void Process_node(aiNode * node, const aiScene * scene, Model & model, const std::filesystem::path & directory);
-    void Process_mesh(aiMesh * mesh, const aiScene * scene, Model & model, const std::filesystem::path & directory);
+    void Process_node(aiNode * node, const aiScene * scene, Model & model, const std::filesystem::path & directory, const glm::mat4 & parent_transform);
+    void Process_mesh(aiMesh * mesh, const aiScene * scene, Model & model, const std::filesystem::path & directory, const glm::mat4 & transform);
     Texture_handle Load_material_texture(aiMaterial * mat, aiTextureType ai_type, Texture_type type, const std::filesystem::path & directory);
 
     std::vector<Model> models{};

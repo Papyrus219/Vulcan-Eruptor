@@ -6,6 +6,18 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <iostream>
+
+namespace
+{
+    glm::mat4 Convert_matrix(const aiMatrix4x4 & m)
+    {
+        // assimp jest row-major, glm jest column-major
+        return glm::transpose(glm::make_mat4(&m.a1));
+    }
+}
 
 eruptor::resource::Resource_manager::Resource_manager(): event_manager{ event::event_manager }
 {
@@ -81,26 +93,34 @@ void eruptor::resource::Resource_manager::Load_model(Model & model)
     }
     auto directory = model.path.parent_path();
 
-    Process_node(scene->mRootNode, scene, model, directory);
+    Process_node(scene->mRootNode, scene, model, directory, glm::mat4(1.0f));
     model.status = Status::LODADED;
 }
 
-void eruptor::resource::Resource_manager::Process_node(aiNode* node, const aiScene* scene, Model& model, const std::filesystem::path & directory)
+void eruptor::resource::Resource_manager::Process_node(aiNode* node, const aiScene* scene, Model& model, const std::filesystem::path & directory, const glm::mat4 & parent_transform)
 {
+    std::clog << "Node: " << node->mName.C_Str() << " transform:\n";
+    for (int r = 0; r < 4; r++)
+        std::clog << node->mTransformation[r][0] << " " << node->mTransformation[r][1] << " "
+        << node->mTransformation[r][2] << " " << node->mTransformation[r][3] << "\n";
+
+     glm::mat4 global_transform = parent_transform * Convert_matrix(node->mTransformation);
+
     for(auto i{0u}; i < node->mNumMeshes; i++)
     {
         aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-        Process_mesh(mesh, scene, model, directory);
+        Process_mesh(mesh, scene, model, directory, global_transform);
     }
 
     for(auto i{0u}; i < node->mNumChildren; i++)
     {
-        Process_node(node->mChildren[i], scene, model, directory);
+        Process_node(node->mChildren[i], scene, model, directory, global_transform);
     }
 }
 
-void eruptor::resource::Resource_manager::Process_mesh(aiMesh* mesh, const aiScene* scene, Model& model, const std::filesystem::path & directory)
+void eruptor::resource::Resource_manager::Process_mesh(aiMesh* mesh, const aiScene* scene, Model& model, const std::filesystem::path & directory, const glm::mat4 & transform)
 {
+
     hardware::Mesh_data mesh_data{};
     if(mesh->mMaterialIndex >= 0)
     {
@@ -128,7 +148,7 @@ void eruptor::resource::Resource_manager::Process_mesh(aiMesh* mesh, const aiSce
         vector.x = mesh->mVertices[i].x;
         vector.y = mesh->mVertices[i].y;
         vector.z = mesh->mVertices[i].z;
-        vertex.pos = vector;
+        vertex.pos = glm::vec3(transform * glm::vec4(vector, 1.0f));
 
         vector.x = mesh->mNormals[i].x;
         vector.y = mesh->mNormals[i].y;
@@ -149,6 +169,7 @@ void eruptor::resource::Resource_manager::Process_mesh(aiMesh* mesh, const aiSce
 
         mesh_data.vertecies.push_back( vertex );
     }
+
 
     for(auto i{0u}; i < mesh->mNumFaces; i++)
     {
@@ -174,6 +195,8 @@ eruptor::resource::Texture_handle eruptor::resource::Resource_manager::Load_mate
         return Texture_handle{0};
     }
     tex_data.format = (type == Texture_type::DIFFUSE)? vk::Format::eR8G8B8A8Srgb : vk::Format::eR8Unorm;
+
+    std::clog << "Path: " << str.C_Str() << "\n";
 
     if(str.Empty())
     {

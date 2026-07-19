@@ -11,10 +11,10 @@ void eruptor::hardware::Hardware::Init()
     device.Init(core);
     swapchain.Init(device, window, core.Get_surface_handle());
     uniform_buffers.Init(device, MAX_FRAMES_IN_FLIGHT);
-    pipeline.Init(device, swapchain, uniform_buffers);
     command_manager.Init(device, MAX_FRAMES_IN_FLIGHT);
-
     resource_manager.Assign_device( device );
     resource_manager.Assign_command_manager( command_manager );
-    resource_manager.Init(device.Get_alocator_handle(), 64_MiB, 64_MiB, 64_MiB );
+    resource_manager.Init(device.Get_alocator_handle(), 256_MiB, 256_MiB, 2_GiB );
+
+    pipeline.Init(device, swapchain, uniform_buffers, resource_manager);
 }

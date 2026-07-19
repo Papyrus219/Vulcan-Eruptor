@@ -12,28 +12,39 @@ struct VertexOutput
     float2 frag_tex_coord;
 };
 
-struct Unifrom_buffer_mvp
+struct Unifrom_buffer_vp
 {
-    float4x4 model;
     float4x4 view;
     float4x4 projection;
 };
-ConstantBuffer<Unifrom_buffer_mvp> ub_mvp;
+[[vk::binding(0, 0)]]
+ConstantBuffer<Unifrom_buffer_vp> ub_vp;
+
+struct Push_constants
+{
+    float4x4 model;
+    float4 skin_color;
+};
+[[vk::push_constant]]
+Push_constants pc;
 
 [shader("vertex")]
 VertexOutput Vert_main(VSInput input)
 {
     VertexOutput output;
-    output.pos = mul(ub_mvp.projection, mul(ub_mvp.view, mul(ub_mvp.model, float4(input.in_position, 1.0))));
+    output.pos = mul(ub_vp.projection, mul(ub_vp.view, mul(pc.model, float4(input.in_position, 1.0))));
     output.frag_tex_coord = input.in_tex_coord;
     output.normals = input.normals;
     return output;
 }
 
+[[vk::binding(0, 1)]]
 Sampler2D texture;
 
 [shader("fragment")]
 float4 Frag_main(VertexOutput invVert): SV_Target
 {
-    return float4(1.0, 0.5, 0.2, 1.0);
+    float4 tex_color = texture.Sample(invVert.frag_tex_coord);
+
+    return tex_color * pc.skin_color;
 }

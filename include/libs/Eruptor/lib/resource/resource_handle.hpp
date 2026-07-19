@@ -25,6 +25,7 @@ public:
     bool operator!=(const Resource_handle & other) const {return this->resource_id != other.resource_id;}
 
     operator bool() const {return resource_id != 0;}
+    operator uint32_t() const {return resource_id;}
 
 private:
     uint32_t resource_id{};

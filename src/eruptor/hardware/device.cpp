@@ -250,9 +250,11 @@ void eruptor::hardware::Device::Create_logical_device(Core & core)
     vk::PhysicalDeviceVulkan13Features,
     vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>
     feature_chain;
+    feature_chain.get<vk::PhysicalDeviceFeatures2>().features.samplerAnisotropy = true;
     feature_chain.get<vk::PhysicalDeviceVulkan11Features>().shaderDrawParameters = true;
     feature_chain.get<vk::PhysicalDeviceVulkan13Features>().dynamicRendering = true;
     feature_chain.get<vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>().extendedDynamicState = true;
+
 
     std::vector<const char *> required_device_extension{vk::KHRSwapchainExtensionName};
 
@@ -313,7 +315,8 @@ bool eruptor::hardware::Device::Is_device_sutiable(const vk::raii::PhysicalDevic
     vk::PhysicalDeviceVulkan13Features,
     vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>();
 
-    bool supports_required_features = features.template get<vk::PhysicalDeviceVulkan11Features>().shaderDrawParameters &&
+    bool supports_required_features = features.template get<vk::PhysicalDeviceFeatures2>().features.samplerAnisotropy &&
+    features.template get<vk::PhysicalDeviceVulkan11Features>().shaderDrawParameters &&
     features.template get<vk::PhysicalDeviceVulkan13Features>().dynamicRendering &&
     features.template get<vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>().extendedDynamicState;
 

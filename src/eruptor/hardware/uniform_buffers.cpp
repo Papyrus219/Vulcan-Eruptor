@@ -28,7 +28,7 @@ void eruptor::hardware::Uniform_buffers::Create_descriptor_set_layouts(const vk:
 
 void eruptor::hardware::Uniform_buffers::Create_uniform_buffers(vma::raii::Allocator & alocator, const uint32_t MAX_FRAMES_IN_FLIGHTS)
 {
-    vk::DeviceSize buffer_size = sizeof(Uniform_buffer_mvp);
+    vk::DeviceSize buffer_size = sizeof(Uniform_buffer_vp);
 
     vk::BufferCreateInfo buffer_info{};
     buffer_info.setUsage( vk::BufferUsageFlagBits::eUniformBuffer );
@@ -43,8 +43,8 @@ void eruptor::hardware::Uniform_buffers::Create_uniform_buffers(vma::raii::Alloc
 
     for(uint32_t i{}; i < MAX_FRAMES_IN_FLIGHTS; i++)
     {
-        uniform_mvp_buffers.push_back(alocator.createBuffer( buffer_info, alloc_create_info, alloc_result ));
-        uniform_mvp_buffers_mapped.push_back(alloc_result.pMappedData);
+        uniform_vp_buffers.push_back(alocator.createBuffer( buffer_info, alloc_create_info, alloc_result ));
+        uniform_vp_buffers_mapped.push_back(alloc_result.pMappedData);
     }
 }
 
@@ -74,9 +74,9 @@ void eruptor::hardware::Uniform_buffers::Create_descriptors_sets(const vk::raii:
     for(uint32_t i{}; i < MAX_FRAMES_IN_FLIGHTS; i++)
     {
         vk::DescriptorBufferInfo buffer_info{};
-        buffer_info.setBuffer( uniform_mvp_buffers[i] );
+        buffer_info.setBuffer( uniform_vp_buffers[i] );
         buffer_info.setOffset( 0 );
-        buffer_info.setRange( sizeof(Uniform_buffer_mvp) );
+        buffer_info.setRange( sizeof(Uniform_buffer_vp) );
 
         vk::WriteDescriptorSet descriptor_write{};
         descriptor_write.setDstSet( descriptor_sets[i] );
@@ -90,16 +90,14 @@ void eruptor::hardware::Uniform_buffers::Create_descriptors_sets(const vk::raii:
     }
 }
 
-void eruptor::hardware::Uniform_buffers::Bind_mvp_buffer(vk::raii::CommandBuffer& command_buffer, uint32_t frame_index, Pipeline & pipeline, const glm::mat4 & view)
+void eruptor::hardware::Uniform_buffers::Bind_vp_buffer(vk::raii::CommandBuffer& command_buffer, uint32_t frame_index, Pipeline & pipeline, const glm::mat4 & view)
 {
-    hardware::Uniform_buffer_mvp ubo{};
-    ubo.model = glm::translate(ubo.model, {0.0f, 0.0f, -2.0f});
-    ubo.model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    hardware::Uniform_buffer_vp ubo{};
     ubo.view = view;
-    ubo.proj = glm::perspective(glm::radians(45.0f), static_cast<float>(800) / static_cast<float>(600), 0.1f, 10.0f);
+    ubo.proj = glm::perspective(glm::radians(45.0f), static_cast<float>(800) / static_cast<float>(600), 0.1f, 1000.0f);
     ubo.proj[1][1] *= -1;
 
-    memcpy( uniform_mvp_buffers_mapped[frame_index], &ubo, sizeof(ubo));
+    memcpy( uniform_vp_buffers_mapped[frame_index], &ubo, sizeof(ubo));
 
     command_buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.Get_pipeline_layout(), 0, *descriptor_sets[frame_index], nullptr);
 }

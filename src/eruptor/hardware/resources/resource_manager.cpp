@@ -52,6 +52,48 @@ void eruptor::hardware::Resource_manager::Init(vma::raii::Allocator & allocator,
 
     vk::FenceCreateInfo fence_info{};
     upload_complete_fence = vk::raii::Fence(device->Get_device_handle(), fence_info);
+
+    vk::PhysicalDeviceProperties properties = device->Get_physical_device_handle().getProperties();
+
+    vk::SamplerCreateInfo sampler_info{};
+    sampler_info.setMagFilter( vk::Filter::eLinear );
+    sampler_info.setMinFilter( vk::Filter::eLinear );
+    sampler_info.setMipmapMode( vk::SamplerMipmapMode::eLinear );
+    sampler_info.setMipLodBias( 0.0f );
+    sampler_info.setMinLod( 0.0f );
+    sampler_info.setMaxLod( 0.0f );
+    sampler_info.setAddressModeU( vk::SamplerAddressMode::eRepeat );
+    sampler_info.setAddressModeV( vk::SamplerAddressMode::eRepeat );
+    sampler_info.setAddressModeW( vk::SamplerAddressMode::eRepeat );
+    sampler_info.setAnisotropyEnable( vk::True );
+    sampler_info.setMaxAnisotropy( properties.limits.maxSamplerAnisotropy );
+    sampler_info.setCompareEnable( vk::False );
+    sampler_info.setCompareOp( vk::CompareOp::eAlways );
+    sampler_info.setBorderColor( vk::BorderColor::eIntOpaqueBlack );
+    sampler_info.setUnnormalizedCoordinates( vk::False );
+
+    texture_sampler = vk::raii::Sampler{device->Get_device_handle(), sampler_info};
+
+    vk::DescriptorSetLayoutBinding sampler_binding{};
+    sampler_binding.setBinding( 0 );
+    sampler_binding.setDescriptorType( vk::DescriptorType::eCombinedImageSampler );
+    sampler_binding.setDescriptorCount( 1 );
+    sampler_binding.setStageFlags( vk::ShaderStageFlagBits::eFragment );
+
+    vk::DescriptorSetLayoutCreateInfo layout_info{};
+    layout_info.setBindings( sampler_binding );
+    texture_set_layout = vk::raii::DescriptorSetLayout{ device->Get_device_handle(), layout_info };
+
+    vk::DescriptorPoolSize pool_size{};
+    pool_size.setType( vk::DescriptorType::eCombinedImageSampler );
+    pool_size.setDescriptorCount( MAX_TEXTURES );
+
+    vk::DescriptorPoolCreateInfo pool_info{};
+    pool_info.setFlags( vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet );
+    pool_info.setMaxSets( MAX_TEXTURES );
+    pool_info.setPoolSizes( pool_size );
+
+    texture_descriptor_pool = vk::raii::DescriptorPool{device->Get_device_handle(), pool_info};
 }
 
 void eruptor::hardware::Resource_manager::Assign_command_manager(Command_manager & command_manager)
@@ -119,6 +161,7 @@ uint32_t eruptor::hardware::Resource_manager::Stage_texture_data(Texture_data & 
 
     Texture tmp_tex{};
     tmp_tex.Init(*device, texture_data.width, texture_data.height, texture_data.format, curr_texture_offset);
+    tmp_tex.Create_descriptor_set(*device, texture_descriptor_pool, texture_set_layout, texture_sampler);
     tmp_tex.offset_in_stage_buffer = curr_texture_offset;
     tmp_tex.image_size = image_size;
     tmp_tex.width = texture_data.width;

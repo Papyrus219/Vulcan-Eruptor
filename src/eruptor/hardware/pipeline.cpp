@@ -3,14 +3,16 @@
 #include <Eruptor/lib/hardware/swapchain.hpp>
 #include <Eruptor/lib/hardware/uniform_buffers.hpp>
 #include <Eruptor/lib/hardware/resources/vertex.hpp>
+#include <Eruptor/lib/hardware/resources/resource_manager.hpp>
+#include <Eruptor/lib/hardware/resources/push_constant.hpp>
 #include <fstream>
 
-void eruptor::hardware::Pipeline::Init(Device& device, Swapchain & swapchain, Uniform_buffers & uniforms_buffers)
+void eruptor::hardware::Pipeline::Init(Device& device, Swapchain & swapchain, Uniform_buffers & uniforms_buffers, Resource_manager & resource_manager)
 {
-    Create_graphics_pipeline(device, swapchain, uniforms_buffers);
+    Create_graphics_pipeline(device, swapchain, uniforms_buffers, resource_manager);
 }
 
-void eruptor::hardware::Pipeline::Create_graphics_pipeline(Device& device, Swapchain & swapchain, Uniform_buffers & uniforms_buffers)
+void eruptor::hardware::Pipeline::Create_graphics_pipeline(Device& device, Swapchain & swapchain, Uniform_buffers & uniforms_buffers, Resource_manager & resource_manager)
 {
     vk::raii::ShaderModule shader_module = Create_shader_module(device, Read_file("./shaders/slang.spv"));
 
@@ -57,7 +59,7 @@ void eruptor::hardware::Pipeline::Create_graphics_pipeline(Device& device, Swapc
     rasterizer.rasterizerDiscardEnable = vk::False;
     rasterizer.polygonMode = vk::PolygonMode::eFill;
     rasterizer.cullMode = vk::CullModeFlagBits::eNone;
-    rasterizer.frontFace = vk::FrontFace::eClockwise;
+    rasterizer.frontFace = vk::FrontFace::eCounterClockwise;
     rasterizer.depthBiasEnable = vk::False;
     rasterizer.lineWidth = 1.0f;
 
@@ -66,8 +68,8 @@ void eruptor::hardware::Pipeline::Create_graphics_pipeline(Device& device, Swapc
     multisampling.sampleShadingEnable = vk::False;
 
     vk::PipelineDepthStencilStateCreateInfo depth_stencil{};
-    depth_stencil.depthTestEnable = vk::False;
-    depth_stencil.depthWriteEnable = vk::False;
+    depth_stencil.depthTestEnable = vk::True;
+    depth_stencil.depthWriteEnable = vk::True;
     depth_stencil.depthCompareOp = vk::CompareOp::eLess;
     depth_stencil.depthBoundsTestEnable = vk::False;
     depth_stencil.stencilTestEnable = vk::False;
@@ -88,9 +90,20 @@ void eruptor::hardware::Pipeline::Create_graphics_pipeline(Device& device, Swapc
     color_blending.attachmentCount = 1;
     color_blending.pAttachments = &color_blend_attachment;
 
+    vk::PushConstantRange push_constant_range{};
+    push_constant_range.setStageFlags( vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment );
+    push_constant_range.setOffset( 0 );
+    push_constant_range.setSize( sizeof(Push_constant) );
+
+    std::array<vk::DescriptorSetLayout, 2> set_layouts
+    {
+        *uniforms_buffers.Get_descriptor_set_layout(),
+        *resource_manager.Get_texture_set_layout()
+    };
+
     vk::PipelineLayoutCreateInfo pipeline_layout_info{};
-    pipeline_layout_info.setSetLayouts( *uniforms_buffers.Get_descriptor_set_layout() );
-    pipeline_layout_info.pushConstantRangeCount = 0;
+    pipeline_layout_info.setSetLayouts( set_layouts );
+    pipeline_layout_info.setPushConstantRanges( push_constant_range );
 
     pipeline_layout = vk::raii::PipelineLayout{device.Get_device_handle(), pipeline_layout_info};
 

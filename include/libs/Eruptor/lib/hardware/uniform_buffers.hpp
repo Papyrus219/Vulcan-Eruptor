@@ -14,9 +14,8 @@ namespace eruptor::hardware
 class Pipeline;
 class Device;
 
-struct Uniform_buffer_mvp
+struct Uniform_buffer_vp
 {
-    glm::mat4 model{};
     glm::mat4 view{};
     glm::mat4 proj{};
 };
@@ -28,7 +27,7 @@ public:
 
     vk::raii::DescriptorSetLayout & Get_descriptor_set_layout() {return descriptor_set_layout;}
 
-    void Bind_mvp_buffer(vk::raii::CommandBuffer & command_buffer, uint32_t frame_index, Pipeline & pipeline, const glm::mat4 & view);
+    void Bind_vp_buffer(vk::raii::CommandBuffer & command_buffer, uint32_t frame_index, Pipeline & pipeline, const glm::mat4 & view);
 private:
     void Create_descriptor_set_layouts(const vk::raii::Device & device);
     void Create_uniform_buffers(vma::raii::Allocator & alocator, const uint32_t MAX_FRAMES_IN_FLIGHTS);
@@ -39,8 +38,8 @@ private:
     vk::raii::DescriptorPool descriptor_pool = nullptr;
     std::vector< vk::raii::DescriptorSet > descriptor_sets{};
 
-    std::vector<vk::raii::Buffer> uniform_mvp_buffers{};
-    std::vector<void *> uniform_mvp_buffers_mapped{};
+    std::vector<vk::raii::Buffer> uniform_vp_buffers{};
+    std::vector<void *> uniform_vp_buffers_mapped{};
 };
 
 }
