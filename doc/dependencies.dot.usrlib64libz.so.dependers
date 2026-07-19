@@ -1,0 +1,21 @@
+digraph "/usr/lib64/libz.so" {
+node [
+  fontsize = "12"
+];
+    "node12" [ label = "/usr/lib64/libz.so", shape = septagon ];
+    "node11" [ label = "assimp::assimp", shape = doubleoctagon ];
+    "node11" -> "node12" [ style = dashed ] // assimp::assimp -> /usr/lib64/libz.so
+    "node10" [ label = "eruptor_resource", shape = octagon ];
+    "node10" -> "node11" [ style = dotted ] // eruptor_resource -> assimp::assimp
+    "node9" [ label = "eruptor_renderer", shape = octagon ];
+    "node9" -> "node10" [ style = dotted ] // eruptor_renderer -> eruptor_resource
+    "node2" [ label = "eruptor_engine", shape = octagon ];
+    "node2" -> "node9"  // eruptor_engine -> eruptor_renderer
+    "node1" [ label = "app", shape = egg ];
+    "node1" -> "node2" [ style = dotted ] // app -> eruptor_engine
+    "node16" [ label = "eruptor_scene", shape = octagon ];
+    "node16" -> "node10" [ style = dotted ] // eruptor_scene -> eruptor_resource
+    "node9" -> "node16" [ style = dotted ] // eruptor_renderer -> eruptor_scene
+    "node1" -> "node16" [ style = dotted ] // app -> eruptor_scene
+    "node2" -> "node10"  // eruptor_engine -> eruptor_resource
+}

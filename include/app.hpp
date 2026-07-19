@@ -2,8 +2,8 @@
 #define OVUM_APP_HPP
 
 #include <Eruptor/eruptor.hpp>
-#include <Eruptor/lib/scene/scene.hpp>
-#include <Eruptor/lib/event/event_manager.hpp>
+#include <Eruptor/scene/scene.hpp>
+#include <Eruptor/event/event_manager.hpp>
 
 namespace ovum
 {

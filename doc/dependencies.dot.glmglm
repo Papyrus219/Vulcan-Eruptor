@@ -1,0 +1,8 @@
+digraph "glm::glm" {
+node [
+  fontsize = "12"
+];
+    "node7" [ label = "glm::glm", shape = pentagon ];
+    "node8" [ label = "glm::glm-header-only", shape = pentagon ];
+    "node7" -> "node8" [ style = dashed ] // glm::glm -> glm::glm-header-only
+}

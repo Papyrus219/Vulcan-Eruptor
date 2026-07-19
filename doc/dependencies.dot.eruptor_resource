@@ -1,0 +1,31 @@
+digraph "eruptor_resource" {
+node [
+  fontsize = "12"
+];
+    "node10" [ label = "eruptor_resource", shape = octagon ];
+    "node11" [ label = "assimp::assimp", shape = doubleoctagon ];
+    "node10" -> "node11" [ style = dotted ] // eruptor_resource -> assimp::assimp
+    "node12" [ label = "/usr/lib64/libz.so", shape = septagon ];
+    "node11" -> "node12" [ style = dashed ] // assimp::assimp -> /usr/lib64/libz.so
+    "node13" [ label = "poly2tri", shape = septagon ];
+    "node11" -> "node13" [ style = dashed ] // assimp::assimp -> poly2tri
+    "node14" [ label = "pugixml", shape = septagon ];
+    "node11" -> "node14" [ style = dashed ] // assimp::assimp -> pugixml
+    "node15" [ label = "rt", shape = septagon ];
+    "node11" -> "node15" [ style = dashed ] // assimp::assimp -> rt
+    "node3" [ label = "eruptor_event", shape = octagon ];
+    "node10" -> "node3" [ style = dotted ] // eruptor_resource -> eruptor_event
+    "node4" [ label = "eruptor_hardware", shape = octagon ];
+    "node10" -> "node4" [ style = dotted ] // eruptor_resource -> eruptor_hardware
+    "node5" [ label = "Vulkan::Vulkan", shape = septagon ];
+    "node4" -> "node5"  // eruptor_hardware -> Vulkan::Vulkan
+    "node0" [ label = "VulkanMemoryAllocator-Hpp\n(VulkanMemoryAllocator-Hpp::VulkanMemoryAllocator-Hpp)", shape = pentagon ];
+    "node4" -> "node0"  // eruptor_hardware -> VulkanMemoryAllocator-Hpp
+    "node4" -> "node3" [ style = dotted ] // eruptor_hardware -> eruptor_event
+    "node6" [ label = "glfw", shape = doubleoctagon ];
+    "node4" -> "node6"  // eruptor_hardware -> glfw
+    "node7" [ label = "glm::glm", shape = pentagon ];
+    "node4" -> "node7"  // eruptor_hardware -> glm::glm
+    "node8" [ label = "glm::glm-header-only", shape = pentagon ];
+    "node7" -> "node8" [ style = dashed ] // glm::glm -> glm::glm-header-only
+}

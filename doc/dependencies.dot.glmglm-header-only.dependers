@@ -1,0 +1,26 @@
+digraph "glm::glm-header-only" {
+node [
+  fontsize = "12"
+];
+    "node8" [ label = "glm::glm-header-only", shape = pentagon ];
+    "node7" [ label = "glm::glm", shape = pentagon ];
+    "node7" -> "node8" [ style = dashed ] // glm::glm -> glm::glm-header-only
+    "node4" [ label = "eruptor_hardware", shape = octagon ];
+    "node4" -> "node7"  // eruptor_hardware -> glm::glm
+    "node2" [ label = "eruptor_engine", shape = octagon ];
+    "node2" -> "node4" [ style = dotted ] // eruptor_engine -> eruptor_hardware
+    "node1" [ label = "app", shape = egg ];
+    "node1" -> "node2" [ style = dotted ] // app -> eruptor_engine
+    "node9" [ label = "eruptor_renderer", shape = octagon ];
+    "node9" -> "node4" [ style = dotted ] // eruptor_renderer -> eruptor_hardware
+    "node2" -> "node9"  // eruptor_engine -> eruptor_renderer
+    "node10" [ label = "eruptor_resource", shape = octagon ];
+    "node10" -> "node4" [ style = dotted ] // eruptor_resource -> eruptor_hardware
+    "node9" -> "node10" [ style = dotted ] // eruptor_renderer -> eruptor_resource
+    "node16" [ label = "eruptor_scene", shape = octagon ];
+    "node16" -> "node10" [ style = dotted ] // eruptor_scene -> eruptor_resource
+    "node9" -> "node16" [ style = dotted ] // eruptor_renderer -> eruptor_scene
+    "node1" -> "node16" [ style = dotted ] // app -> eruptor_scene
+    "node2" -> "node10"  // eruptor_engine -> eruptor_resource
+    "node16" -> "node7"  // eruptor_scene -> glm::glm
+}

@@ -1,0 +1,8 @@
+digraph "eruptor_engine" {
+node [
+  fontsize = "12"
+];
+    "node2" [ label = "eruptor_engine", shape = octagon ];
+    "node1" [ label = "app", shape = egg ];
+    "node1" -> "node2" [ style = dotted ] // app -> eruptor_engine
+}
