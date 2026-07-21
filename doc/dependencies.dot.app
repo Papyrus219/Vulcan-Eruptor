@@ -39,11 +39,17 @@ node [
     "node11" -> "node15" [ style = dashed ] // assimp::assimp -> rt
     "node10" -> "node3" [ style = dotted ] // eruptor_resource -> eruptor_event
     "node10" -> "node4" [ style = dotted ] // eruptor_resource -> eruptor_hardware
-    "node16" [ label = "eruptor_scene", shape = octagon ];
-    "node9" -> "node16" [ style = dotted ] // eruptor_renderer -> eruptor_scene
-    "node16" -> "node10" [ style = dotted ] // eruptor_scene -> eruptor_resource
-    "node16" -> "node7"  // eruptor_scene -> glm::glm
+    "node16" [ label = "eruptor_physic", shape = octagon ];
+    "node10" -> "node16"  // eruptor_resource -> eruptor_physic
+    "node16" -> "node3" [ style = dotted ] // eruptor_physic -> eruptor_event
+    "node16" -> "node7" [ style = dotted ] // eruptor_physic -> glm::glm
+    "node17" [ label = "eruptor_scene", shape = octagon ];
+    "node9" -> "node17" [ style = dotted ] // eruptor_renderer -> eruptor_scene
+    "node17" -> "node3" [ style = dotted ] // eruptor_scene -> eruptor_event
+    "node17" -> "node10" [ style = dotted ] // eruptor_scene -> eruptor_resource
+    "node17" -> "node7" [ style = dotted ] // eruptor_scene -> glm::glm
     "node2" -> "node10"  // eruptor_engine -> eruptor_resource
     "node1" -> "node3" [ style = dotted ] // app -> eruptor_event
-    "node1" -> "node16" [ style = dotted ] // app -> eruptor_scene
+    "node1" -> "node16" [ style = dotted ] // app -> eruptor_physic
+    "node1" -> "node17" [ style = dotted ] // app -> eruptor_scene
 }

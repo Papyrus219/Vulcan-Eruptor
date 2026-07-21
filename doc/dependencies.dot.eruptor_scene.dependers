@@ -2,12 +2,12 @@ digraph "eruptor_scene" {
 node [
   fontsize = "12"
 ];
-    "node16" [ label = "eruptor_scene", shape = octagon ];
+    "node17" [ label = "eruptor_scene", shape = octagon ];
     "node9" [ label = "eruptor_renderer", shape = octagon ];
-    "node9" -> "node16" [ style = dotted ] // eruptor_renderer -> eruptor_scene
+    "node9" -> "node17" [ style = dotted ] // eruptor_renderer -> eruptor_scene
     "node2" [ label = "eruptor_engine", shape = octagon ];
     "node2" -> "node9"  // eruptor_engine -> eruptor_renderer
     "node1" [ label = "app", shape = egg ];
     "node1" -> "node2" [ style = dotted ] // app -> eruptor_engine
-    "node1" -> "node16" [ style = dotted ] // app -> eruptor_scene
+    "node1" -> "node17" [ style = dotted ] // app -> eruptor_scene
 }

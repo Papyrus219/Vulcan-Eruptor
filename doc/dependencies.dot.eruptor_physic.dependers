@@ -1,10 +1,10 @@
-digraph "assimp::assimp" {
+digraph "eruptor_physic" {
 node [
   fontsize = "12"
 ];
-    "node11" [ label = "assimp::assimp", shape = doubleoctagon ];
+    "node16" [ label = "eruptor_physic", shape = octagon ];
     "node10" [ label = "eruptor_resource", shape = octagon ];
-    "node10" -> "node11" [ style = dotted ] // eruptor_resource -> assimp::assimp
+    "node10" -> "node16"  // eruptor_resource -> eruptor_physic
     "node9" [ label = "eruptor_renderer", shape = octagon ];
     "node9" -> "node10" [ style = dotted ] // eruptor_renderer -> eruptor_resource
     "node2" [ label = "eruptor_engine", shape = octagon ];
@@ -16,4 +16,5 @@ node [
     "node9" -> "node17" [ style = dotted ] // eruptor_renderer -> eruptor_scene
     "node1" -> "node17" [ style = dotted ] // app -> eruptor_scene
     "node2" -> "node10"  // eruptor_engine -> eruptor_resource
+    "node1" -> "node16" [ style = dotted ] // app -> eruptor_physic
 }

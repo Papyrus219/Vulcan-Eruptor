@@ -28,4 +28,8 @@ node [
     "node4" -> "node7"  // eruptor_hardware -> glm::glm
     "node8" [ label = "glm::glm-header-only", shape = pentagon ];
     "node7" -> "node8" [ style = dashed ] // glm::glm -> glm::glm-header-only
+    "node16" [ label = "eruptor_physic", shape = octagon ];
+    "node10" -> "node16"  // eruptor_resource -> eruptor_physic
+    "node16" -> "node3" [ style = dotted ] // eruptor_physic -> eruptor_event
+    "node16" -> "node7" [ style = dotted ] // eruptor_physic -> glm::glm
 }

@@ -1,0 +1,12 @@
+digraph "eruptor_physic" {
+node [
+  fontsize = "12"
+];
+    "node16" [ label = "eruptor_physic", shape = octagon ];
+    "node3" [ label = "eruptor_event", shape = octagon ];
+    "node16" -> "node3" [ style = dotted ] // eruptor_physic -> eruptor_event
+    "node7" [ label = "glm::glm", shape = pentagon ];
+    "node16" -> "node7" [ style = dotted ] // eruptor_physic -> glm::glm
+    "node8" [ label = "glm::glm-header-only", shape = pentagon ];
+    "node7" -> "node8" [ style = dashed ] // glm::glm -> glm::glm-header-only
+}

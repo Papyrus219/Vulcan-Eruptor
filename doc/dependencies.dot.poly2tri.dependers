@@ -13,9 +13,9 @@ node [
     "node2" -> "node9"  // eruptor_engine -> eruptor_renderer
     "node1" [ label = "app", shape = egg ];
     "node1" -> "node2" [ style = dotted ] // app -> eruptor_engine
-    "node16" [ label = "eruptor_scene", shape = octagon ];
-    "node16" -> "node10" [ style = dotted ] // eruptor_scene -> eruptor_resource
-    "node9" -> "node16" [ style = dotted ] // eruptor_renderer -> eruptor_scene
-    "node1" -> "node16" [ style = dotted ] // app -> eruptor_scene
+    "node17" [ label = "eruptor_scene", shape = octagon ];
+    "node17" -> "node10" [ style = dotted ] // eruptor_scene -> eruptor_resource
+    "node9" -> "node17" [ style = dotted ] // eruptor_renderer -> eruptor_scene
+    "node1" -> "node17" [ style = dotted ] // app -> eruptor_scene
     "node2" -> "node10"  // eruptor_engine -> eruptor_resource
 }

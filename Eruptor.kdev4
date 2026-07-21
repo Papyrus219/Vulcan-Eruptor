@@ -1,3 +1,4 @@
 [Project]
-Name=Eruptor
+CreatedFrom=CMakeLists.txt
 Manager=KDevCMakeManager
+Name=Eruptor

@@ -1,5 +1,7 @@
 #include <app.hpp>
 #include <colors.hpp>
+#include <print>
+#include <iostream>
 
 using namespace ovum;
 
@@ -22,20 +24,18 @@ void ovum::App::Init()
     auto platform_model = resources->Add_model("../../tmp_models/platform/platform.obj");
     models_handles.push_back(platform_model);
 
-    auto blob_model = resources->Add_model("../../tmp_models/blob/blob.fbx");
+    auto blob_model = resources->Add_model("../../tmp_models/blob/blob.obj");
 
     resources->Load_models();
 
-    main_scene.render_objects.push_back({});
-    main_scene.render_objects.back().model_handle = platform_model;
+    main_scene.render_objects.emplace_back(*resources, platform_model);
+    main_scene.render_objects.emplace_back(*resources, platform_model);
 
-    main_scene.render_objects.push_back({});
-    main_scene.render_objects.back().model_handle = blob_model;
-    main_scene.render_objects.back().parent_object_index = 1;
-    main_scene.render_objects.back().transformation.Set_position({2.0f, 0.58f, 1.0f});
-    main_scene.render_objects.back().transformation.Set_scale({0.01f, 0.01f, 0.01f});
-    main_scene.render_objects.back().transformation.Set_rotation_euler({0.0f, 90.5f, 0.0f});
+    main_scene.render_objects.emplace_back(*resources, blob_model);
     main_scene.render_objects.back().color = Color{171, 24, 24};
+    main_scene.render_objects.back().Set_scale( {0.2, 0.2, 0.2}, 0 );
+
+    std::print(std::clog, "Objects amomont: {}\n", main_scene.render_objects.size());
 
     last_time = app_clock.now();
 }
@@ -72,27 +72,27 @@ void ovum::App::Update()
     }
     if(window->Is_key_pressed(eruptor::event::Key::UP))
     {
-        main_scene.render_objects[2].transformation.Set_position( main_scene.render_objects[2].transformation.Get_position() + glm::vec3{10 * delta_time.count(), 0, 0} );
+        main_scene.render_objects[2].Move( glm::vec3{10 * delta_time.count(), 0, 0} );
     }
     if(window->Is_key_pressed(eruptor::event::Key::DOWN))
     {
-        main_scene.render_objects[2].transformation.Set_position( main_scene.render_objects[2].transformation.Get_position() + glm::vec3{-10 * delta_time.count(), 0, 0} );
+        main_scene.render_objects[2].Move( glm::vec3{-10 * delta_time.count(), 0, 0} );
     }
     if(window->Is_key_pressed(eruptor::event::Key::LEFT))
     {
-        main_scene.render_objects[2].transformation.Set_position( main_scene.render_objects[2].transformation.Get_position() + glm::vec3{0, 0, -10 * delta_time.count()} );
+        main_scene.render_objects[2].Move( glm::vec3{0, 0, -10 * delta_time.count()} );
     }
     if(window->Is_key_pressed(eruptor::event::Key::RIGHT))
     {
-        main_scene.render_objects[2].transformation.Set_position( main_scene.render_objects[2].transformation.Get_position() + glm::vec3{0, 0, 10 * delta_time.count()} );
+        main_scene.render_objects[2].Move( glm::vec3{0, 0, 10 * delta_time.count()} );
     }
     if(window->Is_key_pressed(eruptor::event::Key::PLUS))
     {
-        main_scene.render_objects[2].transformation.Set_scale( main_scene.render_objects[2].transformation.Get_scale() + glm::vec3(2 * delta_time.count(), 2 * delta_time.count(), 2 * delta_time.count()) );;
+        main_scene.render_objects[2].Change_scale( glm::vec3(2 * delta_time.count(), 2 * delta_time.count(), 2 * delta_time.count()), 0 );;
     }
     if(window->Is_key_pressed(eruptor::event::Key::MINUS))
     {
-        main_scene.render_objects[2].transformation.Set_scale( main_scene.render_objects[2].transformation.Get_scale() + glm::vec3(-2 * delta_time.count(), -2 * delta_time.count(), -2 * delta_time.count()) );;
+        main_scene.render_objects[2].Change_scale( glm::vec3(-2 * delta_time.count(), -2 * delta_time.count(), -2 * delta_time.count()), 0 );;
     }
 
     last_time = app_clock.now();
@@ -103,6 +103,9 @@ void ovum::App::Render()
     renderer->Begin_frame();
 
     renderer->Render_scene( main_scene );
+
+    auto blob_aabb = main_scene.render_objects[2].Get_aabb();
+    std::print(std::clog, "Blob AABB.min: {}, {}, {}\n", blob_aabb.min.x, blob_aabb.min.y, blob_aabb.min.z);
 
     renderer->End_frame();
 }
