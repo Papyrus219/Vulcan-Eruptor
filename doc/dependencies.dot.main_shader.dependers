@@ -1,0 +1,23 @@
+digraph "main_shader" {
+node [
+  fontsize = "12"
+];
+    "node9" [ label = "main_shader", shape = septagon ];
+    "node4" [ label = "eruptor_hardware", shape = octagon ];
+    "node4" -> "node9"  // eruptor_hardware -> main_shader
+    "node2" [ label = "eruptor_engine", shape = octagon ];
+    "node2" -> "node4" [ style = dotted ] // eruptor_engine -> eruptor_hardware
+    "node1" [ label = "app", shape = egg ];
+    "node1" -> "node2" [ style = dotted ] // app -> eruptor_engine
+    "node10" [ label = "eruptor_renderer", shape = octagon ];
+    "node10" -> "node4" [ style = dotted ] // eruptor_renderer -> eruptor_hardware
+    "node2" -> "node10"  // eruptor_engine -> eruptor_renderer
+    "node11" [ label = "eruptor_resource", shape = octagon ];
+    "node11" -> "node4" [ style = dotted ] // eruptor_resource -> eruptor_hardware
+    "node10" -> "node11" [ style = dotted ] // eruptor_renderer -> eruptor_resource
+    "node18" [ label = "eruptor_scene", shape = octagon ];
+    "node18" -> "node11" [ style = dotted ] // eruptor_scene -> eruptor_resource
+    "node10" -> "node18" [ style = dotted ] // eruptor_renderer -> eruptor_scene
+    "node1" -> "node18" [ style = dotted ] // app -> eruptor_scene
+    "node2" -> "node11"  // eruptor_engine -> eruptor_resource
+}

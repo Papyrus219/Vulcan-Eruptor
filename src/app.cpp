@@ -52,6 +52,8 @@ void ovum::App::Start_loop()
 
 void ovum::App::Update()
 {
+    window->Update();
+
     std::chrono::duration<float> delta_time = app_clock.now() - last_time;
 
     if(window->Is_key_pressed(eruptor::event::Key::W))
@@ -100,14 +102,12 @@ void ovum::App::Update()
 
 void ovum::App::Render()
 {
-    renderer->Begin_frame();
-
-    renderer->Render_scene( main_scene );
+    renderer->Stage_scene_render_data( main_scene );
 
     auto blob_aabb = main_scene.render_objects[2].Get_aabb();
     std::print(std::clog, "Blob AABB.min: {}, {}, {}\n", blob_aabb.min.x, blob_aabb.min.y, blob_aabb.min.z);
 
-    renderer->End_frame();
+    renderer->Flush_render_buffor();
 }
 
 void ovum::App::On_event(const eruptor::event::Event& event)
