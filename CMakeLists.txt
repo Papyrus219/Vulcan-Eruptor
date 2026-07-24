@@ -4,7 +4,8 @@ project(ovum)
 add_subdirectory(engine/)
 
 set(APP_SRC ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp
-            ${CMAKE_CURRENT_LIST_DIR}/src/app.cpp)
+            ${CMAKE_CURRENT_LIST_DIR}/src/app.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/gp_communicator.cpp)
 
 add_executable(app ${APP_SRC})
 target_link_libraries(app PUBLIC eruptor_engine eruptor_event eruptor_scene eruptor_physic)

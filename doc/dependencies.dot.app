@@ -20,36 +20,38 @@ node [
     "node4" -> "node7"  // eruptor_hardware -> glm::glm
     "node8" [ label = "glm::glm-header-only", shape = pentagon ];
     "node7" -> "node8" [ style = dashed ] // glm::glm -> glm::glm-header-only
-    "node9" [ label = "eruptor_renderer", shape = octagon ];
-    "node2" -> "node9"  // eruptor_engine -> eruptor_renderer
-    "node9" -> "node5" [ style = dotted ] // eruptor_renderer -> Vulkan::Vulkan
-    "node9" -> "node3" [ style = dotted ] // eruptor_renderer -> eruptor_event
-    "node9" -> "node4" [ style = dotted ] // eruptor_renderer -> eruptor_hardware
-    "node10" [ label = "eruptor_resource", shape = octagon ];
-    "node9" -> "node10" [ style = dotted ] // eruptor_renderer -> eruptor_resource
-    "node11" [ label = "assimp::assimp", shape = doubleoctagon ];
-    "node10" -> "node11" [ style = dotted ] // eruptor_resource -> assimp::assimp
-    "node12" [ label = "/usr/lib64/libz.so", shape = septagon ];
-    "node11" -> "node12" [ style = dashed ] // assimp::assimp -> /usr/lib64/libz.so
-    "node13" [ label = "poly2tri", shape = septagon ];
-    "node11" -> "node13" [ style = dashed ] // assimp::assimp -> poly2tri
-    "node14" [ label = "pugixml", shape = septagon ];
-    "node11" -> "node14" [ style = dashed ] // assimp::assimp -> pugixml
-    "node15" [ label = "rt", shape = septagon ];
-    "node11" -> "node15" [ style = dashed ] // assimp::assimp -> rt
-    "node10" -> "node3" [ style = dotted ] // eruptor_resource -> eruptor_event
-    "node10" -> "node4" [ style = dotted ] // eruptor_resource -> eruptor_hardware
-    "node16" [ label = "eruptor_physic", shape = octagon ];
-    "node10" -> "node16"  // eruptor_resource -> eruptor_physic
-    "node16" -> "node3" [ style = dotted ] // eruptor_physic -> eruptor_event
-    "node16" -> "node7" [ style = dotted ] // eruptor_physic -> glm::glm
-    "node17" [ label = "eruptor_scene", shape = octagon ];
-    "node9" -> "node17" [ style = dotted ] // eruptor_renderer -> eruptor_scene
-    "node17" -> "node3" [ style = dotted ] // eruptor_scene -> eruptor_event
-    "node17" -> "node10" [ style = dotted ] // eruptor_scene -> eruptor_resource
-    "node17" -> "node7" [ style = dotted ] // eruptor_scene -> glm::glm
-    "node2" -> "node10"  // eruptor_engine -> eruptor_resource
+    "node9" [ label = "eruptor_physic", shape = octagon ];
+    "node2" -> "node9"  // eruptor_engine -> eruptor_physic
+    "node9" -> "node3" [ style = dotted ] // eruptor_physic -> eruptor_event
+    "node10" [ label = "eruptor_scene", shape = octagon ];
+    "node9" -> "node10" [ style = dotted ] // eruptor_physic -> eruptor_scene
+    "node10" -> "node3" [ style = dotted ] // eruptor_scene -> eruptor_event
+    "node11" [ label = "eruptor_resource", shape = octagon ];
+    "node10" -> "node11" [ style = dotted ] // eruptor_scene -> eruptor_resource
+    "node12" [ label = "assimp::assimp", shape = doubleoctagon ];
+    "node11" -> "node12" [ style = dotted ] // eruptor_resource -> assimp::assimp
+    "node13" [ label = "/usr/lib64/libz.so", shape = septagon ];
+    "node12" -> "node13" [ style = dashed ] // assimp::assimp -> /usr/lib64/libz.so
+    "node14" [ label = "poly2tri", shape = septagon ];
+    "node12" -> "node14" [ style = dashed ] // assimp::assimp -> poly2tri
+    "node15" [ label = "pugixml", shape = septagon ];
+    "node12" -> "node15" [ style = dashed ] // assimp::assimp -> pugixml
+    "node16" [ label = "rt", shape = septagon ];
+    "node12" -> "node16" [ style = dashed ] // assimp::assimp -> rt
+    "node11" -> "node3" [ style = dotted ] // eruptor_resource -> eruptor_event
+    "node11" -> "node4" [ style = dotted ] // eruptor_resource -> eruptor_hardware
+    "node11" -> "node9"  // eruptor_resource -> eruptor_physic
+    "node10" -> "node7" [ style = dotted ] // eruptor_scene -> glm::glm
+    "node9" -> "node7" [ style = dotted ] // eruptor_physic -> glm::glm
+    "node17" [ label = "eruptor_renderer", shape = octagon ];
+    "node2" -> "node17"  // eruptor_engine -> eruptor_renderer
+    "node17" -> "node5" [ style = dotted ] // eruptor_renderer -> Vulkan::Vulkan
+    "node17" -> "node3" [ style = dotted ] // eruptor_renderer -> eruptor_event
+    "node17" -> "node4" [ style = dotted ] // eruptor_renderer -> eruptor_hardware
+    "node17" -> "node11" [ style = dotted ] // eruptor_renderer -> eruptor_resource
+    "node17" -> "node10" [ style = dotted ] // eruptor_renderer -> eruptor_scene
+    "node2" -> "node11"  // eruptor_engine -> eruptor_resource
     "node1" -> "node3" [ style = dotted ] // app -> eruptor_event
-    "node1" -> "node16" [ style = dotted ] // app -> eruptor_physic
-    "node1" -> "node17" [ style = dotted ] // app -> eruptor_scene
+    "node1" -> "node9" [ style = dotted ] // app -> eruptor_physic
+    "node1" -> "node10" [ style = dotted ] // app -> eruptor_scene
 }

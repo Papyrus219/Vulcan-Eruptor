@@ -10,23 +10,25 @@ node [
     "node4" [ label = "eruptor_hardware", shape = octagon ];
     "node4" -> "node3" [ style = dotted ] // eruptor_hardware -> eruptor_event
     "node2" -> "node4" [ style = dotted ] // eruptor_engine -> eruptor_hardware
-    "node9" [ label = "eruptor_renderer", shape = octagon ];
-    "node9" -> "node4" [ style = dotted ] // eruptor_renderer -> eruptor_hardware
-    "node2" -> "node9"  // eruptor_engine -> eruptor_renderer
-    "node10" [ label = "eruptor_resource", shape = octagon ];
-    "node10" -> "node4" [ style = dotted ] // eruptor_resource -> eruptor_hardware
-    "node9" -> "node10" [ style = dotted ] // eruptor_renderer -> eruptor_resource
-    "node17" [ label = "eruptor_scene", shape = octagon ];
-    "node17" -> "node10" [ style = dotted ] // eruptor_scene -> eruptor_resource
-    "node9" -> "node17" [ style = dotted ] // eruptor_renderer -> eruptor_scene
-    "node1" -> "node17" [ style = dotted ] // app -> eruptor_scene
-    "node2" -> "node10"  // eruptor_engine -> eruptor_resource
-    "node9" -> "node3" [ style = dotted ] // eruptor_renderer -> eruptor_event
-    "node10" -> "node3" [ style = dotted ] // eruptor_resource -> eruptor_event
-    "node16" [ label = "eruptor_physic", shape = octagon ];
-    "node16" -> "node3" [ style = dotted ] // eruptor_physic -> eruptor_event
-    "node10" -> "node16"  // eruptor_resource -> eruptor_physic
-    "node1" -> "node16" [ style = dotted ] // app -> eruptor_physic
-    "node17" -> "node3" [ style = dotted ] // eruptor_scene -> eruptor_event
+    "node11" [ label = "eruptor_resource", shape = octagon ];
+    "node11" -> "node4" [ style = dotted ] // eruptor_resource -> eruptor_hardware
+    "node10" [ label = "eruptor_scene", shape = octagon ];
+    "node10" -> "node11" [ style = dotted ] // eruptor_scene -> eruptor_resource
+    "node9" [ label = "eruptor_physic", shape = octagon ];
+    "node9" -> "node10" [ style = dotted ] // eruptor_physic -> eruptor_scene
+    "node11" -> "node9"  // eruptor_resource -> eruptor_physic
+    "node2" -> "node9"  // eruptor_engine -> eruptor_physic
+    "node1" -> "node9" [ style = dotted ] // app -> eruptor_physic
+    "node17" [ label = "eruptor_renderer", shape = octagon ];
+    "node17" -> "node10" [ style = dotted ] // eruptor_renderer -> eruptor_scene
+    "node2" -> "node17"  // eruptor_engine -> eruptor_renderer
+    "node1" -> "node10" [ style = dotted ] // app -> eruptor_scene
+    "node17" -> "node11" [ style = dotted ] // eruptor_renderer -> eruptor_resource
+    "node2" -> "node11"  // eruptor_engine -> eruptor_resource
+    "node17" -> "node4" [ style = dotted ] // eruptor_renderer -> eruptor_hardware
+    "node9" -> "node3" [ style = dotted ] // eruptor_physic -> eruptor_event
+    "node10" -> "node3" [ style = dotted ] // eruptor_scene -> eruptor_event
+    "node11" -> "node3" [ style = dotted ] // eruptor_resource -> eruptor_event
+    "node17" -> "node3" [ style = dotted ] // eruptor_renderer -> eruptor_event
     "node1" -> "node3" [ style = dotted ] // app -> eruptor_event
 }

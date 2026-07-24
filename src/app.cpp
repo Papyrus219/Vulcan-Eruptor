@@ -17,6 +17,7 @@ void ovum::App::Init()
 
     renderer = &engine.Get_renderer();
     resources = &engine.Get_resource_manager();
+    physic_manager = &engine.Get_physic_manager();
 
     window = &renderer->Get_window();
     camera = &renderer->Get_camera();
@@ -26,6 +27,8 @@ void ovum::App::Init()
 
     auto blob_model = resources->Add_model("../../tmp_models/blob/blob.obj");
 
+    auto ball_model = resources->Add_model("../../tmp_models/ball/ball.obj");
+
     resources->Load_models();
 
     main_scene.render_objects.emplace_back(*resources, platform_model);
@@ -33,9 +36,22 @@ void ovum::App::Init()
 
     main_scene.render_objects.emplace_back(*resources, blob_model);
     main_scene.render_objects.back().color = Color{171, 24, 24};
-    main_scene.render_objects.back().Set_scale( {0.2, 0.2, 0.2}, 0 );
+    main_scene.render_objects.back().Set_scale( {0.2, 0.2, 0.2}, 0.1 );
 
-    std::print(std::clog, "Objects amomont: {}\n", main_scene.render_objects.size());
+    main_scene.render_objects.emplace_back(*resources, blob_model);
+    main_scene.render_objects.back().color = Color{56, 124, 24};
+    main_scene.render_objects.back().Set_scale( {0.2, 0.2, 0.2}, 0.1 );
+
+    main_scene.render_objects.emplace_back(*resources, ball_model);
+    main_scene.render_objects.back().color = Color{56, 24, 224};
+    main_scene.render_objects.back().Set_position({1.0, 0.1, 0.2});
+    main_scene.render_objects.back().Set_scale({0.1, 0.1, 0.1}, 0.1);
+
+    gp_comm.Enable_2d("Position");
+    gp_comm.Set_x_axis_title("X coord");
+    gp_comm.Set_y_axis_title("Z coord");
+    gp_comm.Set_x_axis_range(-10.0, 10.0);
+    gp_comm.Set_y_axis_range(-10.0, 10.0);
 
     last_time = app_clock.now();
 }
@@ -46,6 +62,19 @@ void ovum::App::Start_loop()
     {
         Update();
 
+
+        gp_comm.Begin_frame();
+
+        auto blob_aabb = main_scene.render_objects[2].Get_aabb();
+        gp_comm.Stage_data({blob_aabb.min.x, blob_aabb.min.z});
+        gp_comm.Stage_data({blob_aabb.max.x, blob_aabb.max.z});
+
+        blob_aabb = main_scene.render_objects[3].Get_aabb();
+        gp_comm.Stage_data({blob_aabb.min.x, blob_aabb.min.z});
+        gp_comm.Stage_data({blob_aabb.max.x, blob_aabb.max.z});
+
+        gp_comm.End_frame();
+
         Render();
     }
 }
@@ -53,6 +82,7 @@ void ovum::App::Start_loop()
 void ovum::App::Update()
 {
     window->Update();
+    physic_manager->Chceck_aabbs_colisions( main_scene );
 
     std::chrono::duration<float> delta_time = app_clock.now() - last_time;
 
@@ -90,11 +120,11 @@ void ovum::App::Update()
     }
     if(window->Is_key_pressed(eruptor::event::Key::PLUS))
     {
-        main_scene.render_objects[2].Change_scale( glm::vec3(2 * delta_time.count(), 2 * delta_time.count(), 2 * delta_time.count()), 0 );;
+        main_scene.render_objects[2].Change_scale( glm::vec3(2 * delta_time.count(), 2 * delta_time.count(), 2 * delta_time.count()), 0.1 );;
     }
     if(window->Is_key_pressed(eruptor::event::Key::MINUS))
     {
-        main_scene.render_objects[2].Change_scale( glm::vec3(-2 * delta_time.count(), -2 * delta_time.count(), -2 * delta_time.count()), 0 );;
+        main_scene.render_objects[2].Change_scale( glm::vec3(-2 * delta_time.count(), -2 * delta_time.count(), -2 * delta_time.count()), 0.1 );;
     }
 
     last_time = app_clock.now();
@@ -103,9 +133,6 @@ void ovum::App::Update()
 void ovum::App::Render()
 {
     renderer->Stage_scene_render_data( main_scene );
-
-    auto blob_aabb = main_scene.render_objects[2].Get_aabb();
-    std::print(std::clog, "Blob AABB.min: {}, {}, {}\n", blob_aabb.min.x, blob_aabb.min.y, blob_aabb.min.z);
 
     renderer->Flush_render_buffor();
 }
@@ -119,6 +146,10 @@ void ovum::App::On_event(const eruptor::event::Event& event)
     else if(auto mouse_move = event.Get_if<eruptor::event::Event::Mouse_moved>())
     {
         camera->Process_mouse_movement(mouse_move->x_offset, mouse_move->y_offset);
+    }
+    else if(auto colision = event.Get_if<eruptor::event::Event::Collision_occurred>())
+    {
+        std::print(std::clog, "Collision occurred: Object a: {} Object b: {}\n", colision->object_a_id, colision->object_b_id);
     }
 }
 

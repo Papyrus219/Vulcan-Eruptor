@@ -2,13 +2,13 @@ digraph "assimp::assimp" {
 node [
   fontsize = "12"
 ];
-    "node11" [ label = "assimp::assimp", shape = doubleoctagon ];
-    "node12" [ label = "/usr/lib64/libz.so", shape = septagon ];
-    "node11" -> "node12" [ style = dashed ] // assimp::assimp -> /usr/lib64/libz.so
-    "node13" [ label = "poly2tri", shape = septagon ];
-    "node11" -> "node13" [ style = dashed ] // assimp::assimp -> poly2tri
-    "node14" [ label = "pugixml", shape = septagon ];
-    "node11" -> "node14" [ style = dashed ] // assimp::assimp -> pugixml
-    "node15" [ label = "rt", shape = septagon ];
-    "node11" -> "node15" [ style = dashed ] // assimp::assimp -> rt
+    "node12" [ label = "assimp::assimp", shape = doubleoctagon ];
+    "node13" [ label = "/usr/lib64/libz.so", shape = septagon ];
+    "node12" -> "node13" [ style = dashed ] // assimp::assimp -> /usr/lib64/libz.so
+    "node14" [ label = "poly2tri", shape = septagon ];
+    "node12" -> "node14" [ style = dashed ] // assimp::assimp -> poly2tri
+    "node15" [ label = "pugixml", shape = septagon ];
+    "node12" -> "node15" [ style = dashed ] // assimp::assimp -> pugixml
+    "node16" [ label = "rt", shape = septagon ];
+    "node12" -> "node16" [ style = dashed ] // assimp::assimp -> rt
 }

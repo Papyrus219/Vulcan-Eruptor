@@ -2,9 +2,9 @@ digraph "eruptor_renderer" {
 node [
   fontsize = "12"
 ];
-    "node9" [ label = "eruptor_renderer", shape = octagon ];
+    "node17" [ label = "eruptor_renderer", shape = octagon ];
     "node2" [ label = "eruptor_engine", shape = octagon ];
-    "node2" -> "node9"  // eruptor_engine -> eruptor_renderer
+    "node2" -> "node17"  // eruptor_engine -> eruptor_renderer
     "node1" [ label = "app", shape = egg ];
     "node1" -> "node2" [ style = dotted ] // app -> eruptor_engine
 }

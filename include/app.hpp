@@ -4,6 +4,7 @@
 #include <Eruptor/eruptor.hpp>
 #include <Eruptor/scene/scene.hpp>
 #include <Eruptor/event/event_manager.hpp>
+#include <gp_communicator.hpp>
 
 namespace ovum
 {
@@ -24,6 +25,8 @@ private:
 
     bool is_running{true};
 
+    GP_communicator gp_comm{};
+
     eruptor::scene::Scene main_scene{};
 
     std::chrono::high_resolution_clock app_clock{};
@@ -36,6 +39,7 @@ private:
     eruptor::renderer::Renderer * renderer{};
     eruptor::resource::Resource_manager * resources{};
     eruptor::event::Event_manager & event_manager;
+    eruptor::physic::Physic_manager * physic_manager{};
 
     eruptor::hardware::Window * window{};
     eruptor::renderer::Fly_camera * camera{};

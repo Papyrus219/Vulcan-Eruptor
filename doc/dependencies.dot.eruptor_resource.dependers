@@ -2,16 +2,21 @@ digraph "eruptor_resource" {
 node [
   fontsize = "12"
 ];
-    "node10" [ label = "eruptor_resource", shape = octagon ];
-    "node9" [ label = "eruptor_renderer", shape = octagon ];
-    "node9" -> "node10" [ style = dotted ] // eruptor_renderer -> eruptor_resource
+    "node11" [ label = "eruptor_resource", shape = octagon ];
+    "node10" [ label = "eruptor_scene", shape = octagon ];
+    "node10" -> "node11" [ style = dotted ] // eruptor_scene -> eruptor_resource
+    "node9" [ label = "eruptor_physic", shape = octagon ];
+    "node9" -> "node10" [ style = dotted ] // eruptor_physic -> eruptor_scene
+    "node11" -> "node9"  // eruptor_resource -> eruptor_physic
     "node2" [ label = "eruptor_engine", shape = octagon ];
-    "node2" -> "node9"  // eruptor_engine -> eruptor_renderer
+    "node2" -> "node9"  // eruptor_engine -> eruptor_physic
     "node1" [ label = "app", shape = egg ];
     "node1" -> "node2" [ style = dotted ] // app -> eruptor_engine
-    "node17" [ label = "eruptor_scene", shape = octagon ];
-    "node17" -> "node10" [ style = dotted ] // eruptor_scene -> eruptor_resource
-    "node9" -> "node17" [ style = dotted ] // eruptor_renderer -> eruptor_scene
-    "node1" -> "node17" [ style = dotted ] // app -> eruptor_scene
-    "node2" -> "node10"  // eruptor_engine -> eruptor_resource
+    "node1" -> "node9" [ style = dotted ] // app -> eruptor_physic
+    "node17" [ label = "eruptor_renderer", shape = octagon ];
+    "node17" -> "node10" [ style = dotted ] // eruptor_renderer -> eruptor_scene
+    "node2" -> "node17"  // eruptor_engine -> eruptor_renderer
+    "node1" -> "node10" [ style = dotted ] // app -> eruptor_scene
+    "node17" -> "node11" [ style = dotted ] // eruptor_renderer -> eruptor_resource
+    "node2" -> "node11"  // eruptor_engine -> eruptor_resource
 }
