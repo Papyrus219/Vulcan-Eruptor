@@ -1,0 +1,41 @@
+[platform_model = ../../tmp_models/platform/platform.obj]
+[blob_model = ../../tmp_models/blob/blob.obj]
+[ball_model = ../../tmp_models/ball/ball.obj]
+
+~~~~~
+
+<zero>
+Model: platform_model
+Position: 0.0 -4.0 0.0
+Rotation: 0.0 0.0 0.0
+Scale: 0.01 0.01 0.01
+
+<floor>
+Model: platform_model
+Position: 0.0 0.0 0.0
+Rotation: 0.0 0.0 0.0
+Scale:    1.0 1.0 1.0
+
+<blob_1>
+Model: blob_model
+Position: 0.0 0.1 0.0
+Rotation: 0.0 0.0 0.0
+Scale:    0.2 0.2 0.2
+
+<blob_2>
+Model: blob_model
+Position: 0.0 0.1 0.0
+Rotation: 0.0 0.0 0.0
+Scale:    0.2 0.2 0.2
+
+<ball_1>
+Model: ball_model
+Position: 1.0 0.1 0.2
+Rotation: 0.0 0.0 0.0
+Scale:    0.1 0.1 0.1
+
+<ball_2>
+Model: ball_model
+Position: 1.0 0.1 1.2
+Rotation: 0.0 0.0 0.0
+Scale:    0.1 0.1 0.1

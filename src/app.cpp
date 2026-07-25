@@ -18,34 +18,22 @@ void ovum::App::Init()
     renderer = &engine.Get_renderer();
     resources = &engine.Get_resource_manager();
     physic_manager = &engine.Get_physic_manager();
+    scene_parser.Assign_resource_manager(*resources);
 
     window = &renderer->Get_window();
     camera = &renderer->Get_camera();
 
-    auto platform_model = resources->Add_model("../../tmp_models/platform/platform.obj");
-    models_handles.push_back(platform_model);
+    main_scene = scene_parser.Load_scene("../../scenes/test.papsc");
 
-    auto blob_model = resources->Add_model("../../tmp_models/blob/blob.obj");
+    auto & blob_1 = main_scene.render_objects[ main_scene.objects_aliases.at("blob_1") ];
+    auto & blob_2 = main_scene.render_objects[ main_scene.objects_aliases.at("blob_2") ];
+    auto & ball_1 = main_scene.render_objects[ main_scene.objects_aliases.at("ball_1") ];
+    auto & ball_2 = main_scene.render_objects[ main_scene.objects_aliases.at("ball_2") ];
 
-    auto ball_model = resources->Add_model("../../tmp_models/ball/ball.obj");
-
-    resources->Load_models();
-
-    main_scene.render_objects.emplace_back(*resources, platform_model);
-    main_scene.render_objects.emplace_back(*resources, platform_model);
-
-    main_scene.render_objects.emplace_back(*resources, blob_model);
-    main_scene.render_objects.back().color = Color{171, 24, 24};
-    main_scene.render_objects.back().Set_scale( {0.2, 0.2, 0.2}, 0.1 );
-
-    main_scene.render_objects.emplace_back(*resources, blob_model);
-    main_scene.render_objects.back().color = Color{56, 124, 24};
-    main_scene.render_objects.back().Set_scale( {0.2, 0.2, 0.2}, 0.1 );
-
-    main_scene.render_objects.emplace_back(*resources, ball_model);
-    main_scene.render_objects.back().color = Color{56, 24, 224};
-    main_scene.render_objects.back().Set_position({1.0, 0.1, 0.2});
-    main_scene.render_objects.back().Set_scale({0.1, 0.1, 0.1}, 0.1);
+    blob_1.color = Color{174, 21, 23};
+    blob_2.color = Color{20, 194, 34};
+    ball_1.color = Color{13, 32, 199};
+    ball_2.color = Color{13, 32, 199};
 
     gp_comm.Enable_2d("Position");
     gp_comm.Set_x_axis_title("X coord");
@@ -61,7 +49,6 @@ void ovum::App::Start_loop()
     while(is_running)
     {
         Update();
-
 
         gp_comm.Begin_frame();
 
@@ -104,19 +91,21 @@ void ovum::App::Update()
     }
     if(window->Is_key_pressed(eruptor::event::Key::UP))
     {
-        main_scene.render_objects[2].Move( glm::vec3{10 * delta_time.count(), 0, 0} );
+        glm::vec3 dir = main_scene.render_objects[2].Get_rotaion() * glm::vec3(1.f, 0.f, 0.f);
+        main_scene.render_objects[2].Move( dir * delta_time.count() );
     }
     if(window->Is_key_pressed(eruptor::event::Key::DOWN))
     {
-        main_scene.render_objects[2].Move( glm::vec3{-10 * delta_time.count(), 0, 0} );
+        glm::vec3 dir = main_scene.render_objects[2].Get_rotaion() * glm::vec3(1.f, 0.f, 0.f);
+        main_scene.render_objects[2].Move( -dir * delta_time.count() );
     }
     if(window->Is_key_pressed(eruptor::event::Key::LEFT))
     {
-        main_scene.render_objects[2].Move( glm::vec3{0, 0, -10 * delta_time.count()} );
+        main_scene.render_objects[2].Rotate(glm::vec3{0.0f, 1.0f, 0.0f} * delta_time.count());
     }
     if(window->Is_key_pressed(eruptor::event::Key::RIGHT))
     {
-        main_scene.render_objects[2].Move( glm::vec3{0, 0, 10 * delta_time.count()} );
+        main_scene.render_objects[2].Rotate(glm::vec3{0.0f, -1.0f, 0.0f} * delta_time.count());
     }
     if(window->Is_key_pressed(eruptor::event::Key::PLUS))
     {

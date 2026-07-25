@@ -3,9 +3,16 @@
 
 using namespace ovum;
 
-ovum::GP_communicator::GP_communicator()
+ovum::GP_communicator::GP_communicator(bool is_persist)
 {
-    gnuplot = popen("gnuplot -persist", "w");
+    if(is_persist)
+    {
+         gnuplot = popen("gnuplot -persist", "w");
+    }
+    else
+    {
+        gnuplot = popen("gnuplot", "w");
+    }
 
     if(!gnuplot)
     {

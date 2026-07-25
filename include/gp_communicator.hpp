@@ -19,7 +19,7 @@ enum class GP_mode
 class GP_communicator
 {
 public:
-    GP_communicator();
+    GP_communicator(bool is_persist = false);
 
     void Begin_frame();
     void End_frame();

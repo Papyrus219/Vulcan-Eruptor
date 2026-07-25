@@ -2,6 +2,7 @@
 #define OVUM_APP_HPP
 
 #include <Eruptor/eruptor.hpp>
+#include <Eruptor/scene/scene_parser.hpp>
 #include <Eruptor/scene/scene.hpp>
 #include <Eruptor/event/event_manager.hpp>
 #include <gp_communicator.hpp>
@@ -40,6 +41,8 @@ private:
     eruptor::resource::Resource_manager * resources{};
     eruptor::event::Event_manager & event_manager;
     eruptor::physic::Physic_manager * physic_manager{};
+
+    eruptor::scene::Scene_parser scene_parser{};
 
     eruptor::hardware::Window * window{};
     eruptor::renderer::Fly_camera * camera{};
