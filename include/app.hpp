@@ -24,10 +24,13 @@ private:
     void Update();
     void Render();
 
+    void Reload_scene();
+
     bool is_running{true};
 
     GP_communicator gp_comm{};
 
+    std::filesystem::path main_scene_path{"../../scenes/test.papsc"};
     eruptor::scene::Scene main_scene{};
 
     std::chrono::high_resolution_clock app_clock{};

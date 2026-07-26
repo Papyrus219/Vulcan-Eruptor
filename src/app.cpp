@@ -23,7 +23,16 @@ void ovum::App::Init()
     window = &renderer->Get_window();
     camera = &renderer->Get_camera();
 
-    main_scene = scene_parser.Load_scene("../../scenes/test.papsc");
+    auto parsed_scene = scene_parser.Load_scene(main_scene_path);
+    if(parsed_scene)
+    {
+        main_scene = *parsed_scene;
+    }
+    else
+    {
+        std::print(std::cerr, "Error: {}\n", parsed_scene.error());
+        std::exit(EXIT_FAILURE);
+    }
 
     auto & blob_1 = main_scene.render_objects[ main_scene.objects_aliases.at("blob_1") ];
     auto & blob_2 = main_scene.render_objects[ main_scene.objects_aliases.at("blob_2") ];
@@ -126,6 +135,30 @@ void ovum::App::Render()
     renderer->Flush_render_buffor();
 }
 
+void ovum::App::Reload_scene()
+{
+    auto parsed_scene = scene_parser.Load_scene(main_scene_path);
+    if(parsed_scene)
+    {
+        main_scene = *parsed_scene;
+    }
+    else
+    {
+        std::print(std::cerr, "Error: {}\n", parsed_scene.error());
+        std::exit(EXIT_FAILURE);
+    }
+
+    auto & blob_1 = main_scene.render_objects[ main_scene.objects_aliases.at("blob_1") ];
+    auto & blob_2 = main_scene.render_objects[ main_scene.objects_aliases.at("blob_2") ];
+    auto & ball_1 = main_scene.render_objects[ main_scene.objects_aliases.at("ball_1") ];
+    auto & ball_2 = main_scene.render_objects[ main_scene.objects_aliases.at("ball_2") ];
+
+    blob_1.color = Color{174, 21, 23};
+    blob_2.color = Color{20, 194, 34};
+    ball_1.color = Color{13, 32, 199};
+    ball_2.color = Color{13, 32, 199};
+}
+
 void ovum::App::On_event(const eruptor::event::Event& event)
 {
     if(event.Is<eruptor::event::Event::Close_window>())
@@ -138,7 +171,14 @@ void ovum::App::On_event(const eruptor::event::Event& event)
     }
     else if(auto colision = event.Get_if<eruptor::event::Event::Collision_occurred>())
     {
-        std::print(std::clog, "Collision occurred: Object a: {} Object b: {}\n", colision->object_a_id, colision->object_b_id);
+        //std::print(std::clog, "Collision occurred: Object a: {} Object b: {}\n", colision->object_a_id, colision->object_b_id);
+    }
+    else if(auto key_pressed = event.Get_if<eruptor::event::Event::Key_pressed>())
+    {
+        if(key_pressed->key_type == eruptor::event::Key::R)
+        {
+            Reload_scene();
+        }
     }
 }
 

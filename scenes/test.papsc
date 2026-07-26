@@ -1,6 +1,13 @@
+Version: 1_1
+
 [platform_model = ../../tmp_models/platform/platform.obj]
+Hitbox: OBB
+
 [blob_model = ../../tmp_models/blob/blob.obj]
+Hitbox: SPHERE
+
 [ball_model = ../../tmp_models/ball/ball.obj]
+Hitbox: SPHERE
 
 ~~~~~
 
