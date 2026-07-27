@@ -4,7 +4,7 @@ Version: 1_1
 Hitbox: OBB
 
 [blob_model = ../../tmp_models/blob/blob.obj]
-Hitbox: SPHERE
+Hitbox: OBB
 
 [ball_model = ../../tmp_models/ball/ball.obj]
 Hitbox: SPHERE

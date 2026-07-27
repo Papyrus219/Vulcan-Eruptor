@@ -78,7 +78,7 @@ void ovum::App::Start_loop()
 void ovum::App::Update()
 {
     window->Update();
-    physic_manager->Chceck_aabbs_colisions( main_scene );
+    physic_manager->Chceck_colisions( main_scene );
 
     std::chrono::duration<float> delta_time = app_clock.now() - last_time;
 
@@ -145,18 +145,24 @@ void ovum::App::Reload_scene()
     else
     {
         std::print(std::cerr, "Error: {}\n", parsed_scene.error());
-        std::exit(EXIT_FAILURE);
     }
 
-    auto & blob_1 = main_scene.render_objects[ main_scene.objects_aliases.at("blob_1") ];
-    auto & blob_2 = main_scene.render_objects[ main_scene.objects_aliases.at("blob_2") ];
-    auto & ball_1 = main_scene.render_objects[ main_scene.objects_aliases.at("ball_1") ];
-    auto & ball_2 = main_scene.render_objects[ main_scene.objects_aliases.at("ball_2") ];
+    try
+    {
+        auto & blob_1 = main_scene.render_objects[ main_scene.objects_aliases.at("blob_1") ];
+        auto & blob_2 = main_scene.render_objects[ main_scene.objects_aliases.at("blob_2") ];
+        auto & ball_1 = main_scene.render_objects[ main_scene.objects_aliases.at("ball_1") ];
+        auto & ball_2 = main_scene.render_objects[ main_scene.objects_aliases.at("ball_2") ];
 
-    blob_1.color = Color{174, 21, 23};
-    blob_2.color = Color{20, 194, 34};
-    ball_1.color = Color{13, 32, 199};
-    ball_2.color = Color{13, 32, 199};
+        blob_1.color = Color{174, 21, 23};
+        blob_2.color = Color{20, 194, 34};
+        ball_1.color = Color{13, 32, 199};
+        ball_2.color = Color{13, 32, 199};
+    }
+    catch(std::exception & e)
+    {
+        std::print(std::cerr, "Failed to get object from scene: {}\n", e.what());
+    }
 }
 
 void ovum::App::On_event(const eruptor::event::Event& event)
@@ -171,7 +177,10 @@ void ovum::App::On_event(const eruptor::event::Event& event)
     }
     else if(auto colision = event.Get_if<eruptor::event::Event::Collision_occurred>())
     {
-        //std::print(std::clog, "Collision occurred: Object a: {} Object b: {}\n", colision->object_a_id, colision->object_b_id);
+        std::print(std::clog, "Collision occurred: Object a: {} Object b: {}\n", colision->object_a_id, colision->object_b_id);
+
+        std::visit(hitbox_loger, main_scene.render_objects[ colision->object_a_id ].Get_hitbox());
+        std::visit(hitbox_loger, main_scene.render_objects[ colision->object_b_id ].Get_hitbox());
     }
     else if(auto key_pressed = event.Get_if<eruptor::event::Event::Key_pressed>())
     {
@@ -182,3 +191,14 @@ void ovum::App::On_event(const eruptor::event::Event& event)
     }
 }
 
+void ovum::App::Hitbox_loger::operator()(const eruptor::physic::Sphere_hitbox & hitbox)
+{
+    std::print(std::clog, "Sphere -> center: {} {} {} radius: {}\n\n", hitbox.center.x, hitbox.center.y, hitbox.center.z, hitbox.radius);
+}
+
+void ovum::App::Hitbox_loger::operator()(const eruptor::physic::OBB_hitbox & hitbox)
+{
+    std::print(std::clog, "OBB -> center: {} {} {}\n", hitbox.center.x, hitbox.center.y, hitbox.center.z);
+    std::print(std::clog, "axis_x: {} {} {} axis_y: {} {} {} axis_z: {} {} {} \n", hitbox.axies[0].x, hitbox.axies[0].y, hitbox.axies[0].z, hitbox.axies[1].x, hitbox.axies[1].y, hitbox.axies[1].z, hitbox.axies[2].x, hitbox.axies[2].y, hitbox.axies[2].z);
+    std::print(std::clog, "half_width: {} {} {}\n\n", hitbox.half_width.x, hitbox.half_width.y, hitbox.half_width.z);
+}

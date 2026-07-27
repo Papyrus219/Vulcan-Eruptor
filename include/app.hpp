@@ -49,6 +49,12 @@ private:
 
     eruptor::hardware::Window * window{};
     eruptor::renderer::Fly_camera * camera{};
+
+    struct Hitbox_loger
+    {
+        void operator()(const eruptor::physic::Sphere_hitbox & hitbox);
+        void operator()(const eruptor::physic::OBB_hitbox & hitbox);
+    } hitbox_loger;
 };
 
 }
