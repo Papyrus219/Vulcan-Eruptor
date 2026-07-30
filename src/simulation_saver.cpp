@@ -1,12 +1,14 @@
 #include <Ovum/simulation_saver.hpp>
 #include <fstream>
+#include <iostream>
 
 using namespace ovum;
 
-std::string const ovum::Simulation_saver::error_file{"Simulation saver: Failed to open file to save to!"};
+std::string_view const ovum::Simulation_saver::error_file{"Simulation saver: Failed to open file to save to!"};
 
 std::expected<void, std::string_view> ovum::Simulation_saver::Save_simulation_data(const Simulation_scene & scene, const std::filesystem::path & path, File_version file_version)
 {
+    std::filesystem::create_directories(path.parent_path());
     std::ofstream file{path};
     if(!file)
     {
@@ -53,10 +55,6 @@ std::string_view ovum::Simulation_saver::Get_string_from_file_version(File_versi
     {
         case File_version::V1_0:
             return "1_0";
-        case File_version::V1_1:
-            return "1_1";
-        case File_version::V1_2:
-            return "1_2";
     }
 
     return "";

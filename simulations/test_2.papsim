@@ -1,0 +1,23 @@
+Version: 1_0
+
+<floor: Floor>
+
+<blob_1: Entity>
+Speed: 0.01
+
+<blob_2: Entity>
+Speed: 1.01
+
+<blob_3: Entity>
+Speed: 0.01
+
+<blob_4: Entity>
+Speed: 0.01
+
+<blob_5: Entity>
+Speed: 0.01
+
+<ball_1: Food>
+
+<ball_2: Food>
+

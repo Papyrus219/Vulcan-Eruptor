@@ -1,0 +1,75 @@
+Version: 1_2
+[platform_model = ../../tmp_models/platform/platform.obj]
+Hitbox: OBB
+
+[blob_model = ../../tmp_models/blob/blob.obj]
+Hitbox: SPHERE
+
+[ball_model = ../../tmp_models/ball/ball.obj]
+Hitbox: SPHERE
+
+~~~~~
+
+<ball_1>
+Model: ball_model
+Position: 1 0.3 0.2
+Rotation: 0 -0 0
+Scale: 0.2 0.2 0.2
+Color: 13 32 199
+
+<ball_2>
+Model: ball_model
+Position: 1 0.3 1.2
+Rotation: 0 -0 0
+Scale: 0.2 0.2 0.2
+Color: 13 32 199
+
+<blob_5>
+Model: blob_model
+Position: 1.440507 0.0964 -4.876198
+Rotation: 0 1.4787089 0
+Scale: 6 6 6
+Color: 20 194 34
+
+<blob_3>
+Model: blob_model
+Position: -8.163676 0.0964 5.353058
+Rotation: 0 4.479987 0
+Scale: 6 6 6
+Color: 20 194 34
+
+<blob_2>
+Model: blob_model
+Position: -5.457665 0.1064 4.1920724
+Rotation: 0 -0.088484205 0
+Scale: 6 6 6
+Color: 170 94 34
+
+<blob_4>
+Model: blob_model
+Position: 11.989371 0.0964 -5.824232
+Rotation: 0 2.582704 0
+Scale: 6 6 6
+Color: 20 194 34
+
+<blob_1>
+Model: blob_model
+Position: 9.062505 0.0964 -3.6877291
+Rotation: 0 2.9177837 0
+Scale: 6 6 6
+Color: 20 194 34
+
+<floor>
+Model: platform_model
+Position: 0 0.05 0
+Rotation: 0 -0 0
+Scale: 2.5 1 1.5
+Color: 255 255 255
+
+<zero>
+Model: platform_model
+Position: 0 -3.9994998 0
+Rotation: 0 -0 0
+Scale: 0.01 0.01 0.01
+Color: 0 0 0
+

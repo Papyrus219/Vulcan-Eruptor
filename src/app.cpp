@@ -5,6 +5,26 @@
 
 using namespace ovum;
 
+const std::filesystem::path ovum::App::scene_path_1{"../../scenes/test_1.papsc"};
+const std::filesystem::path ovum::App::scene_path_2{"../../scenes/test_2.papsc"};
+const std::filesystem::path ovum::App::scene_path_3{"../../scenes/test_3.papsc"};
+const std::filesystem::path ovum::App::scene_path_4{"../../scenes/test_4.papsc"};
+const std::filesystem::path ovum::App::scene_path_5{"../../scenes/test_5.papsc"};
+const std::filesystem::path ovum::App::scene_path_6{"../../scenes/test_6.papsc"};
+const std::filesystem::path ovum::App::scene_path_7{"../../scenes/test_7.papsc"};
+const std::filesystem::path ovum::App::scene_path_8{"../../scenes/test_8.papsc"};
+const std::filesystem::path ovum::App::scene_path_9{"../../scenes/test_9.papsc"};
+
+const std::filesystem::path ovum::App::simulation_path_1{"../../simulations/test_1.papsim"};
+const std::filesystem::path ovum::App::simulation_path_2{"../../simulations/test_2.papsim"};
+const std::filesystem::path ovum::App::simulation_path_3{"../../simulations/test_3.papsim"};
+const std::filesystem::path ovum::App::simulation_path_4{"../../simulations/test_4.papsim"};
+const std::filesystem::path ovum::App::simulation_path_5{"../../simulations/test_5.papsim"};
+const std::filesystem::path ovum::App::simulation_path_6{"../../simulations/test_6.papsim"};
+const std::filesystem::path ovum::App::simulation_path_7{"../../simulations/test_7.papsim"};
+const std::filesystem::path ovum::App::simulation_path_8{"../../simulations/test_8.papsim"};
+const std::filesystem::path ovum::App::simulation_path_9{"../../simulations/test_9.papsim"};
+
 
 ovum::App::App() : event_manager{ eruptor::event::event_manager }
 {
@@ -19,11 +39,12 @@ void ovum::App::Init()
     resources = &engine.Get_resource_manager();
     physic_manager = &engine.Get_physic_manager();
     scene_parser.Assign_resource_manager(*resources);
+    scene_saver.Assign_resource_manager(*resources);
 
     window = &renderer->Get_window();
     camera = &renderer->Get_camera();
 
-    auto parsed_base_scene = scene_parser.Load_scene(main_scene_path);
+    auto parsed_base_scene = scene_parser.Load_scene(current_scene_path);
     if(parsed_base_scene.has_value())
     {
         main_scene = parsed_base_scene.value();
@@ -34,7 +55,7 @@ void ovum::App::Init()
         std::exit(EXIT_FAILURE);
     }
 
-    auto parsed_simulation_scene = simulation_parser.Load_simulation_data_into_scene(simulation_info_path, main_scene);
+    auto parsed_simulation_scene = simulation_parser.Load_simulation_data_into_scene(current_simulation_info_path, main_scene);
     if(parsed_simulation_scene.has_value())
     {
         main_scene = parsed_simulation_scene.value();
@@ -201,7 +222,7 @@ void ovum::App::Update_ai(float delta_time)
 
 void ovum::App::Reload_scene()
 {
-    auto parsed_scene = scene_parser.Load_scene(main_scene_path);
+    auto parsed_scene = scene_parser.Load_scene(current_scene_path);
     if(parsed_scene)
     {
         main_scene = *parsed_scene;
@@ -211,14 +232,31 @@ void ovum::App::Reload_scene()
         std::print(std::cerr, "Error: {}\n", parsed_scene.error());
     }
 
-    auto parsed_simulation_scene = simulation_parser.Load_simulation_data_into_scene(simulation_info_path, main_scene);
+    auto parsed_simulation_scene = simulation_parser.Load_simulation_data_into_scene(current_simulation_info_path, main_scene);
     if(parsed_simulation_scene.has_value())
     {
         main_scene = parsed_simulation_scene.value();
     }
     else
     {
-        std::print(std::cerr, "Error: {}\n", parsed_simulation_scene.error());
+        std::println(std::cerr, "Error: {}", parsed_simulation_scene.error());
+        std::exit(EXIT_FAILURE);
+    }
+}
+
+void ovum::App::Save_scene()
+{
+    auto result = scene_saver.Save_scene_data(main_scene, current_scene_path);
+    if(!result.has_value())
+    {
+        std::println(std::cerr, "Error: {}", result.error());
+        std::exit(EXIT_FAILURE);
+    }
+
+    result = simulation_saver.Save_simulation_data(main_scene, current_simulation_info_path);
+    if(!result.has_value())
+    {
+        std::println(std::cerr, "Error: {}", result.error());
         std::exit(EXIT_FAILURE);
     }
 }
@@ -246,6 +284,111 @@ void ovum::App::On_event(const eruptor::event::Event& event)
         {
             Reload_scene();
         }
+        else if(key_pressed->key_type == eruptor::event::Key::TAB)
+        {
+            Save_scene();
+        }
+        else if(key_pressed->key_type == eruptor::event::Key::NUM_1)
+        {
+            if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
+            {
+                current_simulation_info_path = simulation_path_1;
+            }
+            else
+            {
+                current_scene_path = scene_path_1;
+            }
+        }
+        else if(key_pressed->key_type == eruptor::event::Key::NUM_2)
+        {
+            if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
+            {
+                current_simulation_info_path = simulation_path_2;
+            }
+            else
+            {
+                current_scene_path = scene_path_2;
+            }
+        }
+        else if(key_pressed->key_type == eruptor::event::Key::NUM_3)
+        {
+            if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
+            {
+                current_simulation_info_path = simulation_path_3;
+            }
+            else
+            {
+                current_scene_path = scene_path_3;
+            }
+        }
+        else if(key_pressed->key_type == eruptor::event::Key::NUM_4)
+        {
+            if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
+            {
+                current_simulation_info_path = simulation_path_4;
+            }
+            else
+            {
+                current_scene_path = scene_path_4;
+            }
+        }
+        else if(key_pressed->key_type == eruptor::event::Key::NUM_5)
+        {
+            if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
+            {
+                current_simulation_info_path = simulation_path_5;
+            }
+            else
+            {
+                current_scene_path = scene_path_5;
+            }
+        }
+        else if(key_pressed->key_type == eruptor::event::Key::MUM_6)
+        {
+            if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
+            {
+                current_simulation_info_path = simulation_path_6;
+            }
+            else
+            {
+                current_scene_path = scene_path_6;
+            }
+        }
+        else if(key_pressed->key_type == eruptor::event::Key::NUM_7)
+        {
+            if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
+            {
+                current_simulation_info_path = simulation_path_7;
+            }
+            else
+            {
+                current_scene_path = scene_path_7;
+            }
+        }
+        else if(key_pressed->key_type == eruptor::event::Key::NUM_8)
+        {
+            if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
+            {
+                current_simulation_info_path = simulation_path_8;
+            }
+            else
+            {
+                current_scene_path = scene_path_8;
+            }
+        }
+        else if(key_pressed->key_type == eruptor::event::Key::NUM_9)
+        {
+            if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
+            {
+                current_simulation_info_path = simulation_path_9;
+            }
+            else
+            {
+                current_scene_path = scene_path_9;
+            }
+        }
+
+        std::println(std::clog, "Current scene_path: {}\nCurrent simulation_path: {}", current_scene_path.c_str(), current_simulation_info_path.c_str());
     }
 }
 

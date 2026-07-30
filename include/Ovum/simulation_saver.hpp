@@ -13,16 +13,14 @@ public:
     enum class File_version
     {
         V1_0,
-        V1_1,
-        V1_2
     };
 
-    std::expected<void, std::string_view> Save_simulation_data(const Simulation_scene & scene, const std::filesystem::path & path, File_version file_version = File_version::V1_2);
+    std::expected<void, std::string_view> Save_simulation_data(const Simulation_scene & scene, const std::filesystem::path & path, File_version file_version = File_version::V1_0);
 
 private:
     std::string_view Get_string_from_file_version(File_version file_version);
 
-    static const std::string error_file;
+    static const std::string_view error_file;
 };
 
 }

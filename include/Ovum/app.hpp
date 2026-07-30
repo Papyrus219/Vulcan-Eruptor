@@ -3,8 +3,10 @@
 
 #include <Eruptor/eruptor.hpp>
 #include <Eruptor/scene/scene_parser.hpp>
+#include <Eruptor/scene/scene_saver.hpp>
 #include <Eruptor/event/event_manager.hpp>
 #include <Ovum/simulation_parser.hpp>
+#include <Ovum/simulation_saver.hpp>
 #include <Ovum/simulation_scene.hpp>
 #include <Ovum/gp_communicator.hpp>
 #include <random>
@@ -28,13 +30,14 @@ private:
     void Render();
 
     void Reload_scene();
+    void Save_scene();
 
     bool is_running{true};
 
     GP_communicator gp_comm{};
 
-    std::filesystem::path main_scene_path{"../../scenes/test.papsc"};
-    std::filesystem::path simulation_info_path{"../../simulations/test.papsim"};
+    std::filesystem::path current_scene_path{scene_path_1};
+    std::filesystem::path current_simulation_info_path{simulation_path_1};
 
     ovum::Simulation_scene main_scene{};
 
@@ -58,6 +61,9 @@ private:
     eruptor::scene::Scene_parser scene_parser{};
     ovum::Simulation_parser simulation_parser{};
 
+    eruptor::scene::Scene_saver scene_saver{};
+    ovum::Simulation_saver simulation_saver{};
+
     eruptor::hardware::Window * window{};
     eruptor::renderer::Fly_camera * camera{};
 
@@ -67,6 +73,27 @@ private:
         void operator()(const eruptor::physic::OBB_hitbox & hitbox);
         void operator()(const eruptor::physic::Capsule_hitbox & hitbox);
     } hitbox_loger;
+
+    static const std::filesystem::path scene_path_1;
+    static const std::filesystem::path scene_path_2;
+    static const std::filesystem::path scene_path_3;
+    static const std::filesystem::path scene_path_4;
+    static const std::filesystem::path scene_path_5;
+    static const std::filesystem::path scene_path_6;
+    static const std::filesystem::path scene_path_7;
+    static const std::filesystem::path scene_path_8;
+    static const std::filesystem::path scene_path_9;
+
+    static const std::filesystem::path simulation_path_1;
+    static const std::filesystem::path simulation_path_2;
+    static const std::filesystem::path simulation_path_3;
+    static const std::filesystem::path simulation_path_4;
+    static const std::filesystem::path simulation_path_5;
+    static const std::filesystem::path simulation_path_6;
+    static const std::filesystem::path simulation_path_7;
+    static const std::filesystem::path simulation_path_8;
+    static const std::filesystem::path simulation_path_9;
+
 };
 
 }
