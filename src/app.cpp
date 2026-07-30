@@ -1,5 +1,5 @@
-#include <app.hpp>
-#include <colors.hpp>
+#include <Ovum/app.hpp>
+#include <Eruptor/resource/colors.hpp>
 #include <print>
 #include <iostream>
 
@@ -23,32 +23,50 @@ void ovum::App::Init()
     window = &renderer->Get_window();
     camera = &renderer->Get_camera();
 
-    auto parsed_scene = scene_parser.Load_scene(main_scene_path);
-    if(parsed_scene)
+    auto parsed_base_scene = scene_parser.Load_scene(main_scene_path);
+    if(parsed_base_scene.has_value())
     {
-        main_scene = *parsed_scene;
+        main_scene = parsed_base_scene.value();
     }
     else
     {
-        std::print(std::cerr, "Error: {}\n", parsed_scene.error());
+        std::print(std::cerr, "Error: {}\n", parsed_base_scene.error());
         std::exit(EXIT_FAILURE);
     }
 
-    auto & blob_1 = main_scene.render_objects[ main_scene.objects_aliases.at("blob_1") ];
-    auto & blob_2 = main_scene.render_objects[ main_scene.objects_aliases.at("blob_2") ];
-    auto & ball_1 = main_scene.render_objects[ main_scene.objects_aliases.at("ball_1") ];
-    auto & ball_2 = main_scene.render_objects[ main_scene.objects_aliases.at("ball_2") ];
+    auto parsed_simulation_scene = simulation_parser.Load_simulation_data_into_scene(simulation_info_path, main_scene);
+    if(parsed_simulation_scene.has_value())
+    {
+        main_scene = parsed_simulation_scene.value();
+    }
+    else
+    {
+        std::print(std::cerr, "Error: {}\n", parsed_simulation_scene.error());
+        std::exit(EXIT_FAILURE);
+    }
 
-    blob_1.color = Color{174, 21, 23};
-    blob_2.color = Color{20, 194, 34};
-    ball_1.color = Color{13, 32, 199};
-    ball_2.color = Color{13, 32, 199};
+    for(auto & entity : main_scene.entieties)
+    {
+        entity.ai_state.curr_y_rot = glm::eulerAngles( main_scene.render_objects[ entity.render_object_id ].Get_rotaion() ).y;
+        entity.ai_state.curr_y_rot = glm::eulerAngles( main_scene.render_objects[ entity.render_object_id ].Get_rotaion() ).y;
+    }
+
+    auto floor_it = main_scene.objects_aliases.find("floor");
+    if(floor_it != main_scene.objects_aliases.end())
+    {
+        auto floor_aabb = main_scene.render_objects[ floor_it->second ].Get_aabb();
+
+        world_min = floor_aabb.min;
+        world_max = floor_aabb.max;
+
+        std::println(std::clog, "Find world boundries: min: {} {} {} max: {} {} {}", world_min.x, world_min.y, world_min.z, world_max.x, world_max.y, world_max.z);
+    }
 
     gp_comm.Enable_2d("Position");
     gp_comm.Set_x_axis_title("X coord");
     gp_comm.Set_y_axis_title("Z coord");
-    gp_comm.Set_x_axis_range(-10.0, 10.0);
-    gp_comm.Set_y_axis_range(-10.0, 10.0);
+    gp_comm.Set_x_axis_range(world_min.x, world_max.x);
+    gp_comm.Set_y_axis_range(world_min.z, world_max.z);
 
     last_time = app_clock.now();
 }
@@ -98,33 +116,8 @@ void ovum::App::Update()
     {
         camera->Process_keyboard(eruptor::renderer::Camera_movement_direction::RIGHT, delta_time.count());
     }
-    if(window->Is_key_pressed(eruptor::event::Key::UP))
-    {
-        glm::vec3 dir = main_scene.render_objects[2].Get_rotaion() * glm::vec3(1.f, 0.f, 0.f);
-        main_scene.render_objects[2].Move( dir * delta_time.count() );
-    }
-    if(window->Is_key_pressed(eruptor::event::Key::DOWN))
-    {
-        glm::vec3 dir = main_scene.render_objects[2].Get_rotaion() * glm::vec3(1.f, 0.f, 0.f);
-        main_scene.render_objects[2].Move( -dir * delta_time.count() );
-    }
-    if(window->Is_key_pressed(eruptor::event::Key::LEFT))
-    {
-        main_scene.render_objects[2].Rotate(glm::vec3{0.0f, 1.0f, 0.0f} * delta_time.count());
-    }
-    if(window->Is_key_pressed(eruptor::event::Key::RIGHT))
-    {
-        main_scene.render_objects[2].Rotate(glm::vec3{0.0f, -1.0f, 0.0f} * delta_time.count());
-    }
-    if(window->Is_key_pressed(eruptor::event::Key::PLUS))
-    {
-        main_scene.render_objects[2].Change_scale( glm::vec3(2 * delta_time.count(), 2 * delta_time.count(), 2 * delta_time.count()), 0.1 );;
-    }
-    if(window->Is_key_pressed(eruptor::event::Key::MINUS))
-    {
-        main_scene.render_objects[2].Change_scale( glm::vec3(-2 * delta_time.count(), -2 * delta_time.count(), -2 * delta_time.count()), 0.1 );;
-    }
 
+    Update_ai(delta_time.count());
     last_time = app_clock.now();
 }
 
@@ -133,6 +126,77 @@ void ovum::App::Render()
     renderer->Stage_scene_render_data( main_scene );
 
     renderer->Flush_render_buffor();
+}
+
+void ovum::App::Update_ai(float delta_time)
+{
+    float rotation_speed{1.0f};
+
+    for(auto & entity : main_scene.entieties)
+    {
+        auto & render_object = main_scene.render_objects[ entity.render_object_id ];
+
+        if(entity.ai_state.is_desire_rot)
+        {
+            time_elapsed += delta_time;
+            if(time_elapsed >= 5)
+            {
+                time_elapsed = 0;
+                entity.ai_state.is_desire_rot = false;
+                entity.ai_state.desire_y_rot += rotation_distributor(generator);
+                entity.ai_state.desire_y_rot = glm::mod(entity.ai_state.desire_y_rot, glm::two_pi<float>());;
+            }
+        }
+        else
+        {
+            float diff = std::abs( entity.ai_state.curr_y_rot - entity.ai_state.desire_y_rot );
+            if(diff > 1.0f)
+            {
+                if(entity.ai_state.curr_y_rot < entity.ai_state.desire_y_rot)
+                {
+                    render_object.Rotate({0.0f, rotation_speed * delta_time, 0.0f});
+                    entity.ai_state.curr_y_rot += rotation_speed * delta_time;
+                }
+                else
+                {
+                    render_object.Rotate({0.0f, -rotation_speed * delta_time, 0.0f});
+                    entity.ai_state.curr_y_rot -= rotation_speed * delta_time;
+                }
+            }
+            else
+            {
+                entity.ai_state.is_desire_rot = true;
+            }
+        }
+
+        glm::vec3 forward  = render_object.Get_rotaion() * glm::vec3{1.0f, 0.0f, 0.0f} ;
+        render_object.Move( forward * entity.speed );
+
+        glm::vec3 pos = render_object.Get_position();
+        bool hit_wall = false;
+
+        if(pos.x > world_max.x) {pos.x = world_max.x; hit_wall = true;}
+        else if(pos.x < world_min.x) {pos.x = world_min.x; hit_wall = true;}
+
+        if(pos.z > world_max.z) {pos.z = world_max.z; hit_wall = true;}
+        else if(pos.z < world_min.z) {pos.z = world_min.z; hit_wall = true;}
+
+        if(hit_wall)
+        {
+            render_object.Set_position(pos);
+
+            if(pos.x == world_max.x || pos.x == world_min.x) forward.x = -forward.x;
+            if(pos.z == world_max.z || pos.z == world_min.z) forward.z = -forward.z;
+
+            float new_y_rot = std::atan2(-forward.z, forward.x);
+
+            entity.ai_state.curr_y_rot = new_y_rot;
+            entity.ai_state.desire_y_rot = new_y_rot;
+            entity.ai_state.is_desire_rot = false;
+
+            render_object.Set_rotation_quad( glm::angleAxis(new_y_rot, glm::vec3{0.0f, 1.0f, 0.0f}) );
+        }
+    }
 }
 
 void ovum::App::Reload_scene()
@@ -147,21 +211,15 @@ void ovum::App::Reload_scene()
         std::print(std::cerr, "Error: {}\n", parsed_scene.error());
     }
 
-    try
+    auto parsed_simulation_scene = simulation_parser.Load_simulation_data_into_scene(simulation_info_path, main_scene);
+    if(parsed_simulation_scene.has_value())
     {
-        auto & blob_1 = main_scene.render_objects[ main_scene.objects_aliases.at("blob_1") ];
-        auto & blob_2 = main_scene.render_objects[ main_scene.objects_aliases.at("blob_2") ];
-        auto & ball_1 = main_scene.render_objects[ main_scene.objects_aliases.at("ball_1") ];
-        auto & ball_2 = main_scene.render_objects[ main_scene.objects_aliases.at("ball_2") ];
-
-        blob_1.color = Color{174, 21, 23};
-        blob_2.color = Color{20, 194, 34};
-        ball_1.color = Color{13, 32, 199};
-        ball_2.color = Color{13, 32, 199};
+        main_scene = parsed_simulation_scene.value();
     }
-    catch(std::exception & e)
+    else
     {
-        std::print(std::cerr, "Failed to get object from scene: {}\n", e.what());
+        std::print(std::cerr, "Error: {}\n", parsed_simulation_scene.error());
+        std::exit(EXIT_FAILURE);
     }
 }
 
@@ -177,10 +235,10 @@ void ovum::App::On_event(const eruptor::event::Event& event)
     }
     else if(auto colision = event.Get_if<eruptor::event::Event::Collision_occurred>())
     {
-        std::print(std::clog, "Collision occurred: Object a: {} Object b: {}\n", colision->object_a_id, colision->object_b_id);
+        //std::print(std::clog, "Collision occurred: Object a: {} Object b: {}\n", colision->object_a_id, colision->object_b_id);
 
-        std::visit(hitbox_loger, main_scene.render_objects[ colision->object_a_id ].Get_hitbox());
-        std::visit(hitbox_loger, main_scene.render_objects[ colision->object_b_id ].Get_hitbox());
+        //std::visit(hitbox_loger, main_scene.render_objects[ colision->object_a_id ].Get_hitbox());
+        //std::visit(hitbox_loger, main_scene.render_objects[ colision->object_b_id ].Get_hitbox());
     }
     else if(auto key_pressed = event.Get_if<eruptor::event::Event::Key_pressed>())
     {
@@ -201,4 +259,9 @@ void ovum::App::Hitbox_loger::operator()(const eruptor::physic::OBB_hitbox & hit
     std::print(std::clog, "OBB -> center: {} {} {}\n", hitbox.center.x, hitbox.center.y, hitbox.center.z);
     std::print(std::clog, "axis_x: {} {} {} axis_y: {} {} {} axis_z: {} {} {} \n", hitbox.axies[0].x, hitbox.axies[0].y, hitbox.axies[0].z, hitbox.axies[1].x, hitbox.axies[1].y, hitbox.axies[1].z, hitbox.axies[2].x, hitbox.axies[2].y, hitbox.axies[2].z);
     std::print(std::clog, "half_width: {} {} {}\n\n", hitbox.half_width.x, hitbox.half_width.y, hitbox.half_width.z);
+}
+
+void ovum::App::Hitbox_loger::operator()(const eruptor::physic::Capsule_hitbox & hitbox)
+{
+    std::print(std::clog, "Capsule -> start: {} {} {}  end: {} {} {} radius: {}\n", hitbox.start.x, hitbox.start.y, hitbox.start.z, hitbox.end.x, hitbox.end.y, hitbox.end.z, hitbox.radius);
 }

@@ -4,11 +4,12 @@
 #include <cstdint>
 #include <glm/glm.hpp>
 
-namespace ovum
+namespace eruptor::resource
 {
 
 struct Color
 {
+    constexpr Color() = default;
     constexpr Color(uint8_t red_, uint8_t green_, uint8_t blue_, uint8_t alpha_ = 255) : red{red_}, green{green_}, blue{blue_}, alpha{alpha_} {};
 
     uint8_t red{};

@@ -3,9 +3,11 @@
 
 #include <Eruptor/eruptor.hpp>
 #include <Eruptor/scene/scene_parser.hpp>
-#include <Eruptor/scene/scene.hpp>
 #include <Eruptor/event/event_manager.hpp>
-#include <gp_communicator.hpp>
+#include <Ovum/simulation_parser.hpp>
+#include <Ovum/simulation_scene.hpp>
+#include <Ovum/gp_communicator.hpp>
+#include <random>
 
 namespace ovum
 {
@@ -22,6 +24,7 @@ public:
 
 private:
     void Update();
+    void Update_ai(float delta_time);
     void Render();
 
     void Reload_scene();
@@ -31,12 +34,19 @@ private:
     GP_communicator gp_comm{};
 
     std::filesystem::path main_scene_path{"../../scenes/test.papsc"};
-    eruptor::scene::Scene main_scene{};
+    std::filesystem::path simulation_info_path{"../../simulations/test.papsim"};
+
+    ovum::Simulation_scene main_scene{};
+
+    std::random_device random_device{};
+    std::mt19937 generator{ random_device() };
+    std::uniform_real_distribution<float> rotation_distributor{-glm::half_pi<float>(), glm::half_pi<float>()};
+    float time_elapsed{};
 
     std::chrono::high_resolution_clock app_clock{};
     std::chrono::high_resolution_clock::time_point last_time{};
 
-    std::vector< eruptor::resource::Model_handle > models_handles{};
+    glm::vec3 world_min{}, world_max{};
 
     eruptor::Eruptor engine{};
 
@@ -46,6 +56,7 @@ private:
     eruptor::physic::Physic_manager * physic_manager{};
 
     eruptor::scene::Scene_parser scene_parser{};
+    ovum::Simulation_parser simulation_parser{};
 
     eruptor::hardware::Window * window{};
     eruptor::renderer::Fly_camera * camera{};
@@ -54,6 +65,7 @@ private:
     {
         void operator()(const eruptor::physic::Sphere_hitbox & hitbox);
         void operator()(const eruptor::physic::OBB_hitbox & hitbox);
+        void operator()(const eruptor::physic::Capsule_hitbox & hitbox);
     } hitbox_loger;
 };
 

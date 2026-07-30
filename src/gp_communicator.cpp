@@ -1,4 +1,4 @@
-#include <gp_communicator.hpp>
+#include <Ovum/gp_communicator.hpp>
 #include <stdexcept>
 
 using namespace ovum;
