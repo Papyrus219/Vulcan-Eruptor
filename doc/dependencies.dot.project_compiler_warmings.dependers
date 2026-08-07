@@ -1,8 +1,10 @@
-digraph "eruptor_event" {
+digraph "project_compiler_warmings" {
 node [
   fontsize = "12"
 ];
+    "node4" [ label = "project_compiler_warmings", shape = pentagon ];
     "node3" [ label = "eruptor_event", shape = octagon ];
+    "node3" -> "node4"  // eruptor_event -> project_compiler_warmings
     "node2" [ label = "eruptor_engine", shape = octagon ];
     "node2" -> "node3" [ style = dotted ] // eruptor_engine -> eruptor_event
     "node1" [ label = "app", shape = egg ];
@@ -31,4 +33,10 @@ node [
     "node12" -> "node3" [ style = dotted ] // eruptor_resource -> eruptor_event
     "node19" -> "node3" [ style = dotted ] // eruptor_renderer -> eruptor_event
     "node1" -> "node3" [ style = dotted ] // app -> eruptor_event
+    "node5" -> "node4" [ style = dotted ] // eruptor_hardware -> project_compiler_warmings
+    "node12" -> "node4" [ style = dotted ] // eruptor_resource -> project_compiler_warmings
+    "node11" -> "node4" [ style = dotted ] // eruptor_scene -> project_compiler_warmings
+    "node10" -> "node4" [ style = dotted ] // eruptor_physic -> project_compiler_warmings
+    "node19" -> "node4" [ style = dotted ] // eruptor_renderer -> project_compiler_warmings
+    "node2" -> "node4" [ style = dotted ] // eruptor_engine -> project_compiler_warmings
 }

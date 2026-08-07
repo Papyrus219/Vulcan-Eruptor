@@ -25,12 +25,27 @@ public:
     virtual void On_event(const eruptor::event::Event & event) override;
 
 private:
+    enum class Mode
+    {
+        EDITOR,
+        SIMULATION
+    } mode;
+
+    enum class Object_type
+    {
+        ENTITY,
+        FOOD
+    } object_type;
+
     void Update();
     void Update_ai(float delta_time);
     void Render();
 
     void Reload_scene();
     void Save_scene();
+
+    std::string_view Get_string_from_mode_enum(Mode mode);
+    std::string_view Get_string_from_object_type_enum(Object_type type);
 
     bool is_running{true};
 
@@ -41,6 +56,9 @@ private:
 
     ovum::Simulation_scene main_scene{};
 
+    eruptor::resource::Font_handle main_font{};
+    eruptor::resource::Font_handle small_font{};
+
     std::random_device random_device{};
     std::mt19937 generator{ random_device() };
     std::uniform_real_distribution<float> rotation_distributor{-glm::half_pi<float>(), glm::half_pi<float>()};
@@ -50,6 +68,9 @@ private:
     std::chrono::high_resolution_clock::time_point last_time{};
 
     glm::vec3 world_min{}, world_max{};
+
+    uint32_t current_entity_selected{};
+    uint32_t current_food_selected{};
 
     eruptor::Eruptor engine{};
 

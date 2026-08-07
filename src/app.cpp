@@ -2,6 +2,7 @@
 #include <Eruptor/resource/colors.hpp>
 #include <print>
 #include <iostream>
+#include <format>
 
 using namespace ovum;
 
@@ -44,6 +45,10 @@ void ovum::App::Init()
     window = &renderer->Get_window();
     camera = &renderer->Get_camera();
 
+    main_font = resources->Add_font_atlas("../../fonts/arial.ttf", 30);
+    small_font = resources->Add_font_atlas("../../fonts/arial.ttf", 5);
+    resources->Load_font_atlases();
+
     auto parsed_base_scene = scene_parser.Load_scene(current_scene_path);
     if(parsed_base_scene.has_value())
     {
@@ -82,6 +87,8 @@ void ovum::App::Init()
 
         std::println(std::clog, "Find world boundries: min: {} {} {} max: {} {} {}", world_min.x, world_min.y, world_min.z, world_max.x, world_max.y, world_max.z);
     }
+
+
 
     gp_comm.Enable_2d("Position");
     gp_comm.Set_x_axis_title("X coord");
@@ -138,7 +145,11 @@ void ovum::App::Update()
         camera->Process_keyboard(eruptor::renderer::Camera_movement_direction::RIGHT, delta_time.count());
     }
 
-    Update_ai(delta_time.count());
+    if(mode == Mode::SIMULATION)
+    {
+        Update_ai(delta_time.count());
+    }
+
     last_time = app_clock.now();
 }
 
@@ -146,23 +157,68 @@ void ovum::App::Render()
 {
     renderer->Stage_scene_render_data( main_scene );
 
+    renderer->Stage_text_render_data( std::format("Mode: {}", Get_string_from_mode_enum(mode)), 10, 40, main_font, {155, 20, 30, 255});
+
+    if(mode == Mode::EDITOR)
+    {
+        renderer->Stage_text_render_data( std::format("Selected object type: {}", Get_string_from_object_type_enum( object_type )), 10, 80, main_font, {20, 40, 155, 255});
+
+        renderer->Stage_text_render_data("M - Change mode", 480, 500, small_font, {255, 255, 255, 255});
+        renderer->Stage_text_render_data("T - Change object type", 482, 530, small_font, {255, 255, 255, 255});
+        renderer->Stage_text_render_data("N - Add new object", 482, 560, small_font, {255, 255, 255, 255});
+    }
+
     renderer->Flush_render_buffor();
 }
 
 void ovum::App::Update_ai(float delta_time)
 {
     float rotation_speed{1.0f};
+    float wall_margin{3.0f};
 
     for(auto & entity : main_scene.entieties)
     {
         auto & render_object = main_scene.render_objects[ entity.render_object_id ];
+        glm::vec3 pos = render_object.Get_position();
+
+        bool near_wall{};
+        glm::vec3 desired_dir = render_object.Get_rotaion() * glm::vec3{1.0f, 0.0f, 0.0f};
+
+        if(pos.x > world_max.x - wall_margin)
+        {
+            desired_dir.x = -std::abs(desired_dir.x);
+            near_wall = true;
+        }
+        else if(pos.x < world_min.x + wall_margin)
+        {
+            desired_dir.x = std::abs(desired_dir.x);
+            near_wall = true;
+        }
+
+        if(pos.z > world_max.z - wall_margin)
+        {
+            desired_dir.z = -std::abs(desired_dir.z);
+            near_wall = true;
+        }
+        else if(pos.z < world_min.z + wall_margin)
+        {
+            desired_dir.z = std::abs(desired_dir.z);
+            near_wall = true;
+        }
+
+        if(near_wall)
+        {
+            entity.ai_state.desire_y_rot = std::atan2(-desired_dir.z, desired_dir.x);
+            entity.ai_state.is_desire_rot = false;
+        }
 
         if(entity.ai_state.is_desire_rot)
         {
-            time_elapsed += delta_time;
-            if(time_elapsed >= 5)
+            entity.ai_state.time_elapsed += delta_time;
+
+            if(entity.ai_state.time_elapsed >= 5)
             {
-                time_elapsed = 0;
+                entity.ai_state.time_elapsed = 0;
                 entity.ai_state.is_desire_rot = false;
                 entity.ai_state.desire_y_rot += rotation_distributor(generator);
                 entity.ai_state.desire_y_rot = glm::mod(entity.ai_state.desire_y_rot, glm::two_pi<float>());;
@@ -171,7 +227,7 @@ void ovum::App::Update_ai(float delta_time)
         else
         {
             float diff = std::abs( entity.ai_state.curr_y_rot - entity.ai_state.desire_y_rot );
-            if(diff > 1.0f)
+            if(diff > 0.05f)
             {
                 if(entity.ai_state.curr_y_rot < entity.ai_state.desire_y_rot)
                 {
@@ -193,8 +249,8 @@ void ovum::App::Update_ai(float delta_time)
         glm::vec3 forward  = render_object.Get_rotaion() * glm::vec3{1.0f, 0.0f, 0.0f} ;
         render_object.Move( forward * entity.speed );
 
-        glm::vec3 pos = render_object.Get_position();
-        bool hit_wall = false;
+        pos = render_object.Get_position();
+       bool hit_wall = false;
 
         if(pos.x > world_max.x) {pos.x = world_max.x; hit_wall = true;}
         else if(pos.x < world_min.x) {pos.x = world_min.x; hit_wall = true;}
@@ -273,123 +329,181 @@ void ovum::App::On_event(const eruptor::event::Event& event)
     }
     else if(auto colision = event.Get_if<eruptor::event::Event::Collision_occurred>())
     {
-        //std::print(std::clog, "Collision occurred: Object a: {} Object b: {}\n", colision->object_a_id, colision->object_b_id);
+        if(auto entity = main_scene.Get_if_is_entiety( colision->object_b_id ); main_scene.Get_if_is_food( colision->object_a_id ) && entity)
+        {
+            entity.value().get().Eat();
 
-        //std::visit(hitbox_loger, main_scene.render_objects[ colision->object_a_id ].Get_hitbox());
-        //std::visit(hitbox_loger, main_scene.render_objects[ colision->object_b_id ].Get_hitbox());
+            main_scene.Remove_element( colision->object_a_id );
+        }
+        else if(auto entity = main_scene.Get_if_is_entiety( colision->object_a_id ); entity && main_scene.Get_if_is_food( colision->object_b_id ) )
+        {
+            entity.value().get().Eat();
+
+            main_scene.Remove_element( colision->object_b_id );
+        }
     }
     else if(auto key_pressed = event.Get_if<eruptor::event::Event::Key_pressed>())
     {
-        if(key_pressed->key_type == eruptor::event::Key::R)
+        switch(key_pressed->key_type)
         {
-            Reload_scene();
-        }
-        else if(key_pressed->key_type == eruptor::event::Key::TAB)
-        {
-            Save_scene();
-        }
-        else if(key_pressed->key_type == eruptor::event::Key::NUM_1)
-        {
-            if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
-            {
-                current_simulation_info_path = simulation_path_1;
-            }
-            else
-            {
-                current_scene_path = scene_path_1;
-            }
-        }
-        else if(key_pressed->key_type == eruptor::event::Key::NUM_2)
-        {
-            if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
-            {
-                current_simulation_info_path = simulation_path_2;
-            }
-            else
-            {
-                current_scene_path = scene_path_2;
-            }
-        }
-        else if(key_pressed->key_type == eruptor::event::Key::NUM_3)
-        {
-            if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
-            {
-                current_simulation_info_path = simulation_path_3;
-            }
-            else
-            {
-                current_scene_path = scene_path_3;
-            }
-        }
-        else if(key_pressed->key_type == eruptor::event::Key::NUM_4)
-        {
-            if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
-            {
-                current_simulation_info_path = simulation_path_4;
-            }
-            else
-            {
-                current_scene_path = scene_path_4;
-            }
-        }
-        else if(key_pressed->key_type == eruptor::event::Key::NUM_5)
-        {
-            if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
-            {
-                current_simulation_info_path = simulation_path_5;
-            }
-            else
-            {
-                current_scene_path = scene_path_5;
-            }
-        }
-        else if(key_pressed->key_type == eruptor::event::Key::MUM_6)
-        {
-            if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
-            {
-                current_simulation_info_path = simulation_path_6;
-            }
-            else
-            {
-                current_scene_path = scene_path_6;
-            }
-        }
-        else if(key_pressed->key_type == eruptor::event::Key::NUM_7)
-        {
-            if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
-            {
-                current_simulation_info_path = simulation_path_7;
-            }
-            else
-            {
-                current_scene_path = scene_path_7;
-            }
-        }
-        else if(key_pressed->key_type == eruptor::event::Key::NUM_8)
-        {
-            if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
-            {
-                current_simulation_info_path = simulation_path_8;
-            }
-            else
-            {
-                current_scene_path = scene_path_8;
-            }
-        }
-        else if(key_pressed->key_type == eruptor::event::Key::NUM_9)
-        {
-            if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
-            {
-                current_simulation_info_path = simulation_path_9;
-            }
-            else
-            {
-                current_scene_path = scene_path_9;
-            }
-        }
+            case eruptor::event::Key::R:
+                Reload_scene();
+                break;
+            case eruptor::event::Key::TAB:
+                Save_scene();
+                break;
+            case eruptor::event::Key::M:
+                if(mode == Mode::EDITOR)
+                {
+                    mode = Mode::SIMULATION;
+                }
+                else if(mode == Mode::SIMULATION)
+                {
+                    mode = Mode::EDITOR;
+                }
+                break;
+            case eruptor::event::Key::N:
 
-        std::println(std::clog, "Current scene_path: {}\nCurrent simulation_path: {}", current_scene_path.c_str(), current_simulation_info_path.c_str());
+                break;
+            case eruptor::event::Key::T:
+                if(object_type == Object_type::ENTITY)
+                {
+                    object_type = Object_type::FOOD;
+                }
+                else if(object_type == Object_type::FOOD)
+                {
+                    object_type = Object_type::ENTITY;
+                }
+                break;
+            case eruptor::event::Key::KEY_1:
+                if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
+                {
+                    current_simulation_info_path = simulation_path_1;
+                }
+                else
+                {
+                    current_scene_path = scene_path_1;
+                }
+                std::println(std::clog, "Current scene_path: {}\nCurrent simulation_path: {}", current_scene_path.c_str(), current_simulation_info_path.c_str());
+                break;
+            case eruptor::event::Key::KEY_2:
+                if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
+                {
+                    current_simulation_info_path = simulation_path_2;
+                }
+                else
+                {
+                    current_scene_path = scene_path_2;
+                }
+                std::println(std::clog, "Current scene_path: {}\nCurrent simulation_path: {}", current_scene_path.c_str(), current_simulation_info_path.c_str());
+                break;
+            case eruptor::event::Key::KEY_3:
+                if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
+                {
+                    current_simulation_info_path = simulation_path_3;
+                }
+                else
+                {
+                    current_scene_path = scene_path_3;
+                }
+                std::println(std::clog, "Current scene_path: {}\nCurrent simulation_path: {}", current_scene_path.c_str(), current_simulation_info_path.c_str());
+                break;
+            case eruptor::event::Key::KEY_4:
+                if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
+                {
+                    current_simulation_info_path = simulation_path_4;
+                }
+                else
+                {
+                    current_scene_path = scene_path_4;
+                }
+                std::println(std::clog, "Current scene_path: {}\nCurrent simulation_path: {}", current_scene_path.c_str(), current_simulation_info_path.c_str());
+                break;
+            case eruptor::event::Key::KEY_5:
+                if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
+                {
+                    current_simulation_info_path = simulation_path_5;
+                }
+                else
+                {
+                    current_scene_path = scene_path_5;
+                }
+                std::println(std::clog, "Current scene_path: {}\nCurrent simulation_path: {}", current_scene_path.c_str(), current_simulation_info_path.c_str());
+                break;
+            case eruptor::event::Key::KEY_6:
+                if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
+                {
+                    current_simulation_info_path = simulation_path_6;
+                }
+                else
+                {
+                    current_scene_path = scene_path_6;
+                }
+                std::println(std::clog, "Current scene_path: {}\nCurrent simulation_path: {}", current_scene_path.c_str(), current_simulation_info_path.c_str());
+                break;
+            case eruptor::event::Key::KEY_7:
+                if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
+                {
+                    current_simulation_info_path = simulation_path_7;
+                }
+                else
+                {
+                    current_scene_path = scene_path_7;
+                }
+                std::println(std::clog, "Current scene_path: {}\nCurrent simulation_path: {}", current_scene_path.c_str(), current_simulation_info_path.c_str());
+                break;
+            case eruptor::event::Key::KEY_8:
+                if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
+                {
+                    current_simulation_info_path = simulation_path_8;
+                }
+                else
+                {
+                    current_scene_path = scene_path_8;
+                }
+                std::println(std::clog, "Current scene_path: {}\nCurrent simulation_path: {}", current_scene_path.c_str(), current_simulation_info_path.c_str());
+                break;
+            case eruptor::event::Key::KEY_9:
+                if(window->Is_key_pressed( eruptor::event::Key::LEFT_SHIFT ))
+                {
+                    current_simulation_info_path = simulation_path_9;
+                }
+                else
+                {
+                    current_scene_path = scene_path_9;
+                }
+                std::println(std::clog, "Current scene_path: {}\nCurrent simulation_path: {}", current_scene_path.c_str(), current_simulation_info_path.c_str());
+                break;
+            default:
+                break;
+        }
     }
+}
+
+std::string_view ovum::App::Get_string_from_mode_enum(Mode mode)
+{
+    switch(mode)
+    {
+        case Mode::SIMULATION:
+            return "Simulation";
+        case Mode::EDITOR:
+            return "Editor";
+    }
+
+    return "None";
+}
+
+std::string_view ovum::App::Get_string_from_object_type_enum(Object_type type)
+{
+    switch(type)
+    {
+        case Object_type::ENTITY:
+            return "Entity";
+        case Object_type::FOOD:
+            return "Food";
+    }
+
+    return "None";
 }
 
 void ovum::App::Hitbox_loger::operator()(const eruptor::physic::Sphere_hitbox & hitbox)

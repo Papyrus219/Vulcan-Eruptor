@@ -9,6 +9,8 @@ struct Ai_state
     float desire_y_rot{};
     float curr_y_rot{};
 
+    float time_elapsed{};
+
     bool is_desire_rot{true};
 };
 

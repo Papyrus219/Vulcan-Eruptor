@@ -1,22 +1,19 @@
-digraph "glm::glm" {
+digraph "Freetype::Freetype" {
 node [
   fontsize = "12"
 ];
-    "node8" [ label = "glm::glm", shape = pentagon ];
-    "node5" [ label = "eruptor_hardware", shape = octagon ];
-    "node5" -> "node8"  // eruptor_hardware -> glm::glm
-    "node2" [ label = "eruptor_engine", shape = octagon ];
-    "node2" -> "node5" [ style = dotted ] // eruptor_engine -> eruptor_hardware
-    "node1" [ label = "app", shape = egg ];
-    "node1" -> "node2" [ style = dotted ] // app -> eruptor_engine
+    "node13" [ label = "Freetype::Freetype", shape = septagon ];
     "node12" [ label = "eruptor_resource", shape = octagon ];
-    "node12" -> "node5" [ style = dotted ] // eruptor_resource -> eruptor_hardware
+    "node12" -> "node13"  // eruptor_resource -> Freetype::Freetype
     "node11" [ label = "eruptor_scene", shape = octagon ];
     "node11" -> "node12" [ style = dotted ] // eruptor_scene -> eruptor_resource
     "node10" [ label = "eruptor_physic", shape = octagon ];
     "node10" -> "node11" [ style = dotted ] // eruptor_physic -> eruptor_scene
     "node12" -> "node10"  // eruptor_resource -> eruptor_physic
+    "node2" [ label = "eruptor_engine", shape = octagon ];
     "node2" -> "node10"  // eruptor_engine -> eruptor_physic
+    "node1" [ label = "app", shape = egg ];
+    "node1" -> "node2" [ style = dotted ] // app -> eruptor_engine
     "node1" -> "node10" [ style = dotted ] // app -> eruptor_physic
     "node19" [ label = "eruptor_renderer", shape = octagon ];
     "node19" -> "node11" [ style = dotted ] // eruptor_renderer -> eruptor_scene
@@ -24,7 +21,4 @@ node [
     "node1" -> "node11" [ style = dotted ] // app -> eruptor_scene
     "node19" -> "node12" [ style = dotted ] // eruptor_renderer -> eruptor_resource
     "node2" -> "node12"  // eruptor_engine -> eruptor_resource
-    "node19" -> "node5" [ style = dotted ] // eruptor_renderer -> eruptor_hardware
-    "node11" -> "node8" [ style = dotted ] // eruptor_scene -> glm::glm
-    "node10" -> "node8" [ style = dotted ] // eruptor_physic -> glm::glm
 }

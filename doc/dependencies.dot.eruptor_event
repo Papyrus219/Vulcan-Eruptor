@@ -1,0 +1,8 @@
+digraph "eruptor_event" {
+node [
+  fontsize = "12"
+];
+    "node3" [ label = "eruptor_event", shape = octagon ];
+    "node4" [ label = "project_compiler_warmings", shape = pentagon ];
+    "node3" -> "node4"  // eruptor_event -> project_compiler_warmings
+}

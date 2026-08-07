@@ -2,25 +2,25 @@ digraph "poly2tri" {
 node [
   fontsize = "12"
 ];
-    "node14" [ label = "poly2tri", shape = septagon ];
-    "node12" [ label = "assimp::assimp", shape = doubleoctagon ];
-    "node12" -> "node14" [ style = dashed ] // assimp::assimp -> poly2tri
-    "node11" [ label = "eruptor_resource", shape = octagon ];
-    "node11" -> "node12" [ style = dotted ] // eruptor_resource -> assimp::assimp
-    "node10" [ label = "eruptor_scene", shape = octagon ];
-    "node10" -> "node11" [ style = dotted ] // eruptor_scene -> eruptor_resource
-    "node9" [ label = "eruptor_physic", shape = octagon ];
-    "node9" -> "node10" [ style = dotted ] // eruptor_physic -> eruptor_scene
-    "node11" -> "node9"  // eruptor_resource -> eruptor_physic
+    "node16" [ label = "poly2tri", shape = septagon ];
+    "node14" [ label = "assimp::assimp", shape = doubleoctagon ];
+    "node14" -> "node16" [ style = dashed ] // assimp::assimp -> poly2tri
+    "node12" [ label = "eruptor_resource", shape = octagon ];
+    "node12" -> "node14" [ style = dotted ] // eruptor_resource -> assimp::assimp
+    "node11" [ label = "eruptor_scene", shape = octagon ];
+    "node11" -> "node12" [ style = dotted ] // eruptor_scene -> eruptor_resource
+    "node10" [ label = "eruptor_physic", shape = octagon ];
+    "node10" -> "node11" [ style = dotted ] // eruptor_physic -> eruptor_scene
+    "node12" -> "node10"  // eruptor_resource -> eruptor_physic
     "node2" [ label = "eruptor_engine", shape = octagon ];
-    "node2" -> "node9"  // eruptor_engine -> eruptor_physic
+    "node2" -> "node10"  // eruptor_engine -> eruptor_physic
     "node1" [ label = "app", shape = egg ];
     "node1" -> "node2" [ style = dotted ] // app -> eruptor_engine
-    "node1" -> "node9" [ style = dotted ] // app -> eruptor_physic
-    "node17" [ label = "eruptor_renderer", shape = octagon ];
-    "node17" -> "node10" [ style = dotted ] // eruptor_renderer -> eruptor_scene
-    "node2" -> "node17"  // eruptor_engine -> eruptor_renderer
-    "node1" -> "node10" [ style = dotted ] // app -> eruptor_scene
-    "node17" -> "node11" [ style = dotted ] // eruptor_renderer -> eruptor_resource
-    "node2" -> "node11"  // eruptor_engine -> eruptor_resource
+    "node1" -> "node10" [ style = dotted ] // app -> eruptor_physic
+    "node19" [ label = "eruptor_renderer", shape = octagon ];
+    "node19" -> "node11" [ style = dotted ] // eruptor_renderer -> eruptor_scene
+    "node2" -> "node19"  // eruptor_engine -> eruptor_renderer
+    "node1" -> "node11" [ style = dotted ] // app -> eruptor_scene
+    "node19" -> "node12" [ style = dotted ] // eruptor_renderer -> eruptor_resource
+    "node2" -> "node12"  // eruptor_engine -> eruptor_resource
 }
