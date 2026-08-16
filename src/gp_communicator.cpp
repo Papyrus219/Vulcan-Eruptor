@@ -46,19 +46,12 @@ void ovum::GP_communicator::Enable_2d(const std::string & title)
 {
     fprintf(gnuplot, "set title '%s'\n",  title.c_str());
 
-    fprintf(gnuplot, "set xrange [-3:3]\n");
-    fprintf(gnuplot, "set yrange [-3:3]\n");
-
     mode = GP_mode::MODE_2D;
 }
 
 void ovum::GP_communicator::Enable_3d(const std::string & title)
 {
     fprintf(gnuplot, "set title '%s'\n",  title.c_str());
-
-    fprintf(gnuplot, "set xrange [-3:3]\n");
-    fprintf(gnuplot, "set yrange [-3:3]\n");
-    fprintf(gnuplot, "set zrange [-3:3]\n");
 
     mode = GP_mode::MODE_3D;
 }

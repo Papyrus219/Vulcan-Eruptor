@@ -2,45 +2,53 @@ Version: 1_0
 
 <floor: Floor>
 
-<blob_1: Entity>
-Speed: 0.02
+<Blob_0: Entity>
+Speed: 0
 
-<blob_2: Entity>
-Speed: 0.02
+<Blob_1: Entity>
+Speed: 0
 
-<blob_3: Entity>
-Speed: 0.02
+<Blob_2: Entity>
+Speed: 0
 
-<blob_4: Entity>
-Speed: 0.02
+<Blob_3: Entity>
+Speed: 0
 
-<blob_5: Entity>
-Speed: 0.02
+<Blob_4: Entity>
+Speed: 0
 
-<blob_6: Entity>
-Speed: 0.02
+<Blob_5: Entity>
+Speed: 0
 
-<blob_7: Entity>
-Speed: 0.02
+<Blob_7: Entity>
+Speed: 0
 
-<blob_8: Entity>
-Speed: 0.02
+<Blob_8: Entity>
+Speed: 0
 
-<blob_9: Entity>
-Speed: 0.02
+<Blob_9: Entity>
+Speed: 0
 
-<blob_10: Entity>
-Speed: 0.02
+<Blob_10: Entity>
+Speed: 0
 
-<ball_1: Food>
-<ball_2: Food>
-<ball_3: Food>
-<ball_4: Food>
-<ball_5: Food>
-<ball_6: Food>
-<ball_7: Food>
-<ball_8: Food>
-<ball_9: Food>
-<ball_10: Food>
-<ball_11: Food>
-<ball_12: Food>
+<Blob_11: Entity>
+Speed: 0
+
+<Blob_0: Entity>
+Speed: 0
+
+<Blob_0: Entity>
+Speed: 0
+
+<Blob_13: Entity>
+Speed: 0
+
+<Blob_14: Entity>
+Speed: 0
+
+<Blob_15: Entity>
+Speed: 0
+
+<Food_0: Food>
+

@@ -2,12 +2,20 @@
 #include <iostream>
 #include <print>
 
-ovum::Simulation_scene::Simulation_scene(const Simulation_scene & other): eruptor::scene::Scene{ other }, floor{ other.floor }, entieties{ other.entieties }, food{ other.food }
+void ovum::Simulation_scene::Init(eruptor::resource::Resource_manager & resource_manager)
+{
+    blob_handle = resource_manager.Get_model_handle( "blob_model" );
+    food_handle = resource_manager.Get_model_handle( "ball_model" );
+
+    this->resource_manager = &resource_manager;
+}
+
+ovum::Simulation_scene::Simulation_scene(const Simulation_scene & other): eruptor::scene::Scene{ other }, free_objects{ other.free_objects }, floor{ other.floor }, entieties{ other.entieties }, food{ other.food }, blob_handle{ other.blob_handle }, food_handle{ other.food_handle }, next_entity_alias_id{ other.next_entity_alias_id }, next_food_alias_id{ other.next_food_alias_id }
 {
 
 }
 
-ovum::Simulation_scene::Simulation_scene(Simulation_scene && other): eruptor::scene::Scene{ std::move( other ) }, floor{ other.floor }, entieties{ std::move( other.entieties ) }, food{ std::move( other.food ) }
+ovum::Simulation_scene::Simulation_scene(Simulation_scene && other): eruptor::scene::Scene{ std::move( other ) }, free_objects{ std::move(other.free_objects) }, floor{ other.floor }, entieties{ std::move( other.entieties ) }, food{ std::move( other.food ) }, blob_handle{ other.blob_handle }, food_handle{ other.food_handle }, next_entity_alias_id{ other.next_entity_alias_id }, next_food_alias_id{ other.next_food_alias_id }
 {
 
 }
@@ -26,9 +34,15 @@ ovum::Simulation_scene & ovum::Simulation_scene::operator=(const Simulation_scen
 {
     eruptor::scene::Scene::operator=( other );
 
+    this->free_objects = other.free_objects;
     this->floor = other.floor;
     this->entieties = other.entieties;
     this->food = other.food;
+    this->blob_handle = other.blob_handle;
+    this->food_handle = other.food_handle;
+    this->next_entity_alias_id = other.next_entity_alias_id;
+    this->next_food_alias_id = other.next_food_alias_id;
+    this->resource_manager = other.resource_manager;
 
     return *this;
 }
@@ -37,9 +51,15 @@ ovum::Simulation_scene & ovum::Simulation_scene::operator=(Simulation_scene && o
 {
     eruptor::scene::Scene::operator=( std::move( other ) );
 
+    this->free_objects = std::move(other.free_objects);
     this->floor = std::move( other.floor );
     this->entieties = std::move( other.entieties );
     this->food = std::move( other.food );
+    this->blob_handle = other.blob_handle;
+    this->food_handle = other.food_handle;
+    this->next_entity_alias_id = other.next_entity_alias_id;
+    this->next_food_alias_id = other.next_food_alias_id;
+    this->resource_manager = other.resource_manager;
 
     return *this;
 }
@@ -56,6 +76,128 @@ ovum::Simulation_scene & ovum::Simulation_scene::operator=(eruptor::scene::Scene
     eruptor::scene::Scene::operator=( std::move( other ) );
 
     return *this;
+}
+
+uint32_t ovum::Simulation_scene::Add_entity()
+{
+    if(free_objects.empty())
+    {
+        render_objects.push_back({});
+        entieties.push_back({});
+        entieties.back().render_object_id = render_objects.size() - 1;
+
+        auto alias = "Blob_" + std::to_string(next_entity_alias_id++);
+        auto [it, inserted] = objects_aliases.insert({alias, entieties.back().render_object_id});
+        reverse_object_aliases.insert({entieties.back().render_object_id, it->first});
+    }
+    else
+    {
+        entieties.push_back({});
+        entieties.back().render_object_id = free_objects.front();
+
+        auto alias = "Blob_" + std::to_string(next_entity_alias_id++);
+        auto [it, inserted] = objects_aliases.insert({alias, entieties.back().render_object_id});
+        reverse_object_aliases.insert({entieties.back().render_object_id, it->first});
+
+        free_objects.pop();
+    }
+
+    render_objects[ entieties.back().render_object_id ].Reset();
+    render_objects[ entieties.back().render_object_id ].Set_model( *resource_manager, blob_handle );
+    render_objects[ entieties.back().render_object_id ].Set_position( {0, 0.1, 0} );
+    render_objects[ entieties.back().render_object_id ].Set_scale( {6, 6, 6}, 0.1 );
+    render_objects[ entieties.back().render_object_id ].color = eruptor::resource::Color{100, 200, 60};
+
+    return entieties.size() - 1;
+}
+
+uint32_t ovum::Simulation_scene::Add_food()
+{
+    if(free_objects.empty())
+    {
+        render_objects.push_back({});
+        food.push_back({});
+        food.back().render_object_id = render_objects.size() - 1;
+
+        auto alias = "Food_" + std::to_string(next_food_alias_id++);
+        auto [it, inserted] = objects_aliases.insert({alias, food.back().render_object_id});
+        if(!inserted)
+        {
+            std::println(std::cerr, "Alias collision: {}", alias);
+        }
+
+        reverse_object_aliases.insert({food.back().render_object_id, it->first});
+    }
+    else
+    {
+        food.push_back({});
+        food.back().render_object_id = free_objects.front();
+
+        auto alias = "Food_" + std::to_string(next_food_alias_id++);
+        auto [it, inserted] = objects_aliases.insert({alias, food.back().render_object_id});
+        if(!inserted)
+        {
+            std::println(std::cerr, "Alias collision: {}", alias);
+        }
+
+        reverse_object_aliases.insert({food.back().render_object_id, it->first});
+
+        free_objects.pop();
+    }
+
+    render_objects[ food.back().render_object_id ].Reset();
+    render_objects[ food.back().render_object_id ].Set_model( *resource_manager, food_handle );
+    render_objects[ food.back().render_object_id ].Set_position( {0, 0.1, 0} );
+    render_objects[ food.back().render_object_id ].Set_scale( {0.2, 0.2, 0.2}, 0.1 );
+    render_objects[ food.back().render_object_id ].color = eruptor::resource::Color{20, 40, 150};
+
+    return food.size() - 1;
+}
+
+void ovum::Simulation_scene::Remove_entity(uint32_t render_object_id)
+{
+    auto it = std::find_if(entieties.begin(), entieties.end(),
+              [render_object_id](const Entiety_data & entity){return entity.render_object_id == render_object_id;});
+
+    if(it == entieties.end())
+    {
+        std::println("Warming! Trying to remove entity with unknown render_id: {}", render_object_id);
+        return;
+    }
+
+    auto alias_it = reverse_object_aliases.find(render_object_id);
+    if(alias_it != reverse_object_aliases.end())
+    {
+        objects_aliases.erase( objects_aliases.find( std::string{alias_it->second} ) );
+        reverse_object_aliases.erase( alias_it );
+    }
+
+    free_objects.push( render_object_id );
+    render_objects[ render_object_id ].is_active = false;
+    entieties.erase( it );
+}
+
+void ovum::Simulation_scene::Remove_food(uint32_t render_object_id)
+{
+    auto it = std::find_if(food.begin(), food.end(),
+              [render_object_id](const Food_data & food){return food.render_object_id == render_object_id;});
+
+    if(it == food.end())
+    {
+        std::println("Warming! Trying to remove food with unknown render_id: {}", render_object_id);
+        return;
+    }
+
+    auto alias_it = reverse_object_aliases.find(render_object_id);
+    if(alias_it != reverse_object_aliases.end())
+    {
+        objects_aliases.erase( objects_aliases.find( std::string{alias_it->second} ) );
+        reverse_object_aliases.erase( alias_it );
+    }
+
+    free_objects.push( render_object_id );
+    render_objects[ render_object_id ].is_active = false;
+    food.erase( it );
 }
 
 std::optional< std::reference_wrapper<ovum::Entiety_data> > ovum::Simulation_scene::Get_if_is_entiety(uint32_t id)
@@ -99,7 +241,7 @@ void ovum::Simulation_scene::Remove_element(uint32_t id)
         }
     }
 
-    for(auto & food : entieties)
+    for(auto & food : food)
     {
         if( food.render_object_id == id )
         {
@@ -112,13 +254,20 @@ void ovum::Simulation_scene::Remove_element(uint32_t id)
 void ovum::Entiety_data::Reset()
 {
     food_eaten = 0;
+
+    ai_data.state = Ai_state::RESTING;
 }
 
 void ovum::Entiety_data::Eat()
 {
-    std::println(std::clog, "Omniommnom!");
+    //std::println(std::clog, "\n\nEntity {} eat!\n\n", render_object_id);
 
     food_eaten++;
-}
 
+    if(food_eaten >= 2)
+    {
+        std::println(std::clog, "Entity {} enter return state!\n", render_object_id);
+        ai_data.state = Ai_state::RETURN;
+    }
+}
 

@@ -62,6 +62,29 @@ std::expected<ovum::Simulation_scene, std::string_view> ovum::Simulation_parser:
         pos = end + 1;
     }
 
+    uint32_t max_entity_id = 0;
+    for(auto & [alias, id] : sim_scene.objects_aliases)
+    {
+        if(alias.starts_with("Blob_"))
+        {
+            uint32_t n = std::stoul(alias.substr(5));
+            max_entity_id = std::max(max_entity_id, n + 1);
+        }
+    }
+    sim_scene.next_entity_alias_id = max_entity_id;
+
+    uint32_t max_food_id = 0;
+    for(auto & [alias, id] : sim_scene.objects_aliases)
+    {
+        if(alias.starts_with("Blob_"))
+        {
+            uint32_t n = std::stoul(alias.substr(5));
+            max_food_id = std::max(max_food_id, n + 1);
+        }
+    }
+    sim_scene.next_food_alias_id = max_food_id;
+
+
     return sim_scene;
 }
 
