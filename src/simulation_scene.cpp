@@ -149,7 +149,7 @@ uint32_t ovum::Simulation_scene::Add_food()
     render_objects[ food.back().render_object_id ].Set_model( *resource_manager, food_handle );
     render_objects[ food.back().render_object_id ].Set_position( {0, 0.1, 0} );
     render_objects[ food.back().render_object_id ].Set_scale( {0.2, 0.2, 0.2}, 0.1 );
-    render_objects[ food.back().render_object_id ].color = eruptor::resource::Color{20, 40, 150};
+    render_objects[ food.back().render_object_id ].color = eruptor::resource::Color{60, 60, 200};
 
     return food.size() - 1;
 }
@@ -260,13 +260,10 @@ void ovum::Entiety_data::Reset()
 
 void ovum::Entiety_data::Eat()
 {
-    //std::println(std::clog, "\n\nEntity {} eat!\n\n", render_object_id);
-
     food_eaten++;
 
     if(food_eaten >= 2)
     {
-        std::println(std::clog, "Entity {} enter return state!\n", render_object_id);
         ai_data.state = Ai_state::RETURN;
     }
 }

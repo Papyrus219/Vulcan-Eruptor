@@ -6,7 +6,7 @@ using namespace ovum;
 
 namespace
 {
-    std::string_view Ai_state_to_string(Ai_state ai_state)
+    [[maybe_unused]] std::string_view Ai_state_to_string(Ai_state ai_state)
     {
         switch( ai_state )
         {
@@ -30,10 +30,9 @@ void ovum::Simulation_state::Init(App & app)
 
     this->main_scene = &app.main_scene;
 
-    gp_comm.Enable_2d("Speed");
+    gp_comm.Enable_2d_bars("Speed");
     gp_comm.Set_x_axis_title("Speed");
     gp_comm.Set_y_axis_title("Entities count");
-
 }
 
 void ovum::Simulation_state::Enter_state()

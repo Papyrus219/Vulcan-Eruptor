@@ -12,8 +12,9 @@ namespace ovum
 enum class GP_mode
 {
     NONE,
-    MODE_2D,
-    MODE_3D
+    MODE_2D_POINT,
+    Mode_2D_BARS,
+    MODE_3D_POINT,
 };
 
 class GP_communicator
@@ -24,8 +25,9 @@ public:
     void Begin_frame();
     void End_frame();
 
-    void Enable_2d(const std::string & title);
-    void Enable_3d(const std::string & title);
+    void Enable_2d_points(const std::string & title);
+    void Enable_2d_bars(const std::string & title);
+    void Enable_3d_points(const std::string & title);
 
     void Set_title(const std::string & title);
 

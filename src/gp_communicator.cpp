@@ -22,11 +22,15 @@ ovum::GP_communicator::GP_communicator(bool is_persist)
 
 void ovum::GP_communicator::Begin_frame()
 {
-    if(mode == GP_mode::MODE_2D)
+    if(mode == GP_mode::MODE_2D_POINT)
     {
         fprintf(gnuplot, "plot '-' with points pointtype 7\n");
     }
-    else if(mode == GP_mode::MODE_3D)
+    else if(mode == GP_mode::Mode_2D_BARS)
+    {
+        fprintf(gnuplot, "plot '-' with boxes\n");
+    }
+    else if(mode == GP_mode::MODE_3D_POINT)
     {
         fprintf(gnuplot, "splot '-' with points pointtype 7\n");
     }
@@ -42,18 +46,27 @@ void ovum::GP_communicator::End_frame()
     fflush(gnuplot);
 }
 
-void ovum::GP_communicator::Enable_2d(const std::string & title)
+void ovum::GP_communicator::Enable_2d_points(const std::string & title)
 {
     fprintf(gnuplot, "set title '%s'\n",  title.c_str());
 
-    mode = GP_mode::MODE_2D;
+    mode = GP_mode::MODE_2D_POINT;
 }
 
-void ovum::GP_communicator::Enable_3d(const std::string & title)
+void ovum::GP_communicator::Enable_2d_bars(const std::string& title)
+{
+    fprintf(gnuplot, "set title '%s'\n", title.c_str());
+    fprintf(gnuplot, "set boxwidth 0.08\n");
+    fprintf(gnuplot, "set style fill solid 0.6 border -1\n");
+
+    mode = GP_mode::Mode_2D_BARS;
+}
+
+void ovum::GP_communicator::Enable_3d_points(const std::string & title)
 {
     fprintf(gnuplot, "set title '%s'\n",  title.c_str());
 
-    mode = GP_mode::MODE_3D;
+    mode = GP_mode::MODE_3D_POINT;
 }
 
 void ovum::GP_communicator::Set_title(const std::string & title)
