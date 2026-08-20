@@ -214,8 +214,7 @@ void ovum::Simulation_state::Update_hunting(eruptor::scene::Render_object & rend
 
     if(entity_data.energy < 5 && entity_data.food_eaten > 0)
     {
-        std::println(std::clog, "Entity {} enter return state!\n", entity_data.render_object_id);
-        entity_data.ai_data.state = Ai_state::RETURN;
+       entity_data.ai_data.state = Ai_state::RETURN;
     }
     else if(entity_data.energy <= 0)
     {

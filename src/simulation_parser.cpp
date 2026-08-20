@@ -212,6 +212,14 @@ void ovum::Simulation_parser::Parse_line(std::string_view line, Simulation_scene
                 scene.food.push_back(current_parsed_food_data);
                 line_mode = Line_mode::NONE;
             }
+            else if(object_type == "Light_source")
+            {
+                current_parsed_light_source_data.render_object_id = object_id;
+                scene.render_objects[ object_id ].shading_type = eruptor::scene::Shading_type::LIGHT_CASTER;
+
+                scene.light_sources.push_back(current_parsed_light_source_data);
+                line_mode = Line_mode::NONE;
+            }
             else if(object_type == "Floor")
             {
                 scene.floor = object_id;

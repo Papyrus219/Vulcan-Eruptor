@@ -46,6 +46,16 @@ std::expected<void, std::string_view> ovum::Simulation_saver::Save_simulation_da
         }
     }
 
+    for(auto & light_source_data : scene.light_sources)
+    {
+        object_alias_it = scene.reverse_object_aliases.find( light_source_data.render_object_id );
+        if(object_alias_it != scene.reverse_object_aliases.end())
+        {
+            std::println(file, "<{}: Light_source>", object_alias_it->second);
+            std::println(file, "");
+        }
+    }
+
     return {};
 }
 

@@ -29,7 +29,8 @@ private:
     enum class Object_type
     {
         ENTITY,
-        FOOD
+        FOOD,
+        LIGHT_SOURCE
     } object_type;
 
     void Reload_scene();
@@ -41,9 +42,11 @@ private:
 
     std::optional<uint32_t> current_entity_selected{};
     std::optional<uint32_t> current_food_selected{};
+    std::optional<uint32_t> current_light_source_selected{};
 
     float enemy_scroll_offset{};
     float food_scroll_offset{};
+    float light_source_scroll_offset{};
 
     eruptor::scene::Scene_parser scene_parser{};
     ovum::Simulation_parser simulation_parser{};

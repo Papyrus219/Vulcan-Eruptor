@@ -3,46 +3,47 @@ Version: 1_0
 <floor: Floor>
 
 <Blob_0: Entity>
-Speed: 1.0
+Speed: 1
 
 <Blob_1: Entity>
-Speed: 1.0
+Speed: 1
 
 <Blob_2: Entity>
-Speed: 1.0
+Speed: 1
 
 <Blob_3: Entity>
-Speed: 1.0
+Speed: 1
 
 <Blob_4: Entity>
-Speed: 1.0
-
-<Blob_5: Entity>
-Speed: 1.0
+Speed: 1
 
 <Blob_7: Entity>
-Speed: 1.0
+Speed: 1
 
 <Blob_8: Entity>
-Speed: 1.0
+Speed: 1
 
 <Blob_9: Entity>
-Speed: 1.0
+Speed: 1
 
 <Blob_10: Entity>
-Speed: 1.0
+Speed: 1
 
 <Blob_11: Entity>
-Speed: 1.0
+Speed: 1
 
 <Blob_13: Entity>
-Speed: 1.0
+Speed: 1
 
 <Blob_14: Entity>
-Speed: 1.0
+Speed: 1
 
 <Blob_15: Entity>
-Speed: 1.0
+Speed: 1
 
 <Food_0: Food>
+
+<light_source_0: Light_source>
+
+<light_source_1: Light_source>
 

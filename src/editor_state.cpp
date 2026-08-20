@@ -104,6 +104,33 @@ void ovum::Editor_state::Update()
             main_scene->render_objects[ main_scene->food[ *current_food_selected ].render_object_id ].Rotate( glm::vec3{0.0f, -1.0f, 0.0f} * rotation_speed );
         }
     }
+    else if(object_type == Object_type::LIGHT_SOURCE && current_light_source_selected.has_value())
+    {
+        if(app->window->Is_key_pressed(eruptor::event::Key::DOWN))
+        {
+            main_scene->render_objects[ main_scene->light_sources[ *current_light_source_selected ].render_object_id ].Move( glm::vec3{0.0f, 0.0f, 1.0f} * move_speed  );
+        }
+        if(app->window->Is_key_pressed(eruptor::event::Key::UP))
+        {
+            main_scene->render_objects[ main_scene->light_sources[ *current_light_source_selected ].render_object_id ].Move( glm::vec3{0.0f, 0.0f, -1.0f} * move_speed  );
+        }
+        if(app->window->Is_key_pressed(eruptor::event::Key::RIGHT))
+        {
+            main_scene->render_objects[ main_scene->light_sources[ *current_light_source_selected ].render_object_id ].Move( glm::vec3{1.0f, 0.0f, 0.0f} * move_speed  );
+        }
+        if(app->window->Is_key_pressed(eruptor::event::Key::LEFT))
+        {
+            main_scene->render_objects[ main_scene->light_sources[ *current_light_source_selected ].render_object_id ].Move( glm::vec3{-1.0f, 0.0f, 0.0f} * move_speed  );
+        }
+        if(app->window->Is_key_pressed(eruptor::event::Key::E))
+        {
+            main_scene->render_objects[ main_scene->light_sources[ *current_light_source_selected ].render_object_id ].Move( glm::vec3{0.0f, 1.0f, 0.0f} * move_speed );
+        }
+        if(app->window->Is_key_pressed(eruptor::event::Key::Q))
+        {
+            main_scene->render_objects[ main_scene->light_sources[ *current_light_source_selected ].render_object_id ].Move( glm::vec3{0.0f, -1.0f, 0.0f} * move_speed );
+        }
+    }
 
     last_time = app->app_clock.now();
 }
@@ -168,6 +195,8 @@ std::string_view ovum::Editor_state::Get_string_from_object_type_enum(Object_typ
             return "Entity";
         case Object_type::FOOD:
             return "Food";
+        case Object_type::LIGHT_SOURCE:
+            return "Light source";
     }
 
     return "None";
@@ -208,6 +237,18 @@ void ovum::Editor_state::React_to_event(const eruptor::event::Event & event)
                     current_food_selected = id;
                     main_scene->render_objects[ main_scene->food[ *current_food_selected ].render_object_id ].is_selected = true;
                 }
+                else if(object_type == Object_type::LIGHT_SOURCE)
+                {
+                    auto id = main_scene->Add_light_source();
+
+                    if(current_light_source_selected.has_value())
+                    {
+                        main_scene->render_objects[ main_scene->entieties[ *current_light_source_selected ].render_object_id ].is_selected = false;
+                    }
+
+                    current_light_source_selected = id;
+                    main_scene->render_objects[ main_scene->light_sources[ *current_light_source_selected ].render_object_id ].is_selected = true;
+                }
                 break;
             case eruptor::event::Key::DEL:
                 if(object_type == Object_type::ENTITY)
@@ -246,6 +287,24 @@ void ovum::Editor_state::React_to_event(const eruptor::event::Event & event)
                         }
                     }
                 }
+                else if(object_type == Object_type::LIGHT_SOURCE)
+                {
+                    if(current_light_source_selected.has_value())
+                    {
+                        main_scene->Remove_light_source( *current_light_source_selected );
+
+                        if(main_scene->light_sources.empty())
+                        {
+                            current_food_selected.reset();
+                        }
+                        else
+                        {
+                            current_light_source_selected = main_scene->light_sources.size() - 1;
+                            main_scene->render_objects[ main_scene->light_sources[ *current_light_source_selected ].render_object_id ].is_selected = true;
+                            if(light_source_scroll_offset >= main_scene->light_sources.size()) light_source_scroll_offset = static_cast<float>( main_scene->light_sources.size() ) - 0.001;
+                        }
+                    }
+                }
                 break;
             case eruptor::event::Key::T:
                 if(object_type == Object_type::ENTITY)
@@ -253,6 +312,10 @@ void ovum::Editor_state::React_to_event(const eruptor::event::Event & event)
                     object_type = Object_type::FOOD;
                 }
                 else if(object_type == Object_type::FOOD)
+                {
+                    object_type = Object_type::LIGHT_SOURCE;
+                }
+                else if(object_type == Object_type::LIGHT_SOURCE)
                 {
                     object_type = Object_type::ENTITY;
                 }
@@ -283,11 +346,22 @@ void ovum::Editor_state::React_to_event(const eruptor::event::Event & event)
             food_scroll_offset += scroll->y_offset;
 
             if(food_scroll_offset < 0) food_scroll_offset = 0;
-            if(food_scroll_offset >= main_scene->food.size()) enemy_scroll_offset = static_cast<float>( main_scene->food.size() ) - 0.001;
+            if(food_scroll_offset >= main_scene->food.size()) light_source_scroll_offset = static_cast<float>( main_scene->food.size() ) - 0.001;
 
             main_scene->render_objects[ main_scene->food[ *current_food_selected ].render_object_id ].is_selected = false;
             current_food_selected = static_cast<uint32_t>(food_scroll_offset);
             main_scene->render_objects[ main_scene->food[ *current_food_selected ].render_object_id ].is_selected = true;
+        }
+        else if(object_type == Object_type::LIGHT_SOURCE && current_light_source_selected.has_value())
+        {
+            light_source_scroll_offset += scroll->y_offset;
+
+            if(light_source_scroll_offset < 0) light_source_scroll_offset = 0;
+            if(light_source_scroll_offset >= main_scene->food.size()) light_source_scroll_offset = static_cast<float>( main_scene->light_sources.size() ) - 0.001;
+
+            main_scene->render_objects[ main_scene->light_sources[ *current_light_source_selected ].render_object_id ].is_selected = false;
+            current_light_source_selected = static_cast<uint32_t>(light_source_scroll_offset);
+            main_scene->render_objects[ main_scene->light_sources[ *current_light_source_selected ].render_object_id ].is_selected = true;
         }
     }
 }

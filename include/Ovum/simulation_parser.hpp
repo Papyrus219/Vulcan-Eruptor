@@ -40,6 +40,7 @@ private:
 
     Entiety_data current_parsed_entity_data{};
     Food_data current_parsed_food_data{};
+    Light_source_data current_parsed_light_source_data{};
 
     static const std::string error_file_load;
     static const std::string error_text_parsing;
