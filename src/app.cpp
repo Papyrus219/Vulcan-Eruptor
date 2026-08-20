@@ -73,6 +73,8 @@ void ovum::App::Update()
 
     std::chrono::duration<float> delta_time = app_clock.now() - last_time;
 
+    std::println(std::clog, "FPS: {}", 1.0f / delta_time.count());
+
     if(window->Is_key_pressed(eruptor::event::Key::W))
     {
         camera->Process_keyboard(eruptor::renderer::Camera_movement_direction::FORWARD, delta_time.count());
